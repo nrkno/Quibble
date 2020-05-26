@@ -7,87 +7,61 @@ module JsonDiffTests =
     open Quibble
 
     [<Fact>]
-    let ``Test OfElements true vs false`` () =
-        use d1 = JsonDocument.Parse("true")
-        use d2 = JsonDocument.Parse("false")
-        let e1 = d1.RootElement
-        let e2 = d2.RootElement
+    let ``Test OfValues true vs false`` () =
+        let v1 = JsonParse.Parse("true")
+        let v2 = JsonParse.Parse("false")
 
-        let diffs =
-            JsonDiff.OfElements(e1, e2) |> Seq.toList
+        let diffs = JsonDiff.OfValues v1 v2 |> Seq.toList
 
         Assert.NotEmpty(diffs)
         match diffs.Head with
         | Kind kindDiff ->
             Assert.Equal("$", kindDiff.Path)
-            Assert.True(kindDiff.Left.GetBoolean())
-            Assert.False(kindDiff.Right.GetBoolean())
+            Assert.Equal(JsonValue.True, kindDiff.Left)
+            Assert.Equal(JsonValue.False, kindDiff.Right)
         | _ -> failwith "Wrong diff"
 
     [<Fact>]
-    let ``Test OfDocuments true vs false`` () =
-        use d1 = JsonDocument.Parse("true")
-        use d2 = JsonDocument.Parse("false")
+    let ``Test OfValues 1 vs 2`` () =
+        let v1 = JsonParse.Parse("1")
+        let v2 = JsonParse.Parse("2")
 
-        let diffs =
-            JsonDiff.OfDocuments(d1, d2) |> Seq.toList
-
-        Assert.NotEmpty(diffs)
-        match diffs.Head with
-        | Kind kindDiff ->
-            Assert.Equal("$", kindDiff.Path)
-            Assert.Equal(JsonValueKind.True, kindDiff.Left.ValueKind)
-            Assert.Equal(JsonValueKind.False, kindDiff.Right.ValueKind)
-            Assert.True(kindDiff.Left.GetBoolean())
-            Assert.False(kindDiff.Right.GetBoolean())
-        | _ -> failwith "Wrong diff"
-
-    [<Fact>]
-    let ``Test OfDocuments 1 vs 2`` () =
-        use d1 = JsonDocument.Parse("1")
-        use d2 = JsonDocument.Parse("2")
-
-        let diffs =
-            JsonDiff.OfDocuments(d1, d2) |> Seq.toList
+        let diffs = JsonDiff.OfValues v1 v2 |> Seq.toList
 
         Assert.NotEmpty(diffs)
         match diffs.Head with
         | Value valueDiff ->
             Assert.Equal("$", valueDiff.Path)
-            Assert.Equal(JsonValueKind.Number, valueDiff.Left.ValueKind)
-            Assert.Equal(JsonValueKind.Number, valueDiff.Right.ValueKind)
-            Assert.Equal(1, valueDiff.Left.GetInt32())
-            Assert.Equal(2, valueDiff.Right.GetInt32())
+            Assert.Equal(JsonValue.Number (1., "1"), valueDiff.Left)
+            Assert.Equal(JsonValue.Number (2., "2"), valueDiff.Right)
         | _ -> failwith "Wrong diff"
 
     [<Fact>]
     let ``Test OfDocuments true vs 1`` () =
-        use d1 = JsonDocument.Parse("true")
-        use d2 = JsonDocument.Parse("1")
+        let v1 = JsonParse.Parse("true")
+        let v2 = JsonParse.Parse("1")
 
-        let diffs =
-            JsonDiff.OfDocuments(d1, d2) |> Seq.toList
+        let diffs = JsonDiff.OfValues v1 v2 |> Seq.toList
 
         Assert.NotEmpty(diffs)
         match diffs.Head with
         | Kind kindDiff ->
             Assert.Equal("$", kindDiff.Path)
-            Assert.Equal(JsonValueKind.True, kindDiff.Left.ValueKind)
-            Assert.Equal(JsonValueKind.Number, kindDiff.Right.ValueKind)
+            Assert.Equal(JsonValue.True, kindDiff.Left)
+            Assert.Equal(JsonValue.Number (1., "1"), kindDiff.Right)
         | _ -> failwith "Wrong diff"
 
     [<Fact>]
     let ``Test OfDocuments null vs 1`` () =
-        use d1 = JsonDocument.Parse("null")
-        use d2 = JsonDocument.Parse("1")
+        let v1 = JsonParse.Parse("null")
+        let v2 = JsonParse.Parse("1")
 
-        let diffs =
-            JsonDiff.OfDocuments(d1, d2) |> Seq.toList
+        let diffs = JsonDiff.OfValues v1 v2 |> Seq.toList
 
         Assert.NotEmpty(diffs)
         match diffs.Head with
         | Kind kindDiff ->
             Assert.Equal("$", kindDiff.Path)
-            Assert.Equal(JsonValueKind.Null, kindDiff.Left.ValueKind)
-            Assert.Equal(JsonValueKind.Number, kindDiff.Right.ValueKind)
+            Assert.Equal(JsonValue.Null, kindDiff.Left)
+            Assert.Equal(JsonValue.Number (1., "1"), kindDiff.Right)
         | _ -> failwith "Wrong diff"
