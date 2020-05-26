@@ -4,7 +4,7 @@ image:
 configuration:
 - Release
 artifacts:
-  - path: publish/
+  - path: publish/*.nupkg
 platform: Any CPU
 before_build:
 - dotnet tool restore
