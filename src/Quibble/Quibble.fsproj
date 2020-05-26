@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
+  <Version>0.1.2</Version> 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
   </PropertyGroup>
