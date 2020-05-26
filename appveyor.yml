@@ -1,4 +1,5 @@
 version: "0.0.{build}"
+package_version: $(appveyor_build_version)
 image:
   - Ubuntu
 configuration:
@@ -11,7 +12,7 @@ before_build:
   - dotnet restore -v Minimal
 build_script:
   - dotnet build
-  - dotnet pack --no-build -o publish -p:PackageVersion="{version}"
+  - dotnet pack --no-build -o publish
 test_script:
   - dotnet test
 deploy:
