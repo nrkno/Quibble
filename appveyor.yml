@@ -11,7 +11,7 @@ before_build:
   - dotnet restore -v Minimal
 build_script:
   - dotnet build
-  - dotnet pack --no-build -o publish -p:PackageVersion=$(appveyor_build_version)
+  - dotnet pack --no-build -o publish -p:PackageVersion=$APPVEYOR_BUILD_VERSION
 test_script:
   - dotnet test
 deploy:
