@@ -1,3 +1,18 @@
-version: 1.0.{build}
-build:
-  verbosity: minimal
+version: '0.0.{build}'
+image:
+- Ubuntu
+configuration:
+- Release
+platform: Any CPU
+before_build:
+- dotnet tool restore
+- dotnet restore -v Minimal
+build_script:
+- dotnet build
+- dotnet pack --no-build
+test_script:
+- dotnet test
+deploy:
+  - provider: NuGet
+    api_key: 
+      secure: 21JG9udvahkZg9q7TGQcw5ppXiNbkMKI4VUsWeGBbnapaOPBSX6noqlxs/w3EgDM
