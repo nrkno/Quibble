@@ -3,13 +3,15 @@ image:
 - Ubuntu
 configuration:
 - Release
+artifacts:
+  - path: publish
 platform: Any CPU
 before_build:
 - dotnet tool restore
 - dotnet restore -v Minimal
 build_script:
 - dotnet build
-- dotnet pack --no-build
+- dotnet pack --no-build -o publish
 test_script:
 - dotnet test
 deploy:
