@@ -1,19 +1,17 @@
 ﻿namespace Quibble
 
-open System.Text.Json
-
 type PathElement =
     | PropertyPathElement of string
     | IndexPathElement of int
 
 type PropertyMismatch =
-    | MissingProperty of string
-    | AdditionalProperty of string
+    | MissingProperty of string * JsonValue
+    | AdditionalProperty of string * JsonValue
 
 type DiffPoint =
     { Path: string
-      Left: JsonElement
-      Right: JsonElement }
+      Left: JsonValue
+      Right: JsonValue }
 
 type Diff =
     | Kind of DiffPoint
@@ -30,9 +28,8 @@ type Diff =
 
 module JsonDiff =
 
-    open System.Collections.Generic
     open System.Text.RegularExpressions
-
+    
     let private toJsonPath (path: PathElement list): string =
         let (|Dot|Bracket|) s =
             if Regex.IsMatch(s, "^[a-zA-Z0-9]+$") then Dot else Bracket
@@ -49,106 +46,89 @@ module JsonDiff =
         |> List.fold (fun str elm -> sprintf "%s%s" str (elementToString elm)) ""
         |> sprintf "$%s"
 
-    let rec private findDiff (path: PathElement list) (element1: JsonElement) (element2: JsonElement): Diff list =
-        if (element1.ValueKind <> element2.ValueKind) then
+    let rec private findDiff (path: PathElement list) (element1: JsonValue) (element2: JsonValue): Diff list =
+        match (element1, element2) with
+        | (Undefined, Undefined) -> []
+        | (Null, Null) -> []
+        | (True, True) -> []
+        | (False, False) -> []
+        | (Number (n1, t1), Number (n2, t2)) ->
+            if n1 = n2 then []
+            else
+                [ Value
+                    { Path = toJsonPath path
+                      Left = element1
+                      Right = element2 } ]
+        | (String s1, String s2) ->
+            if s1 = s2 then []
+            else
+                [ Value
+                    { Path = toJsonPath path
+                      Left = element1
+                      Right = element2 } ]
+        | (Array items1, Array items2) ->
+            (* order matters. *)
+            if List.length items1 <> List.length items2 then
+                [ ItemCount
+                    { Path = toJsonPath path
+                      Left = element1
+                      Right = element2 } ]
+            else
+                let itemDiff i e1 e2 = findDiff (path @ [ IndexPathElement i ]) e1 e2
+                let childDiffs =
+                    List.mapi2 itemDiff items1 items2
+                    |> List.collect id
+                childDiffs
+        | (Object props1, Object props2) ->
+            (* order doesn't matter. *)
+            let keys (props : (string * JsonValue) list): string list =
+                props |> List.map (fun (n, v) -> n) 
+
+            let keys1 = keys props1
+            let keys2 = keys props2
+            
+            let missingKeys = keys2 |> List.except keys1
+            let missingProperties =
+                props2
+                |> List.filter (fun (n, _) -> List.contains n missingKeys)
+                |> List.map MissingProperty
+                
+            let additionalKeys = keys1 |> List.except keys2
+            let additionalProperties =
+                props1
+                |> List.filter (fun (n, _) -> List.contains n additionalKeys)
+                |> List.map AdditionalProperty
+
+            let mismatches = missingProperties @ additionalProperties
+
+            let objectDiff =
+                match mismatches with
+                | [] -> []
+                | ms ->
+                    [ Properties
+                        ({ Path = toJsonPath path
+                           Left = element1
+                           Right = element2 },
+                         ms) ]
+
+            let sharedKeys: string list = keys2 |> List.except missingKeys
+
+            let selectValue (key: string) (props : (string * JsonValue) list) =
+                List.pick (fun (k, v) -> if k = key then Some v else None) props
+            
+            let propDiff (key: string) =
+               let child1 = props1 |> selectValue key
+               let child2 = props2 |> selectValue key
+               findDiff (path @ [ PropertyPathElement key ]) child1 child2
+
+            let childDiffs = sharedKeys |> List.collect propDiff
+            objectDiff @ childDiffs
+        | _ -> 
             [ Kind
                 { Path = toJsonPath path
                   Left = element1
                   Right = element2 } ]
-        else
-            match element1.ValueKind with
-            | JsonValueKind.Array ->
-                (* order matters. *)
-                let itemsOf (e: JsonElement): JsonElement list = e.EnumerateArray() |> Seq.toList
-                let children1 = itemsOf element1
-                let children2 = itemsOf element2
-                if List.length children1 <> List.length children2 then
-                    [ ItemCount
-                        { Path = toJsonPath path
-                          Left = element1
-                          Right = element2 } ]
-                else
-                    let itemDiff i e1 e2 =
-                        findDiff (path @ [ IndexPathElement i ]) e1 e2
 
-                    let childDiffs =
-                        List.mapi2 itemDiff children1 children2
-                        |> List.collect id
-
-                    childDiffs
-            | JsonValueKind.Object ->
-                (* order doesn't matter. *)
-
-                let keys (e: JsonElement): string list =
-                    e.EnumerateObject()
-                    |> Seq.map (fun jp -> jp.Name)
-                    |> Seq.toList
-
-                let keys1 = keys element1
-                let keys2 = keys element2
-                let missingKeys = keys2 |> List.except keys1
-                let missingProperties = missingKeys |> List.map MissingProperty
-                let additionalKeys = keys1 |> List.except keys2
-
-                let additionalProperties =
-                    additionalKeys |> List.map AdditionalProperty
-
-                let mismatches = missingProperties @ additionalProperties
-
-                let objectDiff =
-                    match mismatches with
-                    | [] -> []
-                    | ms ->
-                        [ Properties
-                            ({ Path = toJsonPath path
-                               Left = element1
-                               Right = element2 },
-                             ms) ]
-
-                let sharedKeys: string list = keys2 |> List.except missingKeys
-
-                let propDiff (key: string) =
-                    let child1 = element1.GetProperty(key)
-                    let child2 = element2.GetProperty(key)
-                    findDiff (path @ [ PropertyPathElement key ]) child1 child2
-
-                let childDiffs = sharedKeys |> List.collect propDiff
-                objectDiff @ childDiffs
-            | JsonValueKind.Number ->
-                let representsSameInt32 (el1: JsonElement) (el2: JsonElement): bool =
-                    match (el1.TryGetInt32(), el2.TryGetInt32()) with
-                    | ((true, n1), (true, n2)) -> n1 = n2
-                    | _ -> false
-
-                let representsSameDouble (el1: JsonElement) (el2: JsonElement): bool =
-                    match (el1.TryGetDouble(), el2.TryGetDouble()) with
-                    | ((true, n1), (true, n2)) -> n1 = n2
-                    | _ -> false
-
-                let representsSameNumber (el1: JsonElement) (el2: JsonElement): bool =
-                    representsSameInt32 el1 el2
-                    || representsSameDouble el1 el2
-
-                if representsSameNumber element1 element2 then
-                    []
-                else
-                    [ Value
-                        { Path = toJsonPath path
-                          Left = element1
-                          Right = element2 } ]
-            | JsonValueKind.String ->
-                let string1 = element1.GetString()
-                let string2 = element2.GetString()
-                if string1 = string2 then
-                    []
-                else
-                    [ Value
-                        { Path = toJsonPath path
-                          Left = element1
-                          Right = element2 } ]
-            | _ -> []
-
-    let OfElements (e1: JsonElement, e2: JsonElement): IEnumerable<Diff> = findDiff [] e1 e2 |> List.toSeq
-
-    let OfDocuments (d1: JsonDocument, d2: JsonDocument): IEnumerable<Diff> =
-        OfElements(d1.RootElement, d2.RootElement)
+    let OfValues (v1: JsonValue) (v2: JsonValue) : Diff list =
+        findDiff [] v1 v2
+    

@@ -3,16 +3,9 @@ namespace Quibble
 module JsonStrings =
 
     open System.Collections.Generic
-    open System.Text.Json
 
     let Diff (s1: string, s2: string): IEnumerable<string> =
-        use d1 = JsonDocument.Parse(s1)
-        use d2 = JsonDocument.Parse(s2)
-        let diffs = JsonDiff.OfDocuments(d1, d2)
-
-        let messages =
-            diffs
-            |> Seq.map DiffMessage.toDiffMessage
-            |> Seq.toList // Ensure evaluation.
-
-        messages |> List.toSeq // Interop
+        let v1 = JsonParse.Parse(s1)
+        let v2 = JsonParse.Parse(s2)
+        let diffs = JsonDiff.OfValues v1 v2
+        diffs |> Seq.map DiffMessage.toDiffMessage

@@ -5,8 +5,8 @@
   </PropertyGroup>
   <ItemGroup>
     <None Include="paket.references" />
+    <Compile Include="JsonParse.fs" />
     <Compile Include="JsonDiff.fs" />
-    <Compile Include="JsonExtensions.fs" />
     <Compile Include="DiffMessage.fs" />
     <Compile Include="JsonStrings.fs" />
   </ItemGroup>

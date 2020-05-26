@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using System.Text.Json;
 using Xunit;
 
 namespace Quibble.CSharp.UnitTests
@@ -8,58 +7,29 @@ namespace Quibble.CSharp.UnitTests
     public class JsonDiffTests
     {
         [Fact]
-        public void TestOfElementsTrueVsFalse()
+        public void TestOfValuesTrueVsFalse()
         {
-            using var d1 = JsonDocument.Parse("true");
-            using var d2 = JsonDocument.Parse("false");
-            var e1 = d1.RootElement;
-            var e2 = d2.RootElement;
-            var diffs = JsonDiff.OfElements(e1, e2).ToList();
+            var v1 = JsonParse.Parse("true");
+            var v2 = JsonParse.Parse("false");
+            var diffs = JsonDiff.OfValues(v1, v2).ToList();
             Assert.NotEmpty(diffs);
             var kindDiff = (Diff.Kind) diffs.Single();
             Assert.Equal("$", kindDiff.Item.Path);
-            Assert.True(kindDiff.Item.Left.GetBoolean());
-            Assert.False(kindDiff.Item.Right.GetBoolean());
-        }
-
-        [Fact]
-        public void TestOfDocumentsTrueVsFalse()
-        {
-            using var d1 = JsonDocument.Parse("true");
-            using var d2 = JsonDocument.Parse("false");
-            var diffs = JsonDiff.OfDocuments(d1, d2).ToList();
-            Assert.NotEmpty(diffs);
-            var kindDiff = (Diff.Kind) diffs.Single();
-            Assert.Equal("$", kindDiff.Item.Path);
-            Assert.True(kindDiff.Item.Left.GetBoolean());
-            Assert.False(kindDiff.Item.Right.GetBoolean());
-        }
-
-        [Fact]
-        public void TestOfDocuments1Vs2()
-        {
-            using var d1 = JsonDocument.Parse("1");
-            using var d2 = JsonDocument.Parse("2");
-            var diffs = JsonDiff.OfDocuments(d1, d2).ToList();
-            Assert.NotEmpty(diffs);
-            var valueDiff = (Diff.Value)diffs.Single();
-            Assert.Equal("$", valueDiff.Item.Path);
-            Assert.Equal(1, valueDiff.Item.Left.GetInt32());
-            Assert.Equal(2, valueDiff.Item.Right.GetInt32());
+            Assert.Equal(JsonValue.True, kindDiff.Item.Left);
+            Assert.Equal(JsonValue.False, kindDiff.Item.Right);
         }
         
         [Fact]
-        public void TestOfExtensionMethod()
+        public void TestOfDocuments1Vs2()
         {
-            using var d1 = JsonDocument.Parse("true");
-            using var d2 = JsonDocument.Parse("false");
-            var e1 = d1.RootElement;
-            var e2 = d2.RootElement;
-            var diffs = e1.Diff(e2);
-            var kindDiff = (Diff.Kind) diffs.Single();
-            Assert.Equal("$", kindDiff.Item.Path);
-            Assert.True(kindDiff.Item.Left.GetBoolean());
-            Assert.False(kindDiff.Item.Right.GetBoolean());
+            var v1 = JsonParse.Parse("1");
+            var v2 = JsonParse.Parse("2");
+            var diffs = JsonDiff.OfValues(v1, v2).ToList();
+            Assert.NotEmpty(diffs);
+            var valueDiff = (Diff.Value)diffs.Single();
+            Assert.Equal("$", valueDiff.Item.Path);
+            Assert.Equal(JsonValue.NewNumber(Tuple.Create<double, string>(1, "1")), valueDiff.Item.Left);
+            Assert.Equal(JsonValue.NewNumber(Tuple.Create<double, string>(2, "2")), valueDiff.Item.Right);
         }
     }
 }
