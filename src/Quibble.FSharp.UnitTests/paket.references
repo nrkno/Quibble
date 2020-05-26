@@ -1,0 +1,4 @@
+System.Text.Json
+FSharp.Core
+xunit
+xunit.runner.visualstudio
