@@ -17,6 +17,8 @@ Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "Quibble.FSharp.UnitTests", 
 EndProject
 Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "Quibble.FSharp.Examples", "src\Quibble.FSharp.Examples\Quibble.FSharp.Examples.fsproj", "{F69EB166-780A-4648-89CA-0E8B082AB93F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Quibble.CSharp.Examples", "src\Quibble.CSharp.Examples\Quibble.CSharp.Examples.csproj", "{D8611B99-BAC4-400A-A914-3650D69B16FC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{F69EB166-780A-4648-89CA-0E8B082AB93F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F69EB166-780A-4648-89CA-0E8B082AB93F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F69EB166-780A-4648-89CA-0E8B082AB93F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D8611B99-BAC4-400A-A914-3650D69B16FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D8611B99-BAC4-400A-A914-3650D69B16FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D8611B99-BAC4-400A-A914-3650D69B16FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D8611B99-BAC4-400A-A914-3650D69B16FC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

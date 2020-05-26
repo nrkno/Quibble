@@ -73,8 +73,80 @@ Expected Leo Brodie but was Chuck Moore.
 
 ## C#
 
-TODO
+### Comparing numbers
 
+```
+var diffs = JsonStrings.Diff("1", "2");
+foreach (var diff in diffs)
+{
+    Console.WriteLine(diff);
+}
+```
+
+yields
+
+```
+Number value mismatch at $.
+Expected 2 but was 1.
+```
+
+### Comparing arrays
+
+```
+var diffs = JsonStrings.Diff("[ 1 ]", "[ 2, 1 ]");
+foreach (var diff in diffs)
+{
+    Console.WriteLine(diff);
+}
+```
+
+yields
+
+```
+Array length mismatch at $.
+Expected 2 items but was 1.
+```
+
+### Comparing objects
+
+```
+var str1 = @"{ ""item"": ""widget"", ""price"": 12.20 }";
+var str2 = @"{ ""item"": ""widget"" }";
+
+var diffs = JsonStrings.Diff(str1, str2);
+foreach (var diff in diffs)
+{
+    Console.WriteLine(diff);
+}
+```
+
+yields
+
+```
+Object mismatch at $.
+Additional property:
+price (number).
+```
+
+### Composite example
+
+```
+var str1 = @"{ ""books"": [ { ""title"": ""Data and Reality"", ""author"": ""William Kent"" }, { ""title"": ""Thinking Forth"", ""author"": ""Chuck Moore"" } ] }";
+var str2 = @"{ ""books"": [ { ""title"": ""Data and Reality"", ""author"": ""William Kent"" }, { ""title"": ""Thinking Forth"", ""author"": ""Leo Brodie"" } ] }";
+
+var diffs = JsonStrings.Diff(str1, str2);
+foreach (var diff in diffs)
+{
+    Console.WriteLine(diff);
+}
+```
+
+yields
+
+```
+String value mismatch at $.books[1].author.
+Expected Leo Brodie but was Chuck Moore.
+```
 
 # Assumptions
 
