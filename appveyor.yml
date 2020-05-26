@@ -16,4 +16,4 @@ test_script:
 - dotnet test
 deploy:
 - provider: Environment 
-- name: Nuget v2
+  name: Nuget v2
