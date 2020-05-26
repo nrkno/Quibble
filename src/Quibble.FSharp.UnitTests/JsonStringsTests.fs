@@ -134,7 +134,7 @@ module JsonStringsTests =
         
     [<Fact>]
     let ``{ "age": 20, "name": "Don" } = { "name": "Don", "age": 20 }``() =
-        let diffs = JsonStrings.Diff("{ \"age\": 20, \"name\": \"Don\" }", "{ \"name\": \"Don\", \"age\": 20 }")
+        let diffs = JsonStrings.Diff("""{ "age": 20, "name": "Don" }""", """{ "name": "Don", "age": 20 }""")
         Assert.Empty(diffs)
         
     [<Fact>]
@@ -146,3 +146,11 @@ module JsonStringsTests =
         | [ diff ] ->
             Assert.Equal("Number value mismatch at $['my array'][2].\nExpected 4 but was 3.", diff)        
         | _ -> failwithf "Expected 1 diff but was %d." (List.length diffs)
+
+
+    [<Fact>]
+    let ``example1``() =
+        let str1 = """{ "item": "widget", "price": 12.20 }"""
+        let str2 = """{ "item": "widget" }"""
+        let diffs = JsonStrings.Diff("{ \"age\": 20, \"name\": \"Don\" }", "{ \"name\": \"Don\", \"age\": 20 }")
+        Assert.Empty(diffs)
