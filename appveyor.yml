@@ -11,7 +11,7 @@ before_build:
   - dotnet restore -v Minimal
 build_script:
   - dotnet build
-  - dotnet pack --no-build -o publish -p:PackageVersion=$(version)
+  - dotnet pack --no-build -o publish -p:PackageVersion={version}
 test_script:
   - dotnet test
 deploy:
