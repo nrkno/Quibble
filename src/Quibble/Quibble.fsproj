@@ -2,11 +2,11 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
+    <Description>Quibble is a JSON diff tool for .NET.</Description>
+    <PackageLicenseUrl>https://github.com/nrkno/json-quibble/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/nrkno/json-quibble</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/nrkno/json-quibble</RepositoryUrl>
   </PropertyGroup>
-  <Description>Quibble is a JSON diff tool for .NET.</Description>
-  <PackageLicenseUrl>https://github.com/nrkno/json-quibble/blob/master/LICENSE</PackageLicenseUrl>
-  <PackageProjectUrl>https://github.com/nrkno/json-quibble</PackageProjectUrl>
-  <RepositoryUrl>https://github.com/nrkno/json-quibble</RepositoryUrl>
   <ItemGroup>
     <None Include="paket.references" />
     <Compile Include="JsonParse.fs" />
