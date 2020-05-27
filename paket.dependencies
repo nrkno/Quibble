@@ -4,6 +4,6 @@ storage: none
 framework: netcore3.1, netstandard2.0
 
 nuget System.Text.Json
-nuget FSharp.Core 4.7.1
+nuget FSharp.Core 4.7.0
 nuget xunit
 nuget xunit.runner.visualstudio
