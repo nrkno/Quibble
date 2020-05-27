@@ -4,6 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <Description>Quibble is a JSON diff tool for .NET.</Description>
     <PackageLicense>https://github.com/nrkno/json-quibble/blob/master/LICENSE</PackageLicense>
+    <PackageLicenseUrl>https://github.com/nrkno/json-quibble/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/nrkno/json-quibble</PackageProjectUrl>
     <RepositoryUrl>https://github.com/nrkno/json-quibble</RepositoryUrl>
   </PropertyGroup>
