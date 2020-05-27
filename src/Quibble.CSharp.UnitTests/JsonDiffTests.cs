@@ -15,8 +15,8 @@ namespace Quibble.CSharp.UnitTests
             Assert.NotEmpty(diffs);
             var kindDiff = (Diff.Kind) diffs.Single();
             Assert.Equal("$", kindDiff.Item.Path);
-            Assert.Equal(JsonValue.True, kindDiff.Item.Left);
-            Assert.Equal(JsonValue.False, kindDiff.Item.Right);
+            Assert.Equal(JsonValue.True, kindDiff.Left);
+            Assert.Equal(JsonValue.False, kindDiff.Right);
         }
         
         [Fact]
@@ -27,9 +27,9 @@ namespace Quibble.CSharp.UnitTests
             var diffs = JsonDiff.OfValues(v1, v2).ToList();
             Assert.NotEmpty(diffs);
             var valueDiff = (Diff.Value)diffs.Single();
-            Assert.Equal("$", valueDiff.Item.Path);
-            Assert.Equal(JsonValue.NewNumber(Tuple.Create<double, string>(1, "1")), valueDiff.Item.Left);
-            Assert.Equal(JsonValue.NewNumber(Tuple.Create<double, string>(2, "2")), valueDiff.Item.Right);
+            Assert.Equal("$", valueDiff.Path);
+            Assert.Equal(JsonValue.NewNumber(Tuple.Create<double, string>(1, "1")), valueDiff.Left);
+            Assert.Equal(JsonValue.NewNumber(Tuple.Create<double, string>(2, "2")), valueDiff.Right);
         }
     }
 }

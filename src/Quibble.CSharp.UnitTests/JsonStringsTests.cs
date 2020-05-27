@@ -8,65 +8,91 @@ namespace Quibble.CSharp.UnitTests
         [Fact]
         public void TestDiffTrueVsFalse()
         {
-            var diffMessages = JsonStrings.Verify("true", "false");
-            var diffMessage = diffMessages.Single();
-            Assert.Equal("Boolean value mismatch at $.\nExpected false but was true.", diffMessage);
+            // In JSON, true and false are distinct types.
+            var diffs = JsonStrings.Diff("true", "false");
+            var diff = diffs.Single();
+            Assert.Equal("$", diff.Path);
+            Assert.True(diff.IsKind);
+            Assert.True(diff.Left.IsTrue);
+            Assert.True(diff.Right.IsFalse);
         }
 
         [Fact]
         public void TestDiffFalseVsTrue()
         {
-            var diffMessages = JsonStrings.Verify("false", "true");
-            var diffMessage = diffMessages.Single();
-            Assert.Equal("Boolean value mismatch at $.\nExpected true but was false.", diffMessage);
+            // In JSON, true and false are distinct types.
+            var diffs = JsonStrings.Diff("false", "true");
+            var diff = diffs.Single();
+            Assert.Equal("$", diff.Path);
+            Assert.True(diff.IsKind);
+            Assert.True(diff.Left.IsFalse);
+            Assert.True(diff.Right.IsTrue);
         }
         
         [Fact]
         public void TestDiffNullVsFalse()
         {
-            var diffMessages = JsonStrings.Verify("null", "false");
-            var diffMessage = diffMessages.Single();
-            Assert.Equal("Kind mismatch at $.\nExpected the boolean false but was null.", diffMessage);
+            var diffs = JsonStrings.Diff("null", "false");
+            var diff = diffs.Single();
+            Assert.Equal("$", diff.Path);
+            Assert.True(diff.IsKind);
+            Assert.True(diff.Left.IsNull);
+            Assert.True(diff.Right.IsFalse);
         }
         
         [Fact]
         public void TestDiffFalseVsNull()
         {
-            var diffMessages = JsonStrings.Verify("false", "null");
-            var diffMessage = diffMessages.Single();
-            Assert.Equal("Kind mismatch at $.\nExpected null but was the boolean false.", diffMessage);
+            var diffs = JsonStrings.Diff("false", "null");
+            var diff = diffs.Single();
+            Assert.Equal("$", diff.Path);
+            Assert.True(diff.IsKind);
+            Assert.True(diff.Left.IsFalse);
+            Assert.True(diff.Right.IsNull);
         }
         
         [Fact]
         public void TestDiffFalseVsZero()
         {
-            var diffMessages = JsonStrings.Verify("false", "0");
-            var diffMessage = diffMessages.Single();
-            Assert.Equal("Kind mismatch at $.\nExpected the number 0 but was the boolean false.", diffMessage);
+            var diffs = JsonStrings.Diff("false", "0");
+            var diff = diffs.Single();
+            Assert.Equal("$", diff.Path);
+            Assert.True(diff.IsKind);
+            Assert.True(diff.Left.IsFalse);
+            Assert.True(diff.Right.IsNumber);
         }
 
         [Fact]
         public void TestDiffOneVsTrue()
         {
-            var diffMessages = JsonStrings.Verify("1", "true");
-            var diffMessage = diffMessages.Single();
-            Assert.Equal("Kind mismatch at $.\nExpected the boolean true but was the number 1.", diffMessage);
+            var diffs = JsonStrings.Diff("1", "true");
+            var diff = diffs.Single();
+            Assert.Equal("$", diff.Path);
+            Assert.True(diff.IsKind);
+            Assert.True(diff.Left.IsNumber);
+            Assert.True(diff.Right.IsTrue);
         }
         
         [Fact]
         public void TestDiffEmptyArrayVsOne()
         {
-            var diffMessages = JsonStrings.Verify("[]", "1");
-            var diffMessage = diffMessages.Single();
-            Assert.Equal("Kind mismatch at $.\nExpected the number 1 but was an empty array.", diffMessage);
+            var diffs = JsonStrings.Diff("[]", "1");
+            var diff = diffs.Single();
+            Assert.Equal("$", diff.Path);
+            Assert.True(diff.IsKind);
+            Assert.True(diff.Left.IsArray);
+            Assert.True(diff.Right.IsNumber);
         }
         
         [Fact]
         public void TestDiffArrayOfOneElementVsOne()
         {
-            var diffMessages = JsonStrings.Verify("[ 1 ]", "1");
-            var diffMessage = diffMessages.Single();
-            Assert.Equal("Kind mismatch at $.\nExpected the number 1 but was an array with 1 item.", diffMessage);
+            var diffs = JsonStrings.Diff("[ 1 ]", "1");
+            var diff = diffs.Single();
+            Assert.Equal("$", diff.Path);
+            Assert.True(diff.IsKind);
+            Assert.True(diff.Left.IsArray);
+            Assert.True(diff.Right.IsNumber);
         }
     }
 }

@@ -3,7 +3,7 @@
 
 # Quibble
 
-Quibble is a JSON diff tool for .NET. You give Quibble two text strings with JSON content and it will tell you what the differences are.
+Quibble is a JSON diff tool for .NET. You give Quibble two text strings with JSON content and it will tell you what the differences are. 
 
 # Why Quibble?
 
@@ -18,7 +18,7 @@ If you're using XUnit to write tests, you may want to check out [Quibble.Xunit](
 ## F#
 
 ```
-open Quibble;
+open Quibble
 ```
 
 ### Comparing numbers

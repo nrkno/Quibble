@@ -25,6 +25,20 @@ type Diff =
         | Value pt -> pt.Path
         | Properties (pt, _) -> pt.Path
         | ItemCount pt -> pt.Path
+        
+    member x.Left =
+        match x with
+        | Kind pt -> pt.Left
+        | Value pt -> pt.Left
+        | Properties (pt, _) -> pt.Left
+        | ItemCount pt -> pt.Left
+
+    member x.Right =
+        match x with
+        | Kind pt -> pt.Right
+        | Value pt -> pt.Right
+        | Properties (pt, _) -> pt.Right
+        | ItemCount pt -> pt.Right
 
 module JsonDiff =
 
