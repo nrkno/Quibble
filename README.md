@@ -7,7 +7,11 @@ Quibble is a JSON diff tool for .NET. You give Quibble two text strings with JSO
 
 # Why Quibble?
 
-We often want to verify that a JSON text string matches our expectations or not. A typical use case is writing tests for a web api that serves JSON responses. Without a JSON diff tool, we have two options: compare the JSON text as strings or deserialize the JSON into a data structure and compare the data structure with your expectations. Treating the JSON as a generic string yields a poor experience when looking for differences. Deserializing the response before comparing means that you have to write deserialization code (which may or may not be trivial) and in addition means you're comparing something else than what you really wanted to compare. In contrast, Quibble understands JSON and will point you directly to the differences in your JSON documents. Quibble uses [JsonPath](https://goessner.net/articles/JsonPath/) syntax to point you to the right elements. In JsonPath syntax, `$` indicates the root of the document, whereas something like `$.books[1].author` means "the author property of the second element of the books array".
+Quibble is useful whenever you need to compare two JSON documents to see if and how they're different. Since JSON is pretty much everywhere these days, that's really a basic feature.
+
+Quibble uses [JsonPath](https://goessner.net/articles/JsonPath/) syntax to point you to the right elements. In JsonPath syntax, `$` indicates the root of the document, whereas something like `$.books[1].author` means "the author property of the second element of the books array".
+
+If you're using XUnit to write tests, you may want to check out [Quibble.Xunit](https://github.com/nrkno/json-quibble-xunit), an extension to XUnit that does asserts on text strings with JSON content.
 
 # Examples 
 
