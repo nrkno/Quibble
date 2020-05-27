@@ -1,4 +1,5 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/0v6946lhh480cgbk?svg=true)](https://ci.appveyor.com/project/NRKOpensource/json-quibble)
+[![NuGet Status](https://img.shields.io/nuget/v/Quibble.svg?style=flat)](https://www.nuget.org/packages/Quibble/)
 
 # Quibble
 
@@ -12,10 +13,14 @@ We often want to verify that a JSON text string matches our expectations or not.
 
 ## F#
 
+```
+open Quibble;
+```
+
 ### Comparing numbers
 
 ```
-JsonStrings.Diff("1", "2") |> Seq.iter (printfn "%s")
+JsonStrings.verify "1" "2" |> List.iter (printfn "%s")
 ```
 
 yields
@@ -28,7 +33,7 @@ Expected 2 but was 1.
 ### Comparing arrays
 
 ```
-JsonStrings.Diff("[ 1 ]", "[ 2, 1 ]") |> Seq.iter (printfn "%s")
+JsonStrings.verify "[ 1 ]" "[ 2, 1 ]" |> List.iter (printfn "%s")
 ```
 
 yields
@@ -44,7 +49,7 @@ Expected 2 items but was 1.
 let str1 = """{ "item": "widget", "price": 12.20 }"""
 let str2 = """{ "item": "widget" }"""
 
-JsonStrings.Diff(str1, str2) |> Seq.iter (printfn "%s")
+JsonStrings.verify str1 str2 |> List.iter (printfn "%s")
 ```
 
 yields
@@ -61,7 +66,7 @@ price (number).
 let str1 = """{ "books": [ { "title": "Data and Reality", "author": "William Kent" }, { "title": "Thinking Forth", "author": "Chuck Moore" } ] }"""
 let str2 = """{ "books": [ { "title": "Data and Reality", "author": "William Kent" }, { "title": "Thinking Forth", "author": "Leo Brodie" } ] }"""
 
-JsonStrings.Diff(str1, str2) |> Seq.iter (printfn "%s")
+JsonStrings.verify str1 str2 |> List.iter (printfn "%s")
 ```
 
 yields
@@ -73,8 +78,84 @@ Expected Leo Brodie but was Chuck Moore.
 
 ## C#
 
-TODO
+```
+using Quibble.CSharp;
+```
 
+### Comparing numbers
+
+```
+var diffs = JsonStrings.Verify("1", "2");
+foreach (var diff in diffs)
+{
+    Console.WriteLine(diff);
+}
+```
+
+yields
+
+```
+Number value mismatch at $.
+Expected 2 but was 1.
+```
+
+### Comparing arrays
+
+```
+var diffs = JsonStrings.Verify("[ 1 ]", "[ 2, 1 ]");
+foreach (var diff in diffs)
+{
+    Console.WriteLine(diff);
+}
+```
+
+yields
+
+```
+Array length mismatch at $.
+Expected 2 items but was 1.
+```
+
+### Comparing objects
+
+```
+var str1 = @"{ ""item"": ""widget"", ""price"": 12.20 }";
+var str2 = @"{ ""item"": ""widget"" }";
+
+var diffs = JsonStrings.Verify(str1, str2);
+foreach (var diff in diffs)
+{
+    Console.WriteLine(diff);
+}
+```
+
+yields
+
+```
+Object mismatch at $.
+Additional property:
+price (number).
+```
+
+### Composite example
+
+```
+var str1 = @"{ ""books"": [ { ""title"": ""Data and Reality"", ""author"": ""William Kent"" }, { ""title"": ""Thinking Forth"", ""author"": ""Chuck Moore"" } ] }";
+var str2 = @"{ ""books"": [ { ""title"": ""Data and Reality"", ""author"": ""William Kent"" }, { ""title"": ""Thinking Forth"", ""author"": ""Leo Brodie"" } ] }";
+
+var diffs = JsonStrings.Verify(str1, str2);
+foreach (var diff in diffs)
+{
+    Console.WriteLine(diff);
+}
+```
+
+yields
+
+```
+String value mismatch at $.books[1].author.
+Expected Leo Brodie but was Chuck Moore.
+```
 
 # Assumptions
 

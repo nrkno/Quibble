@@ -1,19 +1,19 @@
-version: '0.0.{build}'
+version: "0.0.{build}"
 image:
-- Ubuntu
+  - Ubuntu
 configuration:
-- Release
+  - Release
 artifacts:
   - path: publish/*.nupkg
 platform: Any CPU
 before_build:
-- dotnet tool restore
-- dotnet restore -v Minimal
+  - dotnet tool restore
+  - dotnet restore -v Minimal
 build_script:
-- dotnet build
-- dotnet pack --no-build -o publish
+  - dotnet build
+  - dotnet pack --no-build -o publish -p:PackageVersion=$APPVEYOR_BUILD_VERSION
 test_script:
-- dotnet test
+  - dotnet test
 deploy:
-- provider: Environment 
-  name: Nuget v2
+  - provider: Environment
+    name: Nuget v2
