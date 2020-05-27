@@ -16,7 +16,7 @@ We often want to verify that a JSON text string matches our expectations or not.
 ### Comparing numbers
 
 ```
-JsonVerify.Diff("1", "2") |> Seq.iter (printfn "%s")
+JsonStrings.Verify("1", "2") |> Seq.iter (printfn "%s")
 ```
 
 yields
@@ -29,7 +29,7 @@ Expected 2 but was 1.
 ### Comparing arrays
 
 ```
-JsonVerify.Diff("[ 1 ]", "[ 2, 1 ]") |> Seq.iter (printfn "%s")
+JsonStrings.Verify("[ 1 ]", "[ 2, 1 ]") |> Seq.iter (printfn "%s")
 ```
 
 yields
@@ -45,7 +45,7 @@ Expected 2 items but was 1.
 let str1 = """{ "item": "widget", "price": 12.20 }"""
 let str2 = """{ "item": "widget" }"""
 
-JsonVerify.Diff(str1, str2) |> Seq.iter (printfn "%s")
+JsonStrings.Verify(str1, str2) |> Seq.iter (printfn "%s")
 ```
 
 yields
@@ -62,7 +62,7 @@ price (number).
 let str1 = """{ "books": [ { "title": "Data and Reality", "author": "William Kent" }, { "title": "Thinking Forth", "author": "Chuck Moore" } ] }"""
 let str2 = """{ "books": [ { "title": "Data and Reality", "author": "William Kent" }, { "title": "Thinking Forth", "author": "Leo Brodie" } ] }"""
 
-JsonVerify.Diff(str1, str2) |> Seq.iter (printfn "%s")
+JsonStrings.Verify(str1, str2) |> Seq.iter (printfn "%s")
 ```
 
 yields
@@ -77,7 +77,7 @@ Expected Leo Brodie but was Chuck Moore.
 ### Comparing numbers
 
 ```
-var diffs = JsonVerify.Diff("1", "2");
+var diffs = JsonStrings.Verify("1", "2");
 foreach (var diff in diffs)
 {
     Console.WriteLine(diff);
@@ -94,7 +94,7 @@ Expected 2 but was 1.
 ### Comparing arrays
 
 ```
-var diffs = JsonVerify.Diff("[ 1 ]", "[ 2, 1 ]");
+var diffs = JsonStrings.Verify("[ 1 ]", "[ 2, 1 ]");
 foreach (var diff in diffs)
 {
     Console.WriteLine(diff);
@@ -114,7 +114,7 @@ Expected 2 items but was 1.
 var str1 = @"{ ""item"": ""widget"", ""price"": 12.20 }";
 var str2 = @"{ ""item"": ""widget"" }";
 
-var diffs = JsonVerify.Diff(str1, str2);
+var diffs = JsonStrings.Verify(str1, str2);
 foreach (var diff in diffs)
 {
     Console.WriteLine(diff);
@@ -135,7 +135,7 @@ price (number).
 var str1 = @"{ ""books"": [ { ""title"": ""Data and Reality"", ""author"": ""William Kent"" }, { ""title"": ""Thinking Forth"", ""author"": ""Chuck Moore"" } ] }";
 var str2 = @"{ ""books"": [ { ""title"": ""Data and Reality"", ""author"": ""William Kent"" }, { ""title"": ""Thinking Forth"", ""author"": ""Leo Brodie"" } ] }";
 
-var diffs = JsonVerify.Diff(str1, str2);
+var diffs = JsonStrings.Verify(str1, str2);
 foreach (var diff in diffs)
 {
     Console.WriteLine(diff);
