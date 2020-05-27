@@ -5,7 +5,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="JsonDiffTests.fs" />
-    <Compile Include="JsonVerifyTests.fs" />
+    <Compile Include="JsonStringsTests.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Quibble\Quibble.fsproj" />
