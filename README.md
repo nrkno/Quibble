@@ -31,6 +31,10 @@ If you're using [XUnit](https://xunit.net/) to write tests, you may want to chec
 open Quibble
 ```
 
+Use `JsonStrings.diff` to get a list of `Diff`-values that you can map, filter and pattern match as you like.
+
+Use `JsonStrings.textDiff`to get a list of text descriptions of the differences.
+
 ### Comparing numbers
 
 ```
@@ -95,6 +99,10 @@ Expected Leo Brodie but was Chuck Moore.
 ```
 using Quibble.CSharp;
 ```
+
+Use `JsonStrings.Diff` to get a read-only list of `Diff`-values that you can work with as you like.
+
+Use `JsonStrings.TextDiff`to get a read-only list of text descriptions of the differences.
 
 ### Comparing numbers
 
