@@ -14,9 +14,10 @@ Quibble distinguishes between four kinds of differences:
 
 ## TL;DR
 
-Jump to [F# Examples](#f-examples)
+Jump right in:
 
-Jump to [C# Examples](#c-examples)
+* [F# Examples](#f-examples).
+* [C# Examples](#c-examples).
 
 # Why Quibble?
 
