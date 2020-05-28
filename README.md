@@ -12,6 +12,11 @@ Quibble distinguishes between four kinds of differences:
 * `Properties`: when two JSON objects have differences in their properties, e.g. the object `{ "name": "Quux" }` vs the object `{ "id": "1c3d" }`.
 * `ItemCount`: when two JSON arrays have a different number of items, e.g. the array `[ 1, 2 ]` vs the array `[ 1, 2, 3 ]`.
 
+## TL;DR
+
+* [F# Examples](#f-examples).
+* [C# Examples](#c-examples).
+
 # Why Quibble?
 
 Quibble is useful whenever you need to compare two JSON documents to see if and how they're different. Since JSON is pretty much everywhere these days, that's really a basic feature.
@@ -20,13 +25,15 @@ Quibble uses [JsonPath](https://goessner.net/articles/JsonPath/) syntax to point
 
 If you're using [XUnit](https://xunit.net/) to write tests, you may want to check out [Quibble.Xunit](https://github.com/nrkno/json-quibble-xunit), an extension to XUnit that does asserts on text strings with JSON content.
 
-# Examples 
-
-## F#
+# F# Examples
 
 ```
 open Quibble
 ```
+
+Use `JsonStrings.diff` to get a list of `Diff`-values that you can map, filter and pattern match as you like.
+
+Use `JsonStrings.textDiff` to get a list of text descriptions of the differences.
 
 ### Comparing numbers
 
@@ -87,11 +94,15 @@ String value mismatch at $.books[1].author.
 Expected Leo Brodie but was Chuck Moore.
 ```
 
-## C#
+# C# Examples
 
 ```
 using Quibble.CSharp;
 ```
+
+Use `JsonStrings.Diff` to get a read-only list of `Diff`-values that you can work with as you like.
+
+Use `JsonStrings.TextDiff`to get a read-only list of text descriptions of the differences.
 
 ### Comparing numbers
 
