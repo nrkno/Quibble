@@ -41,7 +41,7 @@ If you read the examples and wonder what `$` means, note that Quibble uses [Json
 
 ### Comparing numbers
 
-###### 1 vs 2
+#### Example: 1 != 2
 
 ```
 JsonStrings.textDiff "1" "2" 
@@ -55,7 +55,7 @@ prints
 Number value difference at $: 1 vs 2.
 ```
 
-###### 1.0 vs 1
+#### Number example: 1.0 == 1
 
 ```
 JsonStrings.textDiff "1.0" "1" 
@@ -71,7 +71,7 @@ true
 
 The reason is that JSON doesn't distinguish between integers and doubles, everything is just a number.
 
-###### 123.4 vs 1.234E2
+#### Number example: 123.4 vs 1.234E2
 
 ```
 JsonStrings.textDiff "123.4" "1.234E2" 
@@ -89,7 +89,7 @@ The reason is that 123.4 and 1.234E2 are just different ways of writing the same
 
 ### Comparing arrays
 
-###### Number of items
+#### Array example: Number of items
 
 ```
 JsonStrings.textDiff "[ 1 ]" "[ 2, 1 ]"
@@ -103,7 +103,7 @@ prints
 Array length difference at $: 1 vs 2.
 ```
 
-###### Order matters for arrays
+#### Array example: Order matters
 
 ```
 let diff = JsonStrings.textDiff "[ 2, 1 ]" "[ 1, 2 ]" |> List.head
