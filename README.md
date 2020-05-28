@@ -12,6 +12,8 @@ Quibble distinguishes between four kinds of differences:
 * `Properties`: when two JSON objects have differences in their properties, e.g. the object `{ "name": "Quux" }` vs the object `{ "id": "1c3d" }`.
 * `ItemCount`: when two JSON arrays have a different number of items, e.g. the array `[ 1, 2 ]` vs the array `[ 1, 2, 3 ]`.
 
+Quibble makes a couple of [assumptions](#assumptions) that you might want to know about.
+
 ## TL;DR
 
 * [F# Examples](#f-examples).
@@ -35,31 +37,90 @@ Use `JsonStrings.diff` to get a list of `Diff`-values that you can map, filter a
 
 Use `JsonStrings.textDiff` to get a list of text descriptions of the differences.
 
+If you read the examples and wonder what `$` means, note that Quibble uses [JsonPath](https://goessner.net/articles/JsonPath/) syntax to point you to differences. 
+
 ### Comparing numbers
 
-```
-JsonStrings.verify "1" "2" |> List.iter (printfn "%s")
-```
-
-yields
+###### 1 vs 2
 
 ```
-Number value mismatch at $.
-Expected 2 but was 1.
+JsonStrings.textDiff "1" "2" 
+|> List.head
+|> printfn "%s"
 ```
+
+prints 
+
+```
+Number value difference at $: 1 vs 2.
+```
+
+###### 1.0 vs 1
+
+```
+JsonStrings.textDiff "1.0" "1" 
+|> List.isEmpty
+|> printfn "%b"
+```
+
+prints 
+
+```
+true
+```
+
+The reason is that JSON doesn't distinguish between integers and doubles, everything is just a number.
+
+###### 123.4 vs 1.234E2
+
+```
+JsonStrings.textDiff "123.4" "1.234E2" 
+|> List.isEmpty
+|> printfn "%b"
+```
+
+prints 
+
+```
+true
+```
+
+The reason is that 123.4 and 1.234E2 are just different ways of writing the same number.
 
 ### Comparing arrays
 
-```
-JsonStrings.verify "[ 1 ]" "[ 2, 1 ]" |> List.iter (printfn "%s")
-```
-
-yields
+###### Number of items
 
 ```
-Array length mismatch at $.
-Expected 2 items but was 1.
+JsonStrings.textDiff "[ 1 ]" "[ 2, 1 ]"
+|> List.head
+|> printfn "%s"
 ```
+
+prints
+
+```
+Array length difference at $: 1 vs 2.
+```
+
+###### Order matters for arrays
+
+```
+let diff = JsonStrings.textDiff "[ 2, 1 ]" "[ 1, 2 ]" |> List.head
+let diffs = JsonStrings.textDiff "[ 2, 1 ]" "[ 1, 2 ]"
+match diffs with
+| [ diff1; diff2 ] -> 
+    printfn "%s" diff1
+    printfn "%s" diff2
+```
+
+prints
+
+```
+Number value difference at $[0]: 2 vs 1.
+Number value difference at $[1]: 1 vs 2.
+```
+
 
 ### Comparing objects
 
@@ -67,10 +128,12 @@ Expected 2 items but was 1.
 let str1 = """{ "item": "widget", "price": 12.20 }"""
 let str2 = """{ "item": "widget" }"""
 
-JsonStrings.verify str1 str2 |> List.iter (printfn "%s")
+JsonStrings.textDiff str1 str2 
+|> List.head
+|> printfn "%s"
 ```
 
-yields
+prints 
 
 ```
 Object mismatch at $.
@@ -81,17 +144,44 @@ price (number).
 ### Composite example
 
 ```
-let str1 = """{ "books": [ { "title": "Data and Reality", "author": "William Kent" }, { "title": "Thinking Forth", "author": "Chuck Moore" } ] }"""
-let str2 = """{ "books": [ { "title": "Data and Reality", "author": "William Kent" }, { "title": "Thinking Forth", "author": "Leo Brodie" } ] }"""
+let str1 =
+   """{
+    "books": [{
+        "title": "Data and Reality",
+        "author": "William Kent"
+    }, {
+        "title": "Thinking Forth",
+        "author": "Leo Brodie"
+    }]
+}"""
 
-JsonStrings.verify str1 str2 |> List.iter (printfn "%s")
+let str2 =
+    """{
+    "books": [{
+        "title": "Data and Reality",
+        "author": "William Kent",
+        "edition": "2nd"
+    }, {
+        "title": "Thinking Forth",
+        "author": "Chuck Moore"
+    }]
+}"""
+
+let diffs = JsonStrings.textDiff str1 str2 
+match diffs with
+| [ diff1; diff2 ] -> 
+    printfn "%s" diff1
+    printfn "%s" diff2
+
 ```
 
-yields
+prints
 
 ```
-String value mismatch at $.books[1].author.
-Expected Leo Brodie but was Chuck Moore.
+Object difference at $.books[0].
+Right only property:
+edition (string).
+String value difference at $.books[1].author: Leo Brodie vs Chuck Moore.
 ```
 
 # C# Examples
@@ -104,80 +194,23 @@ Use `JsonStrings.Diff` to get a read-only list of `Diff`-values that you can wor
 
 Use `JsonStrings.TextDiff`to get a read-only list of text descriptions of the differences.
 
+If you read the examples and wonder what `$` means, note that Quibble uses [JsonPath](https://goessner.net/articles/JsonPath/) syntax to point you to differences. 
+
 ### Comparing numbers
 
-```
-var diffs = JsonStrings.Verify("1", "2");
-foreach (var diff in diffs)
-{
-    Console.WriteLine(diff);
-}
-```
-
-yields
-
-```
-Number value mismatch at $.
-Expected 2 but was 1.
-```
+TODO 
 
 ### Comparing arrays
 
-```
-var diffs = JsonStrings.Verify("[ 1 ]", "[ 2, 1 ]");
-foreach (var diff in diffs)
-{
-    Console.WriteLine(diff);
-}
-```
-
-yields
-
-```
-Array length mismatch at $.
-Expected 2 items but was 1.
-```
+TODO 
 
 ### Comparing objects
 
-```
-var str1 = @"{ ""item"": ""widget"", ""price"": 12.20 }";
-var str2 = @"{ ""item"": ""widget"" }";
-
-var diffs = JsonStrings.Verify(str1, str2);
-foreach (var diff in diffs)
-{
-    Console.WriteLine(diff);
-}
-```
-
-yields
-
-```
-Object mismatch at $.
-Additional property:
-price (number).
-```
+TODO 
 
 ### Composite example
 
-```
-var str1 = @"{ ""books"": [ { ""title"": ""Data and Reality"", ""author"": ""William Kent"" }, { ""title"": ""Thinking Forth"", ""author"": ""Chuck Moore"" } ] }";
-var str2 = @"{ ""books"": [ { ""title"": ""Data and Reality"", ""author"": ""William Kent"" }, { ""title"": ""Thinking Forth"", ""author"": ""Leo Brodie"" } ] }";
-
-var diffs = JsonStrings.Verify(str1, str2);
-foreach (var diff in diffs)
-{
-    Console.WriteLine(diff);
-}
-```
-
-yields
-
-```
-String value mismatch at $.books[1].author.
-Expected Leo Brodie but was Chuck Moore.
-```
+TODO 
 
 # Assumptions
 

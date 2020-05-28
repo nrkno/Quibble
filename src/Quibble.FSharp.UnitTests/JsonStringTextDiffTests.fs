@@ -49,7 +49,7 @@ module JsonStringsTextDiffTests =
     let ``1 = 1.0``() =
         let diffs = JsonStrings.textDiff "1" "1.0"
         Assert.Empty(diffs)
-
+        
     [<Fact>]
     let ``true != 1 : Kind mismatch``() =
         let diffs = JsonStrings.textDiff "true" "1"
@@ -144,7 +144,7 @@ module JsonStringsTextDiffTests =
         Assert.Empty(diffs)
         
     [<Fact>]
-    let ``Compare object with array``() =
+    let ``Compare object with array property``() =
         let s1 = "{ \"my array\": [ 1, 2, 3 ] }"
         let s2 = "{ \"my array\": [ 1, 2, 4 ] }"
         let diffs = JsonStrings.textDiff s1 s2
@@ -153,3 +153,31 @@ module JsonStringsTextDiffTests =
             Assert.Equal("Number value difference at $['my array'][2]: 3 vs 4.", diff)
         | _ -> failwithf "Expected 1 diff but was %d." (List.length diffs)
 
+
+    [<Fact>]
+    let ``Book example``() =
+        let str1 = """{
+    "books": [{
+        "title": "Data and Reality",
+        "author": "William Kent"
+    }, {
+        "title": "Thinking Forth",
+        "author": "Leo Brodie"
+    }]
+}"""
+        let str2 = """{
+    "books": [{
+        "title": "Data and Reality",
+        "author": "William Kent",
+        "edition": "2nd"
+    }, {
+        "title": "Thinking Forth",
+        "author": "Chuck Moore"
+    }]
+}"""
+        let diffs = JsonStrings.textDiff str1 str2 
+        match diffs with
+        | [ diff1; diff2 ] ->
+            Assert.Equal("Object difference at $.books[0].\nRight only property:\nedition (string).", diff1)
+            Assert.Equal("String value difference at $.books[1].author: Leo Brodie vs Chuck Moore.", diff2)
+        | _ -> failwithf "Expected 2 diffs but was %d." (List.length diffs)
