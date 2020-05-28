@@ -18,7 +18,7 @@ module AssertMessage =
         | JsonValue.Null -> "null"
         | _ -> "something else"
 
-    let toDiffMessage (diff: Diff): string =
+    let toAssertMessage (diff: Diff): string =
         match diff with
         | Properties ({ Path = path; Left = _; Right = _ }, mismatches) ->
             let propString (p: string, v: JsonValue): string =

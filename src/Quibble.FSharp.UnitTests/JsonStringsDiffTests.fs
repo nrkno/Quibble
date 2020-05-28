@@ -1,6 +1,6 @@
 namespace Quibble.FSharp.UnitTests
 
-module JsonStringsTests = 
+module JsonStringsDiffTests = 
 
     open Xunit
     open Xunit.Sdk
