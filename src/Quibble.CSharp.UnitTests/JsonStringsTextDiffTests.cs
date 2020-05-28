@@ -76,10 +76,10 @@ namespace Quibble.CSharp.UnitTests
         public void WidgetPriceExample()
         {
             var str1 = @"{ ""item"": ""widget"", ""price"": 12.20 }";
-            var str2 = @"{ ""item"": ""widget"", ""quantity"": 88, ""inStock"": true }";
+            var str2 = @"{ ""item"": ""widget"", ""quantity"": 88, ""in stock"": true }";
             var diffs = JsonStrings.TextDiff(str1, str2);
             var diff = diffs.Single();
-            Assert.Equal("Object difference at $.\nLeft only property: 'price' (number).\nRight only properties: 'quantity' (number), 'inStock' (bool).", diff);
+            Assert.Equal("Object difference at $.\nLeft only property: 'price' (number).\nRight only properties: 'quantity' (number), 'in stock' (bool).", diff);
         }
 
         [Fact]

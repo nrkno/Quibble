@@ -131,7 +131,7 @@ Number value difference at $[1]: 1 vs 2.
 
 ```
 let str1 = """{ "item": "widget", "price": 12.20 }"""
-let str2 = """{ "item": "widget", "quantity": 88, "inStock": true }"""
+let str2 = """{ "item": "widget", "quantity": 88, "in stock": true }"""
 
 JsonStrings.textDiff str1 str2 
 |> List.head
@@ -142,8 +142,8 @@ prints
 
 ```
 Object difference at $.
-Left only property: price (number).
-Right only properties: quantity (number), inStock (bool).
+Left only property: 'price' (number).
+Right only properties: 'quantity' (number), 'in stock' (bool).
 ```
 
 #### Object example: Property with spaces 
@@ -200,7 +200,7 @@ prints
 
 ```
 Object difference at $.books[0].
-Right only property: edition (string).
+Right only property: 'edition' (string).
 String value difference at $.books[1].author: Leo Brodie vs Chuck Moore.
 ```
 
@@ -300,7 +300,7 @@ Number value difference at $[1]: 1 vs 2.
 
 ```
 var str1 = @"{ ""item"": ""widget"", ""price"": 12.20 }";
-var str2 = @"{ ""item"": ""widget"", ""quantity"": 88, ""inStock"": true }";
+var str2 = @"{ ""item"": ""widget"", ""quantity"": 88, ""in stock"": true }";
 var diffs = JsonStrings.TextDiff(str1, str2);
 Console.WriteLine(diffs.Single());
 ```
@@ -309,8 +309,8 @@ prints
 
 ```
 Object difference at $.
-Left only property: price (number).
-Right only properties: quantity (number), inStock (bool).
+Left only property: 'price' (number).
+Right only properties: 'quantity' (number), 'in stock' (bool).
 ```
 
 #### Object example: Property with spaces 
@@ -364,7 +364,7 @@ prints
 
 ```
 Object difference at $.books[0].
-Right only property: edition (string).
+Right only property: 'edition' (string).
 String value difference at $.books[1].author: Leo Brodie vs Chuck Moore.
 ```
 
