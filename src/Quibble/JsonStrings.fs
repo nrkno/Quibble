@@ -9,4 +9,4 @@ module JsonStrings =
         
     let verify (actualJsonString: string) (expectedJsonString: string): string list =
         diff actualJsonString expectedJsonString
-        |> List.map DiffMessage.toDiffMessage
+        |> List.map AssertMessage.toDiffMessage
