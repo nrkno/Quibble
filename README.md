@@ -12,6 +12,8 @@ Quibble distinguishes between four kinds of differences:
 * `Properties`: when two JSON objects have differences in their properties, e.g. the object `{ "name": "Quux" }` vs the object `{ "id": "1c3d" }`.
 * `ItemCount`: when two JSON arrays have a different number of items, e.g. the array `[ 1, 2 ]` vs the array `[ 1, 2, 3 ]`.
 
+[C# Examples](#c-examples)
+
 # Why Quibble?
 
 Quibble is useful whenever you need to compare two JSON documents to see if and how they're different. Since JSON is pretty much everywhere these days, that's really a basic feature.
@@ -22,7 +24,7 @@ If you're using [XUnit](https://xunit.net/) to write tests, you may want to chec
 
 # Examples 
 
-## F#
+## F# Examples
 
 ```
 open Quibble
@@ -87,7 +89,7 @@ String value mismatch at $.books[1].author.
 Expected Leo Brodie but was Chuck Moore.
 ```
 
-## C#
+## C# Examples
 
 ```
 using Quibble.CSharp;
