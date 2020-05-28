@@ -333,4 +333,4 @@ String value difference at $.books[1].author: Leo Brodie vs Chuck Moore.
 
 Quibble makes the following assumptions: 
 * Order of elements matters for arrays.
-* Order of elements does not matter for properties in an object.
+* Order of properties does not matter for objects.
