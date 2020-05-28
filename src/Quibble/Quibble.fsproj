@@ -12,7 +12,9 @@
     <Compile Include="JsonParse.fs" />
     <Compile Include="JsonDiff.fs" />
     <Compile Include="DiffMessage.fs" />
+    <Compile Include="AssertMessage.fs" />
     <Compile Include="JsonStrings.fs" />
+    <Compile Include="JsonAssert.fs" />
     <Compile Include="CSharp.fs" />
   </ItemGroup>
   <Import Project="..\..\.paket\Paket.Restore.targets" />

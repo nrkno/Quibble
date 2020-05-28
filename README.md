@@ -7,8 +7,8 @@ Quibble is a JSON diff tool for .NET. You give Quibble two text strings with JSO
 
 Quibble distinguishes between four kinds of differences: 
 
-* `Kind`: difference in the kind of JSON value, e.g. `string` vs `number`.
-* `Value`: difference in the value itself, e.g. the string `cat` vs the string `dog`.
+* `Type`: e.g. `string` vs `number`.
+* `Value`: same type but different value, e.g. the string `cat` vs the string `dog`.
 * `Properties`: when two JSON objects have differences in their properties, e.g. the object `{ "name": "Quux" }` vs the object `{ "id": "1c3d" }`.
 * `ItemCount`: when two JSON arrays have a different number of items, e.g. the array `[ 1, 2 ]` vs the array `[ 1, 2, 3 ]`.
 
