@@ -237,7 +237,7 @@ prints
 false
 ```
 
-The reason is that 123.4 and 1.234E2 are just different ways of writing the same number.
+The reason is that `123.4` and `1.234E2` are just different ways of writing the same number.
 
 ### Comparing arrays
 
