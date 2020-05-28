@@ -7,6 +7,3 @@ module JsonStrings =
         let v2 = JsonParse.Parse(jsonString2)
         JsonDiff.OfValues v1 v2
         
-    let verify (actualJsonString: string) (expectedJsonString: string): string list =
-        diff actualJsonString expectedJsonString
-        |> List.map AssertMessage.toDiffMessage

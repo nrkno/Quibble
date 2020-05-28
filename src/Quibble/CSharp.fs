@@ -9,6 +9,3 @@ module JsonStrings =
         let diffs = Quibble.JsonStrings.diff jsonString1 jsonString2
         diffs :> IReadOnlyList<Diff>
         
-    let Verify (actualJsonString: string, expectedJsonString: string): IReadOnlyList<string> =
-        let diffs = Quibble.JsonStrings.verify actualJsonString expectedJsonString
-        diffs :> IReadOnlyList<string>
