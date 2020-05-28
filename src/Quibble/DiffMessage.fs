@@ -91,25 +91,25 @@ module DiffMessage =
                     if maxStrLen > 30
                     then sprintf "    %s\nvs\n    %s" leftStr rightStr
                     else sprintf "%s vs %s." leftStr rightStr
-                sprintf "String value difference at %s.\n%s" path comparisonStr
+                sprintf "String value difference at %s: %s" path comparisonStr
             | (JsonValue.Number (_, leftNumberText), JsonValue.Number (_, rightNumberText)) ->
-                sprintf "Number value difference at %s.\n%s vs %s." path leftNumberText rightNumberText
+                sprintf "Number value difference at %s: %s vs %s." path leftNumberText rightNumberText
             | _ -> sprintf "Some other value difference at %s." path
         | Type { Path = path; Left = left; Right = right } ->
             match (left, right) with
             | (JsonValue.True, JsonValue.False) ->
-                sprintf "Boolean value difference at %s.\ntrue vs false." path
+                sprintf "Boolean value difference at %s: true vs false." path
             | (JsonValue.False, JsonValue.True) ->
-               sprintf "Boolean value difference at %s.\nfalse vs true." path
+               sprintf "Boolean value difference at %s: false vs true." path
             | (_, _) ->
                 let rightValueDescription = toValueDescription right
                 let leftValueDescription = toValueDescription left
-                sprintf "Type difference at %s.\n%s vs %s." path leftValueDescription rightValueDescription
+                sprintf "Type difference at %s: %s vs %s." path leftValueDescription rightValueDescription
         | ItemCount { Path = path; Left = left; Right = right } ->
             match (left, right) with
             | (Array leftItems, Array rightItems) ->
                 let rightArrayLength = rightItems |> List.length
                 let leftArrayLength = leftItems |> List.length 
-                sprintf "Array length difference at %s.\n%d vs %d." path leftArrayLength rightArrayLength
+                sprintf "Array length difference at %s: %d vs %d." path leftArrayLength rightArrayLength
             | _ ->
                 failwith "A bug."

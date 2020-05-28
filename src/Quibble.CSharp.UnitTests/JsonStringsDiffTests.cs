@@ -3,7 +3,7 @@ using Xunit;
 
 namespace Quibble.CSharp.UnitTests
 {
-    public class JsonStringsTests
+    public class JsonStringsDiffTests
     {
         [Fact]
         public void TestDiffTrueVsFalse()
