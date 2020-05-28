@@ -41,7 +41,7 @@ If you read the examples and wonder what `$` means, note that Quibble uses [Json
 
 ### Comparing numbers
 
-#### Example: 1 != 2
+#### Number example: 1 != 2
 
 ```
 JsonStrings.textDiff "1" "2" 
