@@ -162,6 +162,16 @@ module JsonStringsTextDiffTests =
         | [ diff ] ->
             Assert.Equal("Object difference at $.\nLeft only property: 'price' (number).", diff)
         | _ -> failwithf "Expected 1 diff but was %d." (List.length diffs)
+        
+    [<Fact>]
+    let ``Person example with 'date of birth' property.``() =
+        let str1 = """{ "name": "Maya", "date of birth": "1999-04-23" }"""
+        let str2 = """{ "name": "Maya", "date of birth": "1999-04-24" }"""
+        let diffs = JsonStrings.textDiff str1 str2 
+        match diffs with
+        | [ diff ] ->
+            Assert.Equal("String value difference at $['date of birth']: 1999-04-23 vs 1999-04-24.", diff)
+        | _ -> failwithf "Expected 1 diff but was %d." (List.length diffs)
 
     [<Fact>]
     let ``Book example``() =

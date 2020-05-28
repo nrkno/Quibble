@@ -19,6 +19,7 @@ Quibble makes a couple of [assumptions](#assumptions) that you might want to kno
 * [F# Examples](#f-examples).
 * [C# Examples](#c-examples).
 
+
 # Why Quibble?
 
 Quibble is useful whenever you need to compare two JSON documents to see if and how they're different. Since JSON is pretty much everywhere these days, that's really a basic feature.
@@ -26,6 +27,7 @@ Quibble is useful whenever you need to compare two JSON documents to see if and 
 Quibble uses [JsonPath](https://goessner.net/articles/JsonPath/) syntax to point you to the right elements. In JsonPath syntax, `$` indicates the root of the document, whereas something like `$.books[1].author` means "the author property of the second element of the books array".
 
 If you're using [XUnit](https://xunit.net/) to write tests, you may want to check out [Quibble.Xunit](https://github.com/nrkno/json-quibble-xunit), an extension to XUnit that does asserts on text strings with JSON content.
+
 
 # F# Examples
 
@@ -38,6 +40,7 @@ Use `JsonStrings.diff` to get a list of `Diff`-values that you can map, filter a
 Use `JsonStrings.textDiff` to get a list of text descriptions of the differences.
 
 If you read the examples and wonder what `$` means, note that Quibble uses [JsonPath](https://goessner.net/articles/JsonPath/) syntax to point you to differences. 
+
 
 ### Comparing numbers
 
@@ -86,6 +89,7 @@ true
 ```
 
 The reason is that 123.4 and 1.234E2 are just different ways of writing the same number.
+
 
 ### Comparing arrays
 
@@ -142,6 +146,23 @@ Left only property: price (number).
 Right only properties: quantity (number), inStock (bool).
 ```
 
+#### Object example: Property with spaces 
+
+```
+let str1 = """{ "name": "Maya", "date of birth": "1999-04-23" }"""
+let str2 = """{ "name": "Maya", "date of birth": "1999-04-24" }"""
+JsonStrings.textDiff str1 str2 
+|> List.head 
+|> printfn "%s"
+```
+
+prints 
+
+```
+String value difference at $['date of birth']: 1999-04-23 vs 1999-04-24.
+```
+
+
 ### Composite example
 
 ```
@@ -182,6 +203,7 @@ Object difference at $.books[0].
 Right only property: edition (string).
 String value difference at $.books[1].author: Leo Brodie vs Chuck Moore.
 ```
+
 
 # C# Examples
 
@@ -289,6 +311,21 @@ prints
 Object difference at $.
 Left only property: price (number).
 Right only properties: quantity (number), inStock (bool).
+```
+
+#### Object example: Property with spaces 
+
+```
+var str1 = @"{ ""name"": ""Maya"", ""date of birth"": ""1999-04-23"" }";
+var str2 = @"{ ""name"": ""Maya"", ""date of birth"": ""1999-04-24"" }";
+var diffs = JsonStrings.TextDiff(str1, str2);
+Console.WriteLine(diffs.Single());
+```
+
+prints 
+
+```
+String value difference at $['date of birth']: 1999-04-23 vs 1999-04-24.
 ```
 
 ### Composite example
