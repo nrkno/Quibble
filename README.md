@@ -136,7 +136,7 @@ JsonStrings.textDiff str1 str2
 prints 
 
 ```
-Object mismatch at $.
+Object difference at $.
 Additional property:
 price (number).
 ```
@@ -172,7 +172,6 @@ match diffs with
 | [ diff1; diff2 ] -> 
     printfn "%s" diff1
     printfn "%s" diff2
-
 ```
 
 prints
