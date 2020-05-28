@@ -25,9 +25,7 @@ Quibble uses [JsonPath](https://goessner.net/articles/JsonPath/) syntax to point
 
 If you're using [XUnit](https://xunit.net/) to write tests, you may want to check out [Quibble.Xunit](https://github.com/nrkno/json-quibble-xunit), an extension to XUnit that does asserts on text strings with JSON content.
 
-# Examples 
-
-## F# Examples
+# F# Examples
 
 ```
 open Quibble
@@ -92,7 +90,7 @@ String value mismatch at $.books[1].author.
 Expected Leo Brodie but was Chuck Moore.
 ```
 
-## C# Examples
+# C# Examples
 
 ```
 using Quibble.CSharp;
