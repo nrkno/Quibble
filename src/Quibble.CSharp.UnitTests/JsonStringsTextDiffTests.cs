@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Xunit;
 
 namespace Quibble.CSharp.UnitTests
@@ -69,6 +70,45 @@ namespace Quibble.CSharp.UnitTests
             var diffs = JsonStrings.TextDiff("[ 1 ]", "1");
             var diff = diffs.Single();
             Assert.Equal("Type difference at $: an array with 1 item vs the number 1.", diff);
+        }
+
+        [Fact]
+        public void WidgetPriceExample()
+        {
+            var str1 = @"{ ""item"": ""widget"", ""price"": 12.20 }";
+            var str2 = @"{ ""item"": ""widget"" }";
+            var diffs = JsonStrings.TextDiff(str1, str2);
+            var diff = diffs.Single();
+
+            Assert.Equal("Object difference at $.\nLeft only property:\nprice (number).", diff);
+        }
+
+        [Fact]
+        public void BookExample()
+        {
+            var str1 = @"{
+    ""books"": [{
+        ""title"": ""Data and Reality"",  
+        ""author"": ""William Kent""
+    }, {
+        ""title"": ""Thinking Forth"",
+        ""author"": ""Leo Brodie""
+    }]
+}";
+            var str2 = @"{
+    ""books"": [{
+        ""title"": ""Data and Reality"",
+        ""author"": ""William Kent"",
+        ""edition"": ""2nd""
+    }, {
+        ""title"": ""Thinking Forth"",
+        ""author"": ""Chuck Moore""
+    }]
+}";
+            var diffs = JsonStrings.TextDiff(str1, str2);
+
+            Assert.Equal("Object difference at $.books[0].\nRight only property:\nedition (string).", diffs[0]);
+            Assert.Equal("String value difference at $.books[1].author: Leo Brodie vs Chuck Moore.", diffs[1]);
         }
     }
 }

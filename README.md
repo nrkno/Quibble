@@ -106,7 +106,6 @@ Array length difference at $: 1 vs 2.
 #### Array example: Order matters
 
 ```
-let diff = JsonStrings.textDiff "[ 2, 1 ]" "[ 1, 2 ]" |> List.head
 let diffs = JsonStrings.textDiff "[ 2, 1 ]" "[ 1, 2 ]"
 match diffs with
 | [ diff1; diff2 ] -> 
@@ -137,7 +136,7 @@ prints
 
 ```
 Object difference at $.
-Additional property:
+Left only property:
 price (number).
 ```
 
@@ -197,19 +196,138 @@ If you read the examples and wonder what `$` means, note that Quibble uses [Json
 
 ### Comparing numbers
 
-TODO 
+#### Number example: 1 != 2
+
+```
+var diffs = JsonStrings.TextDiff("1", "2");
+Console.WriteLine(diff.Single());
+```
+
+prints 
+
+```
+Number value difference at $: 1 vs 2.
+```
+
+#### Number example: 1.0 == 1
+
+```
+var diffs = JsonStrings.TextDiff("1.0", "1");
+Console.WriteLine(diffs.Any());
+```
+
+prints 
+
+```
+false
+```
+
+The reason is that JSON doesn't distinguish between integers and doubles, everything is just a number.
+
+#### Number example: 123.4 vs 1.234E2
+
+```
+var diffs = JsonStrings.TextDiff("123.4", "1.234E2");
+Console.WriteLine(diffs.Any());
+```
+
+prints 
+
+```
+false
+```
+
+The reason is that 123.4 and 1.234E2 are just different ways of writing the same number.
 
 ### Comparing arrays
 
-TODO 
+#### Array example: Number of items
+
+```
+var diffs = JsonStrings.TextDiff("[ 1 ]", "[ 2, 1 ]");
+Console.WriteLine(diffs.Single());
+```
+
+prints
+
+```
+Array length difference at $: 1 vs 2.
+```
+
+#### Array example: Order matters
+
+```
+var diffs = JsonStrings.TextDiff("[ 2, 1 ]", "[ 1, 2 ]");
+foreach (var diff in diffs) 
+{
+    Console.WriteLine(diff);
+}
+```
+
+prints
+
+```
+Number value difference at $[0]: 2 vs 1.
+Number value difference at $[1]: 1 vs 2.
+```
 
 ### Comparing objects
 
-TODO 
+```
+var str1 = @"{ ""item"": ""widget"", ""price"": 12.20 }";
+var str2 = @"{ ""item"": ""widget"" }";
+var diffs = JsonStrings.TextDiff(str1, str2);
+Console.WriteLine(diffs.Single());
+```
+
+prints 
+
+```
+Object difference at $.
+Left only property:
+price (number).
+```
 
 ### Composite example
 
-TODO 
+```
+var str1 = @"{
+    ""books"": [{
+        ""title"": ""Data and Reality"",  
+        ""author"": ""William Kent""
+    }, {
+        ""title"": ""Thinking Forth"",
+        ""author"": ""Leo Brodie""
+    }]
+}";
+
+var str2 = @"{
+    ""books"": [{
+        ""title"": ""Data and Reality"",
+        ""author"": ""William Kent"",
+        ""edition"": ""2nd""
+    }, {
+        ""title"": ""Thinking Forth"",
+        ""author"": ""Chuck Moore""
+    }]
+}";
+
+var diffs = JsonStrings.TextDiff(str1, str2);
+
+foreach (var diff in diffs) 
+{
+    Console.WriteLine(diff);
+}
+```
+
+prints 
+
+```
+Object difference at $.books[0].
+Right only property:
+edition (string).
+String value difference at $.books[1].author: Leo Brodie vs Chuck Moore.
+```
 
 # Assumptions
 

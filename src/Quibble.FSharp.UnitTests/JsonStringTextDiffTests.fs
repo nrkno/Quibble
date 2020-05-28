@@ -153,6 +153,15 @@ module JsonStringsTextDiffTests =
             Assert.Equal("Number value difference at $['my array'][2]: 3 vs 4.", diff)
         | _ -> failwithf "Expected 1 diff but was %d." (List.length diffs)
 
+    [<Fact>]
+    let ``Widget price example``() =
+        let str1 = """{ "item": "widget", "price": 12.20 }"""
+        let str2 = """{ "item": "widget" }"""
+        let diffs = JsonStrings.textDiff str1 str2 
+        match diffs with
+        | [ diff ] ->
+            Assert.Equal("Object difference at $.\nLeft only property:\nprice (number).", diff)
+        | _ -> failwithf "Expected 1 diff but was %d." (List.length diffs)
 
     [<Fact>]
     let ``Book example``() =
