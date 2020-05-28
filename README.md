@@ -33,7 +33,7 @@ open Quibble
 
 Use `JsonStrings.diff` to get a list of `Diff`-values that you can map, filter and pattern match as you like.
 
-Use `JsonStrings.textDiff`to get a list of text descriptions of the differences.
+Use `JsonStrings.textDiff` to get a list of text descriptions of the differences.
 
 ### Comparing numbers
 
