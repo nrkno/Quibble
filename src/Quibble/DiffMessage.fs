@@ -36,85 +36,80 @@ module DiffMessage =
 
                 sprintf "%s (%s)" p typeStr
 
-            let justMissing =
-                function
-                | RightOnlyProperty (n, v) -> Some (n, v)
-                | LeftOnlyProperty _ -> None
 
-            let justAdditional =
-                function
-                | RightOnlyProperty _ -> None
-                | LeftOnlyProperty (n, v) -> Some (n, v)
-
-            let additionals: string list =
+            let lefts: string list =
+                let justLeft =
+                    function
+                    | RightOnlyProperty _ -> None
+                    | LeftOnlyProperty (n, v) -> Some (n, v)
                 mismatches
-                |> List.choose justAdditional
+                |> List.choose justLeft
                 |> List.map propString
 
-            let missings: string list =
+            let rights: string list =
+                let justRight =
+                    function
+                    | RightOnlyProperty (n, v) -> Some (n, v)
+                    | LeftOnlyProperty _ -> None
                 mismatches
-                |> List.choose justMissing
+                |> List.choose justRight
                 |> List.map propString
 
-            let maybeAdditionalsStr =
-                if additionals.IsEmpty then
+            let maybeLeftOnlyStr =
+                if lefts.IsEmpty then
                     None
                 else
                     let text =
-                        if List.length additionals = 1 then "property" else "properties"
+                        if List.length lefts = 1 then "property" else "properties"
 
                     Some
-                    <| sprintf "Additional %s:\n%s." text (String.concat "\n" additionals)
+                    <| sprintf "Left only %s:\n%s." text (String.concat "\n" lefts)
 
-            let maybeMissingsStr =
-                if missings.IsEmpty then
+            let maybeRightOnlyStr =
+                if rights.IsEmpty then
                     None
                 else
                     let text =
-                        if List.length missings = 1 then "property" else "properties"
+                        if List.length rights = 1 then "property" else "properties"
 
                     Some
-                    <| sprintf "Missing %s:\n%s." text (String.concat "\n" missings)
+                    <| sprintf "Right only %s:\n%s." text (String.concat "\n" rights)
 
             let details =
-                [ maybeAdditionalsStr
-                  maybeMissingsStr ]
+                [ maybeLeftOnlyStr
+                  maybeRightOnlyStr ]
                 |> List.choose id
                 |> String.concat "\n"
 
-            sprintf "Object mismatch at %s.\n%s" path details
-        | Value { Path = path; Left = actual; Right = expected } ->
-            match (actual, expected) with
-            | (JsonValue.String actualStr, JsonValue.String expectedStr) -> 
+            sprintf "Object difference at %s.\n%s" path details
+        | Value { Path = path; Left = left; Right = right } ->
+            match (left, right) with
+            | (JsonValue.String leftStr, JsonValue.String rightStr) ->    
                 let maxStrLen =
-                    max (String.length expectedStr) (String.length actualStr)
+                    max (String.length rightStr) (String.length leftStr)
                 let comparisonStr =
                     if maxStrLen > 30
-                    then sprintf "Expected\n    %s\nbut was\n    %s" expectedStr actualStr
-                    else sprintf "Expected %s but was %s." expectedStr actualStr
-                sprintf "String value mismatch at %s.\n%s" path comparisonStr
-            | (JsonValue.Number (_, actualNumberText), JsonValue.Number (_, expectedNumberText)) ->
-                sprintf "Number value mismatch at %s.\nExpected %s but was %s." path expectedNumberText actualNumberText
-            | _ -> sprintf "Some other value mismatch at %s." path
-        | Type { Path = path; Left = actual; Right = expected } ->
-            match (actual, expected) with
+                    then sprintf "    %s\nvs\n    %s" leftStr rightStr
+                    else sprintf "%s vs %s." leftStr rightStr
+                sprintf "String value difference at %s.\n%s" path comparisonStr
+            | (JsonValue.Number (_, leftNumberText), JsonValue.Number (_, rightNumberText)) ->
+                sprintf "Number value difference at %s.\n%s vs %s." path leftNumberText rightNumberText
+            | _ -> sprintf "Some other value difference at %s." path
+        | Type { Path = path; Left = left; Right = right } ->
+            match (left, right) with
             | (JsonValue.True, JsonValue.False) ->
-                sprintf "Boolean value mismatch at %s.\nExpected false but was true." path
+                sprintf "Boolean value difference at %s.\ntrue vs false." path
             | (JsonValue.False, JsonValue.True) ->
-               sprintf "Boolean value mismatch at %s.\nExpected true but was false." path
+               sprintf "Boolean value difference at %s.\nfalse vs true." path
             | (_, _) ->
-                let expectedMessage = toValueDescription expected
-                let actualMessage = toValueDescription actual
-                sprintf "Type mismatch at %s.\nExpected %s but was %s." path expectedMessage actualMessage
-        | ItemCount { Path = path; Left = actual; Right = expected } ->
-            match (actual, expected) with
-            | (Array actualItems, Array expectedItems) ->
-                let expectedLength = expectedItems |> List.length
-                let actualLength = actualItems |> List.length 
-
-                let itemsStr =
-                    if expectedLength = 1 then "item" else "items"
-
-                sprintf "Array length mismatch at %s.\nExpected %d %s but was %d." path expectedLength itemsStr actualLength
+                let rightValueDescription = toValueDescription right
+                let leftValueDescription = toValueDescription left
+                sprintf "Type difference at %s.\n%s vs %s." path leftValueDescription rightValueDescription
+        | ItemCount { Path = path; Left = left; Right = right } ->
+            match (left, right) with
+            | (Array leftItems, Array rightItems) ->
+                let rightArrayLength = rightItems |> List.length
+                let leftArrayLength = leftItems |> List.length 
+                sprintf "Array length difference at %s.\n%d vs %d." path leftArrayLength rightArrayLength
             | _ ->
                 failwith "A bug."
