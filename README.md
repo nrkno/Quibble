@@ -138,11 +138,8 @@ prints
 
 ```
 Object difference at $.
-Left only property:
-price (number).
-Right only properties:
-quantity (number)
-inStock (bool).
+Left only property: price (number).
+Right only properties: quantity (number), inStock (bool).
 ```
 
 ### Composite example
@@ -182,8 +179,7 @@ prints
 
 ```
 Object difference at $.books[0].
-Right only property:
-edition (string).
+Right only property: edition (string).
 String value difference at $.books[1].author: Leo Brodie vs Chuck Moore.
 ```
 
@@ -291,11 +287,8 @@ prints
 
 ```
 Object difference at $.
-Left only property:
-price (number).
-Right only properties:
-quantity (number)
-inStock (bool).
+Left only property: price (number).
+Right only properties: quantity (number), inStock (bool).
 ```
 
 ### Composite example
@@ -334,8 +327,7 @@ prints
 
 ```
 Object difference at $.books[0].
-Right only property:
-edition (string).
+Right only property: edition (string).
 String value difference at $.books[1].author: Leo Brodie vs Chuck Moore.
 ```
 

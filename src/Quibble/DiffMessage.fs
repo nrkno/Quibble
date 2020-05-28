@@ -34,8 +34,7 @@ module DiffMessage =
                     | JsonValue.Undefined
                     | _ -> "undefined"
 
-                sprintf "%s (%s)" p typeStr
-
+                sprintf "'%s' (%s)" p typeStr
 
             let lefts: string list =
                 let justLeft =
@@ -63,7 +62,7 @@ module DiffMessage =
                         if List.length lefts = 1 then "property" else "properties"
 
                     Some
-                    <| sprintf "Left only %s:\n%s." text (String.concat "\n" lefts)
+                    <| sprintf "Left only %s: %s." text (String.concat ", " lefts)
 
             let maybeRightOnlyStr =
                 if rights.IsEmpty then
@@ -73,7 +72,7 @@ module DiffMessage =
                         if List.length rights = 1 then "property" else "properties"
 
                     Some
-                    <| sprintf "Right only %s:\n%s." text (String.concat "\n" rights)
+                    <| sprintf "Right only %s: %s." text (String.concat ", " rights)
 
             let details =
                 [ maybeLeftOnlyStr

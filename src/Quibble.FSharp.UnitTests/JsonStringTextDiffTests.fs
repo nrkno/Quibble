@@ -127,7 +127,7 @@ module JsonStringsTextDiffTests =
         let diffs = JsonStrings.textDiff "{}" "{ \"count\": 0 }"
         match diffs with
         | [ diff ] ->
-            Assert.Equal("Object difference at $.\nRight only property:\ncount (number).", diff)
+            Assert.Equal("Object difference at $.\nRight only property: 'count' (number).", diff)
         | _ -> failwithf "Expected 1 diff but got %d." (List.length diffs)
 
     [<Fact>]
@@ -135,7 +135,7 @@ module JsonStringsTextDiffTests =
         let diffs = JsonStrings.textDiff "{ \"count\": 0 }" "{}"
         match diffs with
         | [ diff ] ->
-            Assert.Equal("Object difference at $.\nLeft only property:\ncount (number).", diff)
+            Assert.Equal("Object difference at $.\nLeft only property: 'count' (number).", diff)
         | _ -> failwithf "Expected 1 diff but was %d." (List.length diffs)
         
     [<Fact>]
@@ -160,7 +160,7 @@ module JsonStringsTextDiffTests =
         let diffs = JsonStrings.textDiff str1 str2 
         match diffs with
         | [ diff ] ->
-            Assert.Equal("Object difference at $.\nLeft only property:\nprice (number).", diff)
+            Assert.Equal("Object difference at $.\nLeft only property: 'price' (number).", diff)
         | _ -> failwithf "Expected 1 diff but was %d." (List.length diffs)
 
     [<Fact>]
@@ -187,6 +187,6 @@ module JsonStringsTextDiffTests =
         let diffs = JsonStrings.textDiff str1 str2 
         match diffs with
         | [ diff1; diff2 ] ->
-            Assert.Equal("Object difference at $.books[0].\nRight only property:\nedition (string).", diff1)
+            Assert.Equal("Object difference at $.books[0].\nRight only property: 'edition' (string).", diff1)
             Assert.Equal("String value difference at $.books[1].author: Leo Brodie vs Chuck Moore.", diff2)
         | _ -> failwithf "Expected 2 diffs but was %d." (List.length diffs)

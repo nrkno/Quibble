@@ -79,8 +79,7 @@ namespace Quibble.CSharp.UnitTests
             var str2 = @"{ ""item"": ""widget"", ""quantity"": 88, ""inStock"": true }";
             var diffs = JsonStrings.TextDiff(str1, str2);
             var diff = diffs.Single();
-            
-            Assert.Equal("Object difference at $.\nLeft only property:\nprice (number).\nRight only properties:\nquantity (number)\ninStock (bool).", diff);
+            Assert.Equal("Object difference at $.\nLeft only property: 'price' (number).\nRight only properties: 'quantity' (number), 'inStock' (bool).", diff);
         }
 
         [Fact]
@@ -107,7 +106,7 @@ namespace Quibble.CSharp.UnitTests
 }";
             var diffs = JsonStrings.TextDiff(str1, str2);
 
-            Assert.Equal("Object difference at $.books[0].\nRight only property:\nedition (string).", diffs[0]);
+            Assert.Equal("Object difference at $.books[0].\nRight only property: 'edition' (string).", diffs[0]);
             Assert.Equal("String value difference at $.books[1].author: Leo Brodie vs Chuck Moore.", diffs[1]);
         }
     }
