@@ -12,7 +12,11 @@ Quibble distinguishes between four kinds of differences:
 * `Properties`: when two JSON objects have differences in their properties, e.g. the object `{ "name": "Quux" }` vs the object `{ "id": "1c3d" }`.
 * `ItemCount`: when two JSON arrays have a different number of items, e.g. the array `[ 1, 2 ]` vs the array `[ 1, 2, 3 ]`.
 
-[C# Examples](#c-examples)
+## TL;DR
+
+Jump to [F# Examples](#f-examples)
+
+Jump to [C# Examples](#c-examples)
 
 # Why Quibble?
 
