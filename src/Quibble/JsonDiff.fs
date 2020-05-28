@@ -5,8 +5,8 @@ type PathElement =
     | IndexPathElement of int
 
 type PropertyMismatch =
-    | MissingProperty of string * JsonValue
-    | AdditionalProperty of string * JsonValue
+    | LeftOnlyProperty of string * JsonValue
+    | RightOnlyProperty of string * JsonValue
 
 type DiffPoint =
     { Path: string
@@ -14,28 +14,28 @@ type DiffPoint =
       Right: JsonValue }
 
 type Diff =
-    | Kind of DiffPoint
+    | Type of DiffPoint
     | Value of DiffPoint
     | Properties of (DiffPoint * PropertyMismatch list)
     | ItemCount of DiffPoint
 
     member x.Path =
         match x with
-        | Kind pt -> pt.Path
+        | Type pt -> pt.Path
         | Value pt -> pt.Path
         | Properties (pt, _) -> pt.Path
         | ItemCount pt -> pt.Path
         
     member x.Left =
         match x with
-        | Kind pt -> pt.Left
+        | Type pt -> pt.Left
         | Value pt -> pt.Left
         | Properties (pt, _) -> pt.Left
         | ItemCount pt -> pt.Left
 
     member x.Right =
         match x with
-        | Kind pt -> pt.Right
+        | Type pt -> pt.Right
         | Value pt -> pt.Right
         | Properties (pt, _) -> pt.Right
         | ItemCount pt -> pt.Right
@@ -93,27 +93,27 @@ module JsonDiff =
                     List.mapi2 itemDiff items1 items2
                     |> List.collect id
                 childDiffs
-        | (Object props1, Object props2) ->
+        | (Object leftProps, Object rightProps) ->
             (* order doesn't matter. *)
             let keys (props : (string * JsonValue) list): string list =
                 props |> List.map (fun (n, v) -> n) 
 
-            let keys1 = keys props1
-            let keys2 = keys props2
+            let leftKeys = keys leftProps
+            let rightKeys = keys rightProps
             
-            let missingKeys = keys2 |> List.except keys1
-            let missingProperties =
-                props2
-                |> List.filter (fun (n, _) -> List.contains n missingKeys)
-                |> List.map MissingProperty
+            let rightOnlyKeys = rightKeys |> List.except leftKeys
+            let rightOnlyProperties =
+                rightProps
+                |> List.filter (fun (n, _) -> List.contains n rightOnlyKeys)
+                |> List.map RightOnlyProperty
                 
-            let additionalKeys = keys1 |> List.except keys2
-            let additionalProperties =
-                props1
-                |> List.filter (fun (n, _) -> List.contains n additionalKeys)
-                |> List.map AdditionalProperty
+            let leftOnlyKeys = leftKeys |> List.except rightKeys
+            let leftOnlyProperties =
+                leftProps
+                |> List.filter (fun (n, _) -> List.contains n leftOnlyKeys)
+                |> List.map LeftOnlyProperty
 
-            let mismatches = missingProperties @ additionalProperties
+            let mismatches = rightOnlyProperties @ leftOnlyProperties
 
             let objectDiff =
                 match mismatches with
@@ -125,20 +125,20 @@ module JsonDiff =
                            Right = element2 },
                          ms) ]
 
-            let sharedKeys: string list = keys2 |> List.except missingKeys
+            let sharedKeys: string list = rightKeys |> List.except rightOnlyKeys
 
             let selectValue (key: string) (props : (string * JsonValue) list) =
                 List.pick (fun (k, v) -> if k = key then Some v else None) props
             
             let propDiff (key: string) =
-               let child1 = props1 |> selectValue key
-               let child2 = props2 |> selectValue key
+               let child1 = leftProps |> selectValue key
+               let child2 = rightProps |> selectValue key
                findDiff (path @ [ PropertyPathElement key ]) child1 child2
 
             let childDiffs = sharedKeys |> List.collect propDiff
             objectDiff @ childDiffs
         | _ -> 
-            [ Kind
+            [ Type
                 { Path = toJsonPath path
                   Left = element1
                   Right = element2 } ]

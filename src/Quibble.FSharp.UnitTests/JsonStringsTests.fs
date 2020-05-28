@@ -69,7 +69,7 @@ module JsonStringsTests =
         match diffs with
         | [ diff ] ->
             match diff with
-            | Kind { Path = path; Left = left; Right = right } ->
+            | Type { Path = path; Left = left; Right = right } ->
                Assert.Equal("$", path)
                Assert.Equal(True, left)
                Assert.Equal(Number (1., "1"), right)
@@ -100,7 +100,7 @@ module JsonStringsTests =
     let ``null vs 1``() = 
         let diff = JsonStrings.diff "null" "1" |> List.head
         match diff with
-        | Kind { Path = path; Left = left; Right = right } ->
+        | Type { Path = path; Left = left; Right = right } ->
             Assert.Equal("$", path)
             Assert.Equal(Null, left)
             Assert.Equal(Number (1., "1"), right)
@@ -111,7 +111,7 @@ module JsonStringsTests =
     let ``Empty array vs null``() = 
         let diff = JsonStrings.diff "[]" "null" |> List.head
         match diff with
-        | Kind { Path = path; Left = left; Right = right } ->
+        | Type { Path = path; Left = left; Right = right } ->
             Assert.Equal("$", path)
             Assert.Equal(Array [], left)
             Assert.Equal(Null, right)
@@ -124,7 +124,7 @@ module JsonStringsTests =
         match diffs with
         | [ diff ] ->
             match diff with
-            | Kind { Path = path; Left = left; Right = right } ->
+            | Type { Path = path; Left = left; Right = right } ->
                 Assert.Equal("$", path)
                 Assert.Equal(Array [], left)
                 Assert.Equal(Object [], right)

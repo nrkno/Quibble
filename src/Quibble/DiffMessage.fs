@@ -38,13 +38,13 @@ module DiffMessage =
 
             let justMissing =
                 function
-                | MissingProperty (n, v) -> Some (n, v)
-                | AdditionalProperty _ -> None
+                | RightOnlyProperty (n, v) -> Some (n, v)
+                | LeftOnlyProperty _ -> None
 
             let justAdditional =
                 function
-                | MissingProperty _ -> None
-                | AdditionalProperty (n, v) -> Some (n, v)
+                | RightOnlyProperty _ -> None
+                | LeftOnlyProperty (n, v) -> Some (n, v)
 
             let additionals: string list =
                 mismatches
@@ -96,7 +96,7 @@ module DiffMessage =
             | (JsonValue.Number (_, actualNumberText), JsonValue.Number (_, expectedNumberText)) ->
                 sprintf "Number value mismatch at %s.\nExpected %s but was %s." path expectedNumberText actualNumberText
             | _ -> sprintf "Some other value mismatch at %s." path
-        | Kind { Path = path; Left = actual; Right = expected } ->
+        | Type { Path = path; Left = actual; Right = expected } ->
             match (actual, expected) with
             | (JsonValue.True, JsonValue.False) ->
                 sprintf "Boolean value mismatch at %s.\nExpected false but was true." path

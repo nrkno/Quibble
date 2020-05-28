@@ -15,7 +15,7 @@ module JsonDiffTests =
 
         Assert.NotEmpty(diffs)
         match diffs.Head with
-        | Kind kindDiff ->
+        | Type kindDiff ->
             Assert.Equal("$", kindDiff.Path)
             Assert.Equal(JsonValue.True, kindDiff.Left)
             Assert.Equal(JsonValue.False, kindDiff.Right)
@@ -45,7 +45,7 @@ module JsonDiffTests =
 
         Assert.NotEmpty(diffs)
         match diffs.Head with
-        | Kind kindDiff ->
+        | Type kindDiff ->
             Assert.Equal("$", kindDiff.Path)
             Assert.Equal(JsonValue.True, kindDiff.Left)
             Assert.Equal(JsonValue.Number (1., "1"), kindDiff.Right)
@@ -60,7 +60,7 @@ module JsonDiffTests =
 
         Assert.NotEmpty(diffs)
         match diffs.Head with
-        | Kind kindDiff ->
+        | Type kindDiff ->
             Assert.Equal("$", kindDiff.Path)
             Assert.Equal(JsonValue.Null, kindDiff.Left)
             Assert.Equal(JsonValue.Number (1., "1"), kindDiff.Right)

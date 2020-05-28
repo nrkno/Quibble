@@ -12,7 +12,7 @@ namespace Quibble.CSharp.UnitTests
             var diffs = JsonStrings.Diff("true", "false");
             var diff = diffs.Single();
             Assert.Equal("$", diff.Path);
-            Assert.True(diff.IsKind);
+            Assert.True(diff.IsType);
             Assert.True(diff.Left.IsTrue);
             Assert.True(diff.Right.IsFalse);
         }
@@ -24,7 +24,7 @@ namespace Quibble.CSharp.UnitTests
             var diffs = JsonStrings.Diff("false", "true");
             var diff = diffs.Single();
             Assert.Equal("$", diff.Path);
-            Assert.True(diff.IsKind);
+            Assert.True(diff.IsType);
             Assert.True(diff.Left.IsFalse);
             Assert.True(diff.Right.IsTrue);
         }
@@ -35,7 +35,7 @@ namespace Quibble.CSharp.UnitTests
             var diffs = JsonStrings.Diff("null", "false");
             var diff = diffs.Single();
             Assert.Equal("$", diff.Path);
-            Assert.True(diff.IsKind);
+            Assert.True(diff.IsType);
             Assert.True(diff.Left.IsNull);
             Assert.True(diff.Right.IsFalse);
         }
@@ -46,7 +46,7 @@ namespace Quibble.CSharp.UnitTests
             var diffs = JsonStrings.Diff("false", "null");
             var diff = diffs.Single();
             Assert.Equal("$", diff.Path);
-            Assert.True(diff.IsKind);
+            Assert.True(diff.IsType);
             Assert.True(diff.Left.IsFalse);
             Assert.True(diff.Right.IsNull);
         }
@@ -57,7 +57,7 @@ namespace Quibble.CSharp.UnitTests
             var diffs = JsonStrings.Diff("false", "0");
             var diff = diffs.Single();
             Assert.Equal("$", diff.Path);
-            Assert.True(diff.IsKind);
+            Assert.True(diff.IsType);
             Assert.True(diff.Left.IsFalse);
             Assert.True(diff.Right.IsNumber);
         }
@@ -68,7 +68,7 @@ namespace Quibble.CSharp.UnitTests
             var diffs = JsonStrings.Diff("1", "true");
             var diff = diffs.Single();
             Assert.Equal("$", diff.Path);
-            Assert.True(diff.IsKind);
+            Assert.True(diff.IsType);
             Assert.True(diff.Left.IsNumber);
             Assert.True(diff.Right.IsTrue);
         }
@@ -79,7 +79,7 @@ namespace Quibble.CSharp.UnitTests
             var diffs = JsonStrings.Diff("[]", "1");
             var diff = diffs.Single();
             Assert.Equal("$", diff.Path);
-            Assert.True(diff.IsKind);
+            Assert.True(diff.IsType);
             Assert.True(diff.Left.IsArray);
             Assert.True(diff.Right.IsNumber);
         }
@@ -90,7 +90,7 @@ namespace Quibble.CSharp.UnitTests
             var diffs = JsonStrings.Diff("[ 1 ]", "1");
             var diff = diffs.Single();
             Assert.Equal("$", diff.Path);
-            Assert.True(diff.IsKind);
+            Assert.True(diff.IsType);
             Assert.True(diff.Left.IsArray);
             Assert.True(diff.Right.IsNumber);
         }

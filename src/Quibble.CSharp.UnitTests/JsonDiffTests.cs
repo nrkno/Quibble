@@ -13,7 +13,7 @@ namespace Quibble.CSharp.UnitTests
             var v2 = JsonParse.Parse("false");
             var diffs = JsonDiff.OfValues(v1, v2).ToList();
             Assert.NotEmpty(diffs);
-            var kindDiff = (Diff.Kind) diffs.Single();
+            var kindDiff = (Diff.Type) diffs.Single();
             Assert.Equal("$", kindDiff.Item.Path);
             Assert.Equal(JsonValue.True, kindDiff.Left);
             Assert.Equal(JsonValue.False, kindDiff.Right);
