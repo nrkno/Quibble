@@ -2,8 +2,8 @@ namespace Quibble
 
 module DiffMessage =
 
-    let private toValueDescription (e: JsonValue): string =
-        match e with
+    let private toValueDescription (jv: JsonValue): string =
+        match jv with
         | JsonValue.True -> "the boolean true"
         | JsonValue.False -> "the boolean false"
         | JsonValue.String s -> sprintf "the string %s" s

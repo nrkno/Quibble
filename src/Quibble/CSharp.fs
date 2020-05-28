@@ -5,10 +5,10 @@ module JsonStrings =
     open Quibble
     open System.Collections.Generic
     
-    let Diff (jsonString1: string, jsonString2: string): IReadOnlyList<Diff> =
-        let diffs = Quibble.JsonStrings.diff jsonString1 jsonString2
+    let Diff (leftJsonString: string, rightJsonString: string): IReadOnlyList<Diff> =
+        let diffs = Quibble.JsonStrings.diff leftJsonString rightJsonString
         diffs :> IReadOnlyList<Diff>
         
-    let TextDiff (jsonString1: string, jsonString2: string): IReadOnlyList<string> =
-        let diffs = Quibble.JsonStrings.textDiff jsonString1 jsonString2
+    let TextDiff (leftJsonString: string, rightJsonString: string): IReadOnlyList<string> =
+        let diffs = Quibble.JsonStrings.textDiff leftJsonString rightJsonString
         diffs :> IReadOnlyList<string>

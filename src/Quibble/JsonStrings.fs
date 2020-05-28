@@ -2,11 +2,11 @@ namespace Quibble
 
 module JsonStrings =
 
-    let diff (jsonString1: string) (jsonString2: string): Diff list =
-        let v1 = JsonParse.Parse(jsonString1)
-        let v2 = JsonParse.Parse(jsonString2)
-        JsonDiff.OfValues v1 v2
+    let diff (leftJsonString: string) (rightJsonString: string): Diff list =
+        let leftValue = JsonParse.Parse(leftJsonString)
+        let rightValue = JsonParse.Parse(rightJsonString)
+        JsonDiff.OfValues leftValue rightValue
 
-    let textDiff (jsonString1: string) (jsonString2: string): string list =
-        diff jsonString1 jsonString2 |> List.map DiffMessage.toDiffMessage
+    let textDiff (leftJsonString: string) (rightJsonString: string): string list =
+        diff leftJsonString rightJsonString |> List.map DiffMessage.toDiffMessage
         

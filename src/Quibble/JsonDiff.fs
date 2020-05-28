@@ -60,8 +60,8 @@ module JsonDiff =
         |> List.fold (fun str elm -> sprintf "%s%s" str (elementToString elm)) ""
         |> sprintf "$%s"
 
-    let rec private findDiff (path: PathElement list) (element1: JsonValue) (element2: JsonValue): Diff list =
-        match (element1, element2) with
+    let rec private findDiff (path: PathElement list) (value1: JsonValue) (value2: JsonValue): Diff list =
+        match (value1, value2) with
         | (Undefined, Undefined) -> []
         | (Null, Null) -> []
         | (True, True) -> []
@@ -71,22 +71,22 @@ module JsonDiff =
             else
                 [ Value
                     { Path = toJsonPath path
-                      Left = element1
-                      Right = element2 } ]
+                      Left = value1
+                      Right = value2 } ]
         | (String s1, String s2) ->
             if s1 = s2 then []
             else
                 [ Value
                     { Path = toJsonPath path
-                      Left = element1
-                      Right = element2 } ]
+                      Left = value1
+                      Right = value2 } ]
         | (Array items1, Array items2) ->
             (* order matters. *)
             if List.length items1 <> List.length items2 then
                 [ ItemCount
                     { Path = toJsonPath path
-                      Left = element1
-                      Right = element2 } ]
+                      Left = value1
+                      Right = value2 } ]
             else
                 let itemDiff i e1 e2 = findDiff (path @ [ IndexPathElement i ]) e1 e2
                 let childDiffs =
@@ -121,8 +121,8 @@ module JsonDiff =
                 | ms ->
                     [ Properties
                         ({ Path = toJsonPath path
-                           Left = element1
-                           Right = element2 },
+                           Left = value1
+                           Right = value2 },
                          ms) ]
 
             let sharedKeys: string list = rightKeys |> List.except rightOnlyKeys
@@ -140,8 +140,8 @@ module JsonDiff =
         | _ -> 
             [ Type
                 { Path = toJsonPath path
-                  Left = element1
-                  Right = element2 } ]
+                  Left = value1
+                  Right = value2 } ]
 
     let OfValues (v1: JsonValue) (v2: JsonValue) : Diff list =
         findDiff [] v1 v2
