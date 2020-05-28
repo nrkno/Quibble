@@ -123,9 +123,11 @@ Number value difference at $[1]: 1 vs 2.
 
 ### Comparing objects
 
+#### Object example: Property differences
+
 ```
 let str1 = """{ "item": "widget", "price": 12.20 }"""
-let str2 = """{ "item": "widget" }"""
+let str2 = """{ "item": "widget", "quantity": 88, "inStock": true }"""
 
 JsonStrings.textDiff str1 str2 
 |> List.head
@@ -138,6 +140,9 @@ prints
 Object difference at $.
 Left only property:
 price (number).
+Right only properties:
+quantity (number)
+inStock (bool).
 ```
 
 ### Composite example
@@ -254,7 +259,7 @@ prints
 Array length difference at $: 1 vs 2.
 ```
 
-#### Array example: Order matters
+#### Array example: Item order matters
 
 ```
 var diffs = JsonStrings.TextDiff("[ 2, 1 ]", "[ 1, 2 ]");
@@ -273,9 +278,11 @@ Number value difference at $[1]: 1 vs 2.
 
 ### Comparing objects
 
+#### Object example: Property differences
+
 ```
 var str1 = @"{ ""item"": ""widget"", ""price"": 12.20 }";
-var str2 = @"{ ""item"": ""widget"" }";
+var str2 = @"{ ""item"": ""widget"", ""quantity"": 88, ""inStock"": true }";
 var diffs = JsonStrings.TextDiff(str1, str2);
 Console.WriteLine(diffs.Single());
 ```
@@ -286,6 +293,9 @@ prints
 Object difference at $.
 Left only property:
 price (number).
+Right only properties:
+quantity (number)
+inStock (bool).
 ```
 
 ### Composite example
