@@ -105,7 +105,7 @@ module DiffMessage =
             | (_, _) ->
                 let expectedMessage = toValueDescription expected
                 let actualMessage = toValueDescription actual
-                sprintf "Kind mismatch at %s.\nExpected %s but was %s." path expectedMessage actualMessage
+                sprintf "Type mismatch at %s.\nExpected %s but was %s." path expectedMessage actualMessage
         | ItemCount { Path = path; Left = actual; Right = expected } ->
             match (actual, expected) with
             | (Array actualItems, Array expectedItems) ->
