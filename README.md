@@ -30,7 +30,7 @@ Quibble is useful whenever you need to compare two JSON documents to see if and 
 
 Quibble uses [JSONPath](https://goessner.net/articles/JsonPath/) syntax to point you to the right elements. In JSONPath syntax, `$` indicates the root of the document, whereas something like `$.books[1].author` means "the author property of the second element of the books array".
 
-If you're using [XUnit](https://xunit.net/) to write tests, you may want to check out [Quibble.Xunit](https://github.com/nrkno/json-quibble-xunit), an extension to XUnit that does asserts on text strings with JSON content.
+If you're using [xUnit.net](https://xunit.net/) to write tests, you may want to check out [Quibble.Xunit](https://github.com/nrkno/json-quibble-xunit), an extension to XUnit that does asserts on text strings with JSON content.
 
 
 # F# Examples
