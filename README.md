@@ -12,7 +12,11 @@ Quibble distinguishes between four kinds of differences:
 * `Properties`: when two JSON objects have differences in their properties, e.g. the object `{ "name": "Quux" }` vs the object `{ "id": "1c3d" }`.
 * `ItemCount`: when two JSON arrays have a different number of items, e.g. the array `[ 1, 2 ]` vs the array `[ 1, 2, 3 ]`.
 
-Quibble makes a couple of [assumptions](#assumptions) that you might want to know about.
+Quibble makes the following assumptions: 
+
+* Order of items matters for arrays.
+* Order of properties does not matter for objects.
+* Different ways of writing the same number do not matter.
 
 ## TL;DR
 
@@ -367,10 +371,3 @@ Object difference at $.books[0].
 Right only property: 'edition' (string).
 String value difference at $.books[1].author: Leo Brodie vs Chuck Moore.
 ```
-
-# Assumptions
-
-Quibble makes the following assumptions: 
-* Order of items matters for arrays.
-* Order of properties does not matter for objects.
-* Different ways of writing the same number do not matter.

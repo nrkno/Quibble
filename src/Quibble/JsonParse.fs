@@ -2,6 +2,16 @@
 
 open System.Text.Json
 
+type JsonValueType =
+    | Undefined
+    | Null
+    | True
+    | False
+    | Number
+    | String
+    | Array 
+    | Object
+
 type JsonValue =
     | Undefined
     | Null
@@ -10,8 +20,19 @@ type JsonValue =
     | Number of (double * string)
     | String of string
     | Array of JsonValue list
-    | Object of (string * JsonValue) list 
-
+    | Object of (string * JsonValue) list
+    
+    member x.ValueType  =
+        match x with
+        | Undefined -> JsonValueType.Undefined
+        | Null -> JsonValueType.Null
+        | True -> JsonValueType.True
+        | False -> JsonValueType.False
+        | Number _ -> JsonValueType.Number
+        | String _ -> JsonValueType.String
+        | Array _ -> JsonValueType.Array
+        | Object _ -> JsonValueType.Object
+        
 module JsonParse =
 
     let rec private toJsonValue (element : JsonElement) : JsonValue =

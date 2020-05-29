@@ -39,6 +39,15 @@ type Diff =
         | Value pt -> pt.Right
         | Properties (pt, _) -> pt.Right
         | ItemCount pt -> pt.Right
+        
+    member x.PropertyMismatches =
+        let result =
+            match x with
+            | Properties (_, mismatches) -> mismatches
+            | Type _ -> failwith "No property mismatches for Type diff!"
+            | Value _ -> failwith "No property mismatches for Value diff!"
+            | ItemCount _ -> failwith "No property mismatches for ItemCount diff!"
+        result |> List.toSeq
 
 module JsonDiff =
 
