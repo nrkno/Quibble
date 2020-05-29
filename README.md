@@ -43,7 +43,7 @@ Use `JsonStrings.diff` to get a list of `Diff`-values that you can map, filter a
 
 Use `JsonStrings.textDiff` to get a list of text descriptions of the differences.
 
-If you read the examples and wonder what `$` means, note that Quibble uses [JsonPath](https://goessner.net/articles/JsonPath/) syntax to point you to differences. 
+If you read the examples and wonder what `$` means, note that Quibble uses [JSONPath](https://goessner.net/articles/JsonPath/) syntax to point you to differences. 
 
 
 ### Comparing numbers
@@ -219,7 +219,7 @@ Use `JsonStrings.Diff` to get a read-only list of `Diff`-values that you can wor
 
 Use `JsonStrings.TextDiff`to get a read-only list of text descriptions of the differences.
 
-If you read the examples and wonder what `$` means, note that Quibble uses [JsonPath](https://goessner.net/articles/JsonPath/) syntax to point you to differences. 
+If you read the examples and wonder what `$` means, note that Quibble uses [JSONPath](https://goessner.net/articles/JsonPath/) syntax to point you to differences. 
 
 ### Comparing numbers
 
