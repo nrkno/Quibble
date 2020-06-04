@@ -4,28 +4,25 @@ open Quibble
 open System.Collections.Generic
 open System.Collections.ObjectModel
 open System.Linq
-
-type JsonValueType =
-    | Undefined
-    | Null
-    | True
-    | False
-    | Number
-    | String
-    | Array 
-    | Object
     
 [<AbstractClass>]
 type JsonValue() =
-    abstract member Type: JsonValueType
-    member this.IsUndefined = this.Type = Undefined 
-    member this.IsNull = this.Type = Null 
-    member this.IsTrue = this.Type = True 
-    member this.IsFalse = this.Type = False 
-    member this.IsNumber = this.Type = Number 
-    member this.IsString = this.Type = String 
-    member this.IsArray = this.Type = Array
-    member this.IsObject = this.Type = Object
+    abstract member IsUndefined : bool
+    default this.IsUndefined = false
+    abstract member IsNull : bool
+    default this.IsNull = false
+    abstract member IsTrue : bool
+    default this.IsTrue = false
+    abstract member IsFalse : bool
+    default this.IsFalse = false 
+    abstract member IsNumber : bool
+    default this.IsNumber = false 
+    abstract member IsString : bool
+    default this.IsString = false 
+    abstract member IsArray : bool
+    default this.IsArray = false
+    abstract member IsObject : bool
+    default this.IsObject = false
     
 type Undefined private () =
     inherit JsonValue()
@@ -33,10 +30,10 @@ type Undefined private () =
     static let instance = Undefined() 
     static member Instance = instance
            
-    override this.Type = JsonValueType.Undefined
-        
+    override this.IsUndefined = true
+           
     override this.GetHashCode() =
-        hash this.Type
+        hash <| this.GetType()
 
     override this.Equals(that) =
         match that with
@@ -51,10 +48,10 @@ type Null private () =
     static let instance = Null() 
     static member Instance = instance
            
-    override this.Type = JsonValueType.Null
-        
+    override this.IsNull = true
+
     override this.GetHashCode() =
-        hash this.Type
+        hash <| this.GetType()
 
     override this.Equals(that) =
         match that with
@@ -68,11 +65,11 @@ type True private () =
 
     static let instance = True() 
     static member Instance = instance
+    
+    override this.IsTrue = true
            
-    override this.Type = JsonValueType.True
-        
     override this.GetHashCode() =
-        hash this.Type 
+        hash <| this.GetType()
 
     override this.Equals(that) =
         match that with
@@ -86,11 +83,11 @@ type False private () =
 
     static let instance = False() 
     static member Instance = instance
+
+    override this.IsFalse = true
            
-    override this.Type = JsonValueType.False
-        
     override this.GetHashCode() =
-        hash this.Type
+        hash <| this.GetType()
 
     override this.Equals(that) =
         match that with
@@ -102,15 +99,15 @@ type False private () =
 type Number (numericValue : double, textRepresentation : string)  =
     inherit JsonValue()
 
-    override this.Type = JsonValueType.Number
-    
     member this.NumericValue = numericValue
     
     member this.TextRepresentation = textRepresentation
-        
+
+    override this.IsNumber = true
+            
     // Only numeric value counts for equality.
     override this.GetHashCode() =
-        hash (this.Type, this.NumericValue)
+        hash (this.GetType(), this.NumericValue)
 
     // Only numeric value counts for equality.
     override this.Equals(that) =
@@ -124,12 +121,12 @@ type Number (numericValue : double, textRepresentation : string)  =
 type String (text : string)  =
     inherit JsonValue()
 
-    override this.Type = JsonValueType.String
-    
     member this.Text = text
-        
+
+    override this.IsString = true
+            
     override this.GetHashCode() =
-        hash (this.Type, this.Text)
+        hash (this.GetType(), this.Text)
 
     override this.Equals(that) =
         match that with
@@ -142,12 +139,12 @@ type String (text : string)  =
 type Array (items : IReadOnlyList<JsonValue>)  =
     inherit JsonValue()
 
-    override this.Type = JsonValueType.Array
-    
     member this.Items = items
-        
+
+    override this.IsArray = true
+            
     override this.GetHashCode() =
-        let init = hash this.Type
+        let init = hash <| this.GetType()
         items |> Seq.fold (fun state item -> state * 31 + hash item) (487 + init)
 
     override this.Equals(that) =
@@ -171,16 +168,16 @@ type Object (properties : IReadOnlyDictionary<string, JsonValue>)  =
     
     let propSeq = properties |> Seq.map (fun kv -> kv.Key, kv.Value)
     
-    override this.Type = JsonValueType.Object
-    
     member this.Item with get(propertyName : string) =
         match properties.TryGetValue(propertyName) with
         | (true, jv) -> jv
         | (false, _) -> Undefined.Instance :> JsonValue
 
+    override this.IsObject = true
+
     override this.GetHashCode() =
         let propList = Seq.toList propSeq
-        hash (this.Type, propList)
+        hash (this.GetType(), propList)
 
     override this.Equals(that) =
         match that with
