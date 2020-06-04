@@ -19,36 +19,6 @@ type Diff =
     | Properties of (DiffPoint * PropertyMismatch list)
     | ItemCount of DiffPoint
 
-    member x.Path =
-        match x with
-        | Type pt -> pt.Path
-        | Value pt -> pt.Path
-        | Properties (pt, _) -> pt.Path
-        | ItemCount pt -> pt.Path
-        
-    member x.Left =
-        match x with
-        | Type pt -> pt.Left
-        | Value pt -> pt.Left
-        | Properties (pt, _) -> pt.Left
-        | ItemCount pt -> pt.Left
-
-    member x.Right =
-        match x with
-        | Type pt -> pt.Right
-        | Value pt -> pt.Right
-        | Properties (pt, _) -> pt.Right
-        | ItemCount pt -> pt.Right
-        
-    member x.PropertyMismatches =
-        let result =
-            match x with
-            | Properties (_, mismatches) -> mismatches
-            | Type _ -> failwith "No property mismatches for Type diff!"
-            | Value _ -> failwith "No property mismatches for Value diff!"
-            | ItemCount _ -> failwith "No property mismatches for ItemCount diff!"
-        result |> List.toSeq
-
 module JsonDiff =
 
     open System.Text.RegularExpressions
