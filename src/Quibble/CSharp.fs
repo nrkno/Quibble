@@ -213,20 +213,13 @@ type DiffPoint(path : string, left: JsonValue, right : JsonValue) =
             this.Path = that.Path && this.Left = that.Left && this.Right = that.Right
         | _ -> false
 
-type PropertyMismatchType =
-    | LeftOnly
-    | RightOnly
-
 [<AbstractClass>]        
 type PropertyMismatch (propertyName : string, propertyValue : JsonValue) =
-    abstract member Type: PropertyMismatchType
     member this.PropertyName = propertyName
     member this.PropertyValue = propertyValue
     
 type LeftOnlyProperty(propertyName : string, propertyValue : JsonValue) =
     inherit PropertyMismatch(propertyName, propertyValue)
-    
-    override this.Type = LeftOnly
     
     override this.GetHashCode() =
         hash (typedefof<LeftOnlyProperty>, propertyName, propertyValue)
@@ -239,8 +232,6 @@ type LeftOnlyProperty(propertyName : string, propertyValue : JsonValue) =
 
 type RightOnlyProperty(propertyName : string, propertyValue : JsonValue) =
     inherit PropertyMismatch(propertyName, propertyValue)
-
-    override this.Type = RightOnly
 
     override this.GetHashCode() =
         hash (typedefof<RightOnlyProperty>, propertyName, propertyValue)

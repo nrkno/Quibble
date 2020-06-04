@@ -128,7 +128,6 @@ namespace Quibble.CSharp.UnitTests
             var propsDiff = (Properties) diff1;
             Assert.Equal("$.books[0]", propsDiff.Path);
             var mismatch = propsDiff.Single();
-            Assert.Equal(PropertyMismatchType.RightOnly, mismatch.Type);
             Assert.Equal("edition", mismatch.PropertyName);
             var propertyValue = ((String) mismatch.PropertyValue).Text;
             Assert.Equal("2nd", propertyValue);
