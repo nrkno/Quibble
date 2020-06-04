@@ -241,32 +241,29 @@ type RightOnlyProperty(propertyName : string, propertyValue : JsonValue) =
         | :? RightOnlyProperty as that ->
             this.PropertyName = that.PropertyName && this.PropertyValue = that.PropertyValue
         | _ -> false
-
-type DiffType =
-    | Type
-    | Value
-    | ItemCount
-    | Properties
         
 [<AbstractClass>]
 type Diff(diffPoint : DiffPoint) =
     member this.Path = diffPoint.Path
     member this.Left = diffPoint.Left    
     member this.Right = diffPoint.Right
-    abstract member Type: DiffType
-    member this.IsType = Type = DiffType.Type
-    member this.IsValue = Type = DiffType.Value
-    member this.IsItemCount = Type = DiffType.ItemCount    
-    member this.IsProperties = Type = DiffType.Properties 
+    abstract member IsType: bool
+    default this.IsType = false
+    abstract member IsValue: bool
+    default this.IsValue = false
+    abstract member IsItemCount: bool
+    default this.IsItemCount = false    
+    abstract member IsProperties: bool
+    default this.IsProperties = false 
 
 type Type(diffPoint : DiffPoint) =
     inherit Diff(diffPoint)
     
-    override this.Type = DiffType.Type
+    override this.IsType = true
     
     override this.GetHashCode() =
-        hash (this.Type, diffPoint)
-
+        hash (this.GetType(), diffPoint)
+        
     override this.Equals(thatObject) =
         match thatObject with
         | :? Type as that ->
@@ -275,11 +272,11 @@ type Type(diffPoint : DiffPoint) =
 
 type Value(diffPoint : DiffPoint) =
     inherit Diff(diffPoint)
-    
-    override this.Type = DiffType.Value
+
+    override this.IsValue = true
     
     override this.GetHashCode() =
-        hash (this.Type, diffPoint)
+        hash (this.GetType(), diffPoint)
 
     override this.Equals(thatObject) =
         match thatObject with
@@ -290,10 +287,10 @@ type Value(diffPoint : DiffPoint) =
 type ItemCount(diffPoint : DiffPoint) =
     inherit Diff(diffPoint)
     
-    override this.Type = DiffType.ItemCount
-    
+    override this.IsItemCount = true
+
     override this.GetHashCode() =
-        hash (this.Type, diffPoint)
+        hash (this.GetType(), diffPoint)
 
     override this.Equals(thatObject) =
         match thatObject with
@@ -304,11 +301,11 @@ type ItemCount(diffPoint : DiffPoint) =
 type Properties(diffPoint : DiffPoint, mismatches : IReadOnlyList<PropertyMismatch>) =
     inherit Diff(diffPoint)
     
-    override this.Type = DiffType.Properties
-    
+    override this.IsProperties = true
+
     override this.GetHashCode() =
         let list = mismatches |> Seq.toList
-        hash (this.Type, diffPoint, list)
+        hash (this.GetType(), diffPoint, list)
 
     override this.Equals(thatObject) =
         match thatObject with

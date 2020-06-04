@@ -124,7 +124,7 @@ namespace Quibble.CSharp.UnitTests
 
             Assert.Equal(2, diffs.Count);
             var diff1 = diffs[0];
-            Assert.Equal(DiffType.Properties, diff1.Type);
+            Assert.True(diff1.IsProperties);
             var propsDiff = (Properties) diff1;
             Assert.Equal("$.books[0]", propsDiff.Path);
             var mismatch = propsDiff.Single();
@@ -134,7 +134,7 @@ namespace Quibble.CSharp.UnitTests
 
             
             var diff2 = diffs[1];
-            Assert.Equal(DiffType.Value, diff2.Type);
+            Assert.True(diff2.IsValue);
             Assert.Equal("$.books[1].author", diff2.Path);
             Assert.Equal("Leo Brodie", ((String) diff2.Left).Text);
             Assert.Equal("Chuck Moore", ((String) diff2.Right).Text);
