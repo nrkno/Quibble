@@ -2,12 +2,31 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Text.Json;
 using Xunit;
 
 namespace Quibble.CSharp.UnitTests
 {
     public class JsonStringsDiffTests
     {
+        [Fact]
+        public void TestDiffEmptyStringVsTrue()
+        {
+            // Empty string is not valid JSON.
+            var ex = Assert.Throws<ArgumentException>(() => JsonStrings.Diff("", "true"));
+            Assert.Equal("leftJsonString", ex.ParamName);
+            Assert.IsAssignableFrom<JsonException>(ex.InnerException);
+        }
+        
+        [Fact]
+        public void TestDiffTrueVsEmptyString()
+        {
+            // Empty string is not valid JSON.
+            var ex = Assert.Throws<ArgumentException>(() => JsonStrings.Diff("true", ""));
+            Assert.Equal("rightJsonString", ex.ParamName);
+            Assert.IsAssignableFrom<JsonException>(ex.InnerException);
+        }
+        
         [Fact]
         public void TestDiffTrueVsFalse()
         {
