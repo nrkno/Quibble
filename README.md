@@ -318,6 +318,8 @@ yields the following list of differences:
        Right = String "Chuck Moore" } ]
 ```
 
+For a text description:
+
 ```
 let str1 =
    """{
@@ -364,9 +366,9 @@ String value difference at $.books[1].author: Leo Brodie vs Chuck Moore.
 using Quibble.CSharp;
 ```
 
-Use `JsonStrings.Diff` to get a read-only list of `Diff`-values that you can work with as you like.
+Use `JsonStrings.Diff` to get a read-only list of `Diff`-values that you can work with as you like - loop, branch, pattern match etc.
 
-Use `JsonStrings.TextDiff`to get a read-only list of text descriptions of the differences.
+Use `JsonStrings.TextDiff` to get a read-only list of text descriptions of the differences.
 
 If you read the examples and wonder what `$` means, note that Quibble uses [JSONPath](https://goessner.net/articles/JsonPath/) syntax to point you to differences. 
 
