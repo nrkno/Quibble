@@ -197,7 +197,6 @@ type Object (properties : IReadOnlyDictionary<string, JsonValue>)  =
       member this.GetEnumerator() : System.Collections.IEnumerator =
           propSeq.GetEnumerator() :> System.Collections.IEnumerator
 
-
 type DiffPoint(path : string, left: JsonValue, right : JsonValue) =
     
     member this.Path = path
@@ -254,7 +253,7 @@ type Diff(diffPoint : DiffPoint) =
     abstract member IsItemCount: bool
     default this.IsItemCount = false    
     abstract member IsProperties: bool
-    default this.IsProperties = false 
+    default this.IsProperties = false
 
 type Type(diffPoint : DiffPoint) =
     inherit Diff(diffPoint)
@@ -289,19 +288,24 @@ type ItemCount(diffPoint : DiffPoint) =
     
     override this.IsItemCount = true
 
+
     override this.GetHashCode() =
         hash (this.GetType(), diffPoint)
 
     override this.Equals(thatObject) =
+        let foo = 17
         match thatObject with
         | :? ItemCount as that ->
             this.Path = that.Path && this.Left = that.Left && this.Right = that.Right
-        | _ -> false
+        | _ ->
+            false
 
 type Properties(diffPoint : DiffPoint, mismatches : IReadOnlyList<PropertyMismatch>) =
     inherit Diff(diffPoint)
     
     override this.IsProperties = true
+
+    member this.Mismatches = mismatches
 
     override this.GetHashCode() =
         let list = mismatches |> Seq.toList
@@ -310,17 +314,10 @@ type Properties(diffPoint : DiffPoint, mismatches : IReadOnlyList<PropertyMismat
     override this.Equals(thatObject) =
         match thatObject with
         | :? Properties as that ->
-            let asList (p : Properties) = p :> IEnumerable<PropertyMismatch> |> Seq.toList
-            this.Path = that.Path && this.Left = that.Left && this.Right = that.Right && asList this = asList that
+            let asList (ps : IReadOnlyList<PropertyMismatch>) = ps :> IEnumerable<PropertyMismatch> |> Seq.toList
+            this.Path = that.Path && this.Left = that.Left && this.Right = that.Right && asList this.Mismatches = asList that.Mismatches
         | _ -> false
-        
-    interface IEnumerable<PropertyMismatch> with
-        member this.GetEnumerator() : IEnumerator<PropertyMismatch> =
-            mismatches.GetEnumerator()
-          
-        member this.GetEnumerator() : System.Collections.IEnumerator =
-            mismatches.GetEnumerator() :> System.Collections.IEnumerator
-            
+                    
 module JsonStrings =
 
     let rec private toCSharpJsonValue (jsonValue : Quibble.JsonValue) : JsonValue =

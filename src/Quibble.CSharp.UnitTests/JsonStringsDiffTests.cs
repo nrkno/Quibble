@@ -146,7 +146,7 @@ namespace Quibble.CSharp.UnitTests
             Assert.True(diff1.IsProperties);
             var propsDiff = (Properties) diff1;
             Assert.Equal("$.books[0]", propsDiff.Path);
-            var mismatch = propsDiff.Single();
+            var mismatch = propsDiff.Mismatches.Single();
             Assert.Equal("edition", mismatch.PropertyName);
             var propertyValue = ((String) mismatch.PropertyValue).Text;
             Assert.Equal("2nd", propertyValue);
@@ -234,25 +234,76 @@ namespace Quibble.CSharp.UnitTests
             }
         }
         
+        [Fact]
+        public void ObjectExamplePropertyDifferences()
+        {
+            var str1 = @"{ ""item"": ""widget"", ""price"": 12.20 }";
+            var str2 = @"{ ""item"": ""widget"", ""quantity"": 88, ""in stock"": true }";
+            var actualDiffs = JsonStrings.Diff(str1, str2);
+
+            var expectedDiffs = new List<Diff>
+            {
+                new Properties(
+                    new DiffPoint("$",
+                        new Object(
+                            new Dictionary<string, JsonValue>
+                            {
+                                { "item", new String("widget") },
+                                { "price", new Number(12.20, "12.20") }
+                            }), 
+                        new Object(
+                            new Dictionary<string, JsonValue>
+                            {
+                                { "item", new String("widget") },
+                                { "quantity", new Number(88, "88") },
+                                { "in stock", True.Instance }
+                            })), 
+                    new List<PropertyMismatch>
+                    {
+                        new LeftOnlyProperty("price", new Number(12.20, "12.20")),
+                        new RightOnlyProperty("quantity", new Number(88, "88")),
+                        new RightOnlyProperty("in stock", True.Instance)
+                    })
+            };
+            
+            Assert.Equal(expectedDiffs.Count, actualDiffs.Count);
+
+            foreach (var (expected, actual) in expectedDiffs.Zip(actualDiffs))
+            {
+                Assert.Equal(expected, actual);
+            }
+        }
+        
         /*
          *    [<Fact>]
-    let ``Array example: order matters`` () =
-        let actualDiffs =
-            JsonStrings.diff "[ 24, 12 ]" "[ 12, 24 ]"
+    let ``Object example: property differences`` () =
+        let str1 =
+            """{ "item": "widget", "price": 12.20 }"""
+
+        let str2 =
+            """{ "item": "widget", "quantity": 88, "in stock": true }"""
+
+        let actualDiffs = JsonStrings.diff str1 str2
 
         let expectedDiffs =
-            [ Value
-                { Path = "$[0]"
-                  Left = Number(24., "24")
-                  Right = Number(12., "12") }
-              Value
-                  { Path = "$[1]"
-                    Left = Number(12., "12")
-                    Right = Number(24., "24") } ]
+            [ Properties
+                ({ Path = "$"
+                   Left =
+                       Object
+                           [ ("item", String "widget")
+                             ("price", Number(12.2, "12.20")) ]
+                   Right =
+                       Object
+                           [ ("item", String "widget")
+                             ("quantity", Number(88.0, "88"))
+                             ("in stock", True) ] },
+                 [ LeftOnlyProperty("price", Number(12.2, "12.20"))
+                   RightOnlyProperty("quantity", Number(88.0, "88"))
+                   RightOnlyProperty("in stock", True) ]) ]
 
         Assert.Equal(List.length expectedDiffs, List.length actualDiffs)
         List.zip expectedDiffs actualDiffs
-        |> List.iter (fun (expected, actual) -> Assert.Equal(expected, actual)) 
+        |> List.iter (fun (expected, actual) -> Assert.Equal(expected, actual))
          */
         
         [Fact]
@@ -399,6 +450,20 @@ namespace Quibble.CSharp.UnitTests
         }
         
         [Fact]
+        public void TestNumberEquality()
+        {
+            var numberOne1 = new Number(1, "1");
+            var numberOne2 = new Number(1, "1.0");
+            var numberTwo = new Number(2, "2");
+            
+            Assert.Equal(numberOne1, numberOne2);
+            Assert.NotEqual(numberOne1, numberTwo);
+            
+            Assert.Equal(numberOne1.GetHashCode(), numberOne2.GetHashCode());
+            Assert.NotEqual(numberOne1.GetHashCode(), numberTwo.GetHashCode());
+        }
+        
+        [Fact]
         public void TestString()
         {
             var jv = (JsonValue) new String("name");
@@ -427,6 +492,20 @@ namespace Quibble.CSharp.UnitTests
             
             var s = new String("name");
             Assert.Equal(s.Text, jv.ToString());
+        }
+        
+        [Fact]
+        public void TestStringEquality()
+        {
+            var nameStr1 = new String("name");
+            var nameStr2 = new String("name");
+            var gameStr = new String("game");
+            
+            Assert.Equal(nameStr1, nameStr2);
+            Assert.NotEqual(nameStr1, gameStr);
+            
+            Assert.Equal(nameStr1.GetHashCode(), nameStr2.GetHashCode());
+            Assert.NotEqual(nameStr1.GetHashCode(), gameStr.GetHashCode());
         }
         
         [Fact]
@@ -480,6 +559,48 @@ namespace Quibble.CSharp.UnitTests
 
             var arr = new Array(items);
             Assert.Equal($"Array [{items.Count} items]", arr.ToString());
+        }
+        
+        [Fact]
+        public void TestArrayEquality()
+        {
+            var array = new Array(
+                new List<JsonValue>
+                {
+                    True.Instance,
+                    new String("name"),
+                });
+            
+            var sameArray = new Array(
+                new List<JsonValue>
+                {
+                    True.Instance,
+                    new String("name"),
+                });
+            
+            var anotherArray = new Array(
+                new List<JsonValue>
+                {
+                    True.Instance,
+                    new String("game")
+                });
+            
+            var yetAnotherArray = new Array(
+                new List<JsonValue>
+                {
+                    True.Instance,
+                    new String("name"),
+                    new Number(1, "1")
+                });
+
+            
+            Assert.Equal(array, sameArray);
+            Assert.NotEqual(array, anotherArray);
+            Assert.NotEqual(array, yetAnotherArray);
+            
+            Assert.Equal(array.GetHashCode(), sameArray.GetHashCode());
+            Assert.NotEqual(array.GetHashCode(), anotherArray.GetHashCode());
+            Assert.NotEqual(array.GetHashCode(), yetAnotherArray.GetHashCode());
         }
         
         [Fact]
@@ -554,6 +675,47 @@ namespace Quibble.CSharp.UnitTests
         }
         
         [Fact]
+        public void TestObjectEquality()
+        {
+            var obj = new Object(
+                new Dictionary<string, JsonValue>
+                {
+                    { "enabled", True.Instance },
+                    { "item", new String("widget") }
+                });
+            
+            var sameObj = new Object(
+                new Dictionary<string, JsonValue>
+                {
+                    { "enabled", True.Instance },
+                    { "item", new String("widget") }
+                });
+            
+            var anotherObj = new Object(
+                new Dictionary<string, JsonValue>
+                {
+                    { "enabled", True.Instance },
+                    { "item", new String("gizmo") }
+                });
+            
+            var yetAnotherObj = new Object(
+                new Dictionary<string, JsonValue>
+                {
+                    { "enabled", True.Instance },
+                    { "item", new String("widget") },
+                    { "count", new Number(1, "1") }
+                });
+
+            Assert.Equal(obj, sameObj);
+            Assert.NotEqual(obj, anotherObj);
+            Assert.NotEqual(obj, yetAnotherObj);
+            
+            Assert.Equal(obj.GetHashCode(), sameObj.GetHashCode());
+            Assert.NotEqual(obj.GetHashCode(), anotherObj.GetHashCode());
+            Assert.NotEqual(obj.GetHashCode(), yetAnotherObj.GetHashCode());
+        }
+        
+        [Fact]
         public void TestTypeDiff()
         {
             var str1 = "true";
@@ -575,6 +737,35 @@ namespace Quibble.CSharp.UnitTests
             Assert.False(diff2.IsProperties);
             
             Assert.Equal(diff1, diff2);
+        }
+        
+        [Fact]
+        public void TestTypeDiffEquality()
+        {
+            var diff = new Type(
+                new DiffPoint("$",
+                    True.Instance,
+                    new String("true")));
+
+            var sameDiff = new Type(
+                new DiffPoint("$",
+                    True.Instance,
+                    new String("true")));
+
+            var anotherDiff = new Type(
+                new DiffPoint("$.value",
+                    True.Instance,
+                    new String("true")));
+
+            var yetAnotherDiff = new Type(
+                new DiffPoint("$",
+                    True.Instance,
+                    new String("false")));
+
+            Assert.Equal(diff, sameDiff);
+            Assert.NotEqual(diff, anotherDiff);
+            Assert.NotEqual(diff, yetAnotherDiff);
+            Assert.NotEqual(anotherDiff, yetAnotherDiff);
         }
 
         [Fact]
@@ -605,6 +796,35 @@ namespace Quibble.CSharp.UnitTests
             Assert.False(diff2.IsProperties);
 
             Assert.Equal(diff1, diff2);
+        }
+        
+        [Fact]
+        public void TestValueDiffEquality()
+        {
+            var diff = new Value(
+                new DiffPoint("$",
+                    new String("Hello"), 
+                    new String("Goodbye")));
+
+            var sameDiff = new Value(
+                new DiffPoint("$",
+                    new String("Hello"), 
+                    new String("Goodbye")));
+
+            var anotherDiff = new Value(
+                new DiffPoint("$.value",
+                    new String("Hello"), 
+                    new String("Goodbye")));
+
+            var yetAnotherDiff = new Value(
+                new DiffPoint("$",
+                    new String("Hey"), 
+                    new String("Goodbye")));
+
+            Assert.Equal(diff, sameDiff);
+            Assert.NotEqual(diff, anotherDiff);
+            Assert.NotEqual(diff, yetAnotherDiff);
+            Assert.NotEqual(anotherDiff, yetAnotherDiff);
         }
         
         [Fact]
@@ -640,6 +860,144 @@ namespace Quibble.CSharp.UnitTests
             Assert.False(diff2.IsProperties);
             
             Assert.Equal(diff1, diff2);
+        }
+        
+        [Fact]
+        public void TestItemCountDiffEquality()
+        {
+            var diff = new ItemCount(
+                new DiffPoint("$",
+                    new Array(new JsonValue[]
+                    {
+                        new String("Gödel, Escher, Bach"),
+                        new String("Metamagical Themas")
+                    }),
+                    new Array(new JsonValue[]
+                    {
+                        new String("Gödel, Escher, Bach")
+                    })));
+
+            var sameDiff = new ItemCount(
+                new DiffPoint("$",
+                    new Array(new JsonValue[]
+                    {
+                        new String("Gödel, Escher, Bach"),
+                        new String("Metamagical Themas")
+                    }),
+                    new Array(new JsonValue[]
+                    {
+                        new String("Gödel, Escher, Bach")
+                    })));
+
+            var anotherDiff = new ItemCount(
+                new DiffPoint("$.books",
+                    new Array(new JsonValue[]
+                    {
+                        new String("Gödel, Escher, Bach"),
+                        new String("Metamagical Themas")
+                    }),
+                    new Array(new JsonValue[]
+                    {
+                        new String("Gödel, Escher, Bach")
+                    })));
+
+            var yetAnotherDiff = new ItemCount(
+                new DiffPoint("$",
+                    new Array(new JsonValue[]
+                    {
+                        new String("Gödel, Escher, Bach"),
+                        new String("Metamagical Themas")
+                    }),
+                    new Array(new JsonValue[]
+                    {
+                        new String("Metamagical Themas")
+                    })));
+
+            var eq = diff.Equals(anotherDiff);
+            Assert.Equal(diff, sameDiff);
+            Assert.NotEqual(diff, anotherDiff);
+            Assert.NotEqual(diff, yetAnotherDiff);
+            Assert.NotEqual(anotherDiff, yetAnotherDiff);
+        }
+        
+        [Fact]
+        public void TestPropertiesDiffEquality()
+        {
+            var diff = new Properties(new DiffPoint("$",
+                    new Object(new Dictionary<string, JsonValue>
+                    {
+                        {"author", new String("William Kent")},
+                        {"title", new String("Data and Reality")}
+                    }),
+                    new Object(new Dictionary<string, JsonValue>
+                    {
+                        {"author", new String("William Kent")},
+                        {"title", new String("Data and Reality")},
+                        {"edition", new String("2nd")}
+                    })), new PropertyMismatch[]
+                {
+                    new RightOnlyProperty("edition", new String("2nd"))
+                }
+            );
+
+            var sameDiff = new Properties(new DiffPoint("$",
+                    new Object(new Dictionary<string, JsonValue>
+                    {
+                        {"author", new String("William Kent")},
+                        {"title", new String("Data and Reality")}
+                    }),
+                    new Object(new Dictionary<string, JsonValue>
+                    {
+                        {"author", new String("William Kent")},
+                        {"title", new String("Data and Reality")},
+                        {"edition", new String("2nd")}
+                    })), new PropertyMismatch[]
+                {
+                    new RightOnlyProperty("edition", new String("2nd"))
+                }
+            );
+
+            var anotherDiff = new Properties(new DiffPoint("$.books[0]",
+                    new Object(new Dictionary<string, JsonValue>
+                    {
+                        {"author", new String("William Kent")},
+                        {"title", new String("Data and Reality")}
+                    }),
+                    new Object(new Dictionary<string, JsonValue>
+                    {
+                        {"author", new String("William Kent")},
+                        {"title", new String("Data and Reality")},
+                        {"edition", new String("2nd")}
+                    })), new PropertyMismatch[]
+                {
+                    new RightOnlyProperty("edition", new String("2nd"))
+                }
+            );
+
+            var yetAnotherDiff = new Properties(new DiffPoint("$",
+                    new Object(new Dictionary<string, JsonValue>
+                    {
+                        {"author", new String("William Kent")},
+                        {"title", new String("Data and Reality")}
+                    }),
+                    new Object(new Dictionary<string, JsonValue>
+                    {
+                        {"author", new String("William Kent")},
+                        {"title", new String("Data and Reality")},
+                        {"edition", new String("3rd")}
+                    })), new PropertyMismatch[]
+                {
+                    new RightOnlyProperty("edition", new String("3rd"))
+                }
+            );
+
+            Assert.Equal(diff, sameDiff);
+            Assert.NotEqual(diff, anotherDiff);
+            Assert.NotEqual((Diff) diff, anotherDiff);
+            Assert.NotEqual((object) diff, anotherDiff);
+
+            Assert.NotEqual(diff, yetAnotherDiff);
+            Assert.NotEqual(anotherDiff, yetAnotherDiff);
         }
     }
 }

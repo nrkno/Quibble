@@ -123,7 +123,7 @@ namespace Quibble.CSharp.UnitTests
         
         private static string ToPropertiesTextDiff(Properties propertiesDiff)
         {
-            var mismatches = propertiesDiff.ToList();
+            var mismatches = propertiesDiff.Mismatches;
             var leftOnlyProperties = mismatches.OfType<LeftOnlyProperty>();
             var lefts = leftOnlyProperties.Select(it => ToPropertyString(it.PropertyName, it.PropertyValue)).ToList();
             var leftsOnlyText = ToLeftOnlyText(lefts);
