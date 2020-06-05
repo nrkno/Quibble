@@ -51,6 +51,23 @@ If you read the examples and wonder what `$` means, note that Quibble uses [JSON
 #### Number example: 1 != 2
 
 ```
+JsonStrings.diff "1" "2" 
+```
+
+yields the following list of diffs: 
+
+```
+[ Value { 
+    Path = "$"; 
+    Left = Number (1., "1"); 
+    Right = Number (2., "2") } ]
+```
+
+The `Number` type contains both the parsed double value of the number and the original text representation from the JSON string. The reason is that there can be several text representations of the same number (e.g. `1.0` and `1` are the same number in JSON). Quibble keeps both in order to compare double values for differences, yet report any differences using the original text representations.
+
+To get a text description of the difference:
+
+```
 JsonStrings.textDiff "1" "2" 
 |> List.head
 |> printfn "%s"
@@ -65,42 +82,54 @@ Number value difference at $: 1 vs 2.
 #### Number example: 1.0 == 1
 
 ```
-JsonStrings.textDiff "1.0" "1" 
-|> List.isEmpty
-|> printfn "%b"
+JsonStrings.diff "1.0" "1" 
 ```
 
-prints 
+yields an empty list of diffs: 
 
 ```
-true
+[]
 ```
 
-The reason is that JSON doesn't distinguish between integers and doubles, everything is just a number.
+The reason is that JSON doesn't distinguish between integers and doubles, everything is just a number. Hence `1.0` and `1` are the same number.
 
 #### Number example: 123.4 vs 1.234E2
 
 ```
-JsonStrings.textDiff "123.4" "1.234E2" 
-|> List.isEmpty
-|> printfn "%b"
+JsonStrings.diff "123.4" "1.234E2"
 ```
 
-prints 
+also yields an empty list of diffs: 
 
 ```
-true
+[]
 ```
 
 The reason is that 123.4 and 1.234E2 are just different ways of writing the same number.
-
 
 ### Comparing arrays
 
 #### Array example: Number of items
 
 ```
-JsonStrings.textDiff "[ 1 ]" "[ 2, 1 ]"
+JsonStrings.diff "[ 3 ]" "[ 3, 7 ]"
+|> List.head
+|> printfn "%s"
+```
+
+yields the following list of diffs: 
+
+```
+[ ItemCount { 
+    Path = "$";
+    Left = Array [ Number (3., "3") ];
+    Right = Number (2., "2") } ]
+```
+
+For a text description:
+
+```
+JsonStrings.textDiff "[ 3 ]" "[ 3, 7 ]"
 |> List.head
 |> printfn "%s"
 ```
@@ -114,7 +143,28 @@ Array length difference at $: 1 vs 2.
 #### Array example: Order matters
 
 ```
-let diffs = JsonStrings.textDiff "[ 2, 1 ]" "[ 1, 2 ]"
+JsonStrings.diff "[ 24, 12 ]" "[ 12, 24 ]"
+```
+
+yields the following list of diffs: 
+
+```
+[ Value {
+    Path = "$[0]";
+    Left = Number (24., "24");
+    Right = Number (12., "12")
+  };
+  Value {
+    Path = "$[1]";
+    Left = Number (12., "12");
+    Right = Number (24., "24")
+  } ]
+```
+
+For a text description:
+
+```
+let diffs = JsonStrings.textDiff "[ 24, 12 ]" "[ 12, 24 ]"
 match diffs with
 | [ diff1; diff2 ] -> 
     printfn "%s" diff1
@@ -124,14 +174,44 @@ match diffs with
 prints
 
 ```
-Number value difference at $[0]: 2 vs 1.
-Number value difference at $[1]: 1 vs 2.
+Number value difference at $[0]: 24 vs 12.
+Number value difference at $[1]: 12 vs 24.
 ```
 
 
 ### Comparing objects
 
 #### Object example: Property differences
+
+```
+let str1 = """{ "item": "widget", "price": 12.20 }"""
+let str2 = """{ "item": "widget", "quantity": 88, "in stock": true }"""
+
+JsonStrings.diff str1 str2
+```
+
+yields the following list of diffs: 
+
+```
+[ Properties
+    ({ Path = "$"
+       Left =
+           Object
+               [ ("item", String "widget")
+                 ("price", Number(12.2, "12.20")) ]
+       Right =
+           Object
+               [ ("item", String "widget")
+                 ("quantity", Number(88.0, "88"))
+                 ("in stock", True) ] },
+      [ LeftOnlyProperty("price", Number(12.2, "12.20"))
+        RightOnlyProperty("quantity", Number(88.0, "88"))
+        RightOnlyProperty("in stock", True) ]) ]
+```
+
+Quibble treats it as a single difference with three mismatching properties.
+
+For a text description:
 
 ```
 let str1 = """{ "item": "widget", "price": 12.20 }"""
@@ -155,6 +235,27 @@ Right only properties: 'quantity' (number), 'in stock' (bool).
 ```
 let str1 = """{ "name": "Maya", "date of birth": "1999-04-23" }"""
 let str2 = """{ "name": "Maya", "date of birth": "1999-04-24" }"""
+
+JsonStrings.diff str1 str2
+```
+
+yields the following list of diffs: 
+
+```
+[ Value
+    { Path = "$['date of birth']"
+      Left = String "1999-04-23"
+      Right = String "1999-04-24" } ]
+```
+
+JSONPath handles spaces in property names by using the alternative bracket-and-quotes syntax shown.
+
+For a text description:
+
+```
+let str1 = """{ "name": "Maya", "date of birth": "1999-04-23" }"""
+let str2 = """{ "name": "Maya", "date of birth": "1999-04-24" }"""
+
 JsonStrings.textDiff str1 str2 
 |> List.head 
 |> printfn "%s"
@@ -168,6 +269,54 @@ String value difference at $['date of birth']: 1999-04-23 vs 1999-04-24.
 
 
 ### Composite example
+
+```
+let str1 =
+   """{
+    "books": [{
+        "title": "Data and Reality",
+        "author": "William Kent"
+    }, {
+        "title": "Thinking Forth",
+        "author": "Leo Brodie"
+    }]
+}"""
+
+let str2 =
+    """{
+    "books": [{
+        "title": "Data and Reality",
+        "author": "William Kent",
+        "edition": "2nd"
+    }, {
+        "title": "Thinking Forth",
+        "author": "Chuck Moore"
+    }]
+}"""
+
+JsonStrings.diff str1 str2 
+```
+
+yields the following list of differences:
+
+```
+[ Properties
+     ({ Path = "$.books[0]"
+        Left =
+            Object
+                [ ("title", String "Data and Reality")
+                  ("author", String "William Kent") ]
+        Right =
+            Object
+                [ ("title", String "Data and Reality")
+                  ("author", String "William Kent")
+                  ("edition", String "2nd") ] },
+      [ RightOnlyProperty("edition", String "2nd") ])
+  Value
+     { Path = "$.books[1].author"
+       Left = String "Leo Brodie"
+       Right = String "Chuck Moore" } ]
+```
 
 ```
 let str1 =

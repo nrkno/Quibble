@@ -456,5 +456,94 @@ namespace Quibble.CSharp.UnitTests
             var obj = new Object(props);
             Assert.Equal($"Object {{{props.Count} properties}}", obj.ToString());
         }
+        
+        [Fact]
+        public void TestTypeDiff()
+        {
+            var str1 = "true";
+            var str2 = "\"true\"";
+
+            var diff1 = JsonStrings.Diff(str1, str2).Single();
+            Assert.True(diff1.IsType);
+            Assert.False(diff1.IsValue);
+            Assert.False(diff1.IsItemCount);
+            Assert.False(diff1.IsProperties);
+
+            var diff2 = new Type(
+                new DiffPoint("$",
+                    True.Instance,
+                    new String("true")));
+            Assert.True(diff2.IsType);
+            Assert.False(diff2.IsValue);
+            Assert.False(diff2.IsItemCount);
+            Assert.False(diff2.IsProperties);
+            
+            Assert.Equal(diff1, diff2);
+        }
+
+        [Fact]
+        public void TestValueDiff()
+        {
+            var str1 = @"{
+    ""title"": ""Thinking Forth"",
+    ""author"": ""Leo Brodie""
+}";
+            var str2 = @"{
+    ""title"": ""Thinking Forth"",
+    ""author"": ""Chuck Moore""
+}";
+
+            var diff1 = JsonStrings.Diff(str1, str2).Single();
+            Assert.True(diff1.IsValue);
+            Assert.False(diff1.IsType);
+            Assert.False(diff1.IsItemCount);
+            Assert.False(diff1.IsProperties);
+
+            var diff2 = new Value(
+                new DiffPoint("$.author",
+                    new String("Leo Brodie"),
+                    new String("Chuck Moore")));
+            Assert.True(diff2.IsValue);
+            Assert.False(diff2.IsType);
+            Assert.False(diff2.IsItemCount);
+            Assert.False(diff2.IsProperties);
+
+            Assert.Equal(diff1, diff2);
+        }
+        
+        [Fact]
+        public void TestItemCountDiff()
+        {
+            var str1 = @"[ ""Adele Goldberg"", ""Dan Ingalls"", ""Alan Kay"" ]";
+            var str2 = @"[ ""Adele Goldberg"", ""Dan Ingalls"" ]";
+
+            var diff1 = JsonStrings.Diff(str1, str2).Single();
+            Assert.True(diff1.IsItemCount);
+            Assert.False(diff1.IsType);
+            Assert.False(diff1.IsValue);
+            Assert.False(diff1.IsProperties);
+
+            var diff2 = new ItemCount(
+                new DiffPoint("$",
+                    new Array(
+                        new JsonValue[]
+                        {
+                            new String("Adele Goldberg"),
+                            new String("Dan Ingalls"),
+                            new String("Alan Kay")
+                        }),
+                    new Array(
+                        new JsonValue[]
+                        {
+                            new String("Adele Goldberg"),
+                            new String("Dan Ingalls")
+                        })));
+            Assert.True(diff2.IsItemCount);
+            Assert.False(diff2.IsType);
+            Assert.False(diff2.IsValue);
+            Assert.False(diff2.IsProperties);
+            
+            Assert.Equal(diff1, diff2);
+        }
     }
 }

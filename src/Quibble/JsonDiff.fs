@@ -92,7 +92,7 @@ module JsonDiff =
                 |> List.filter (fun (n, _) -> List.contains n leftOnlyKeys)
                 |> List.map LeftOnlyProperty
 
-            let mismatches = rightOnlyProperties @ leftOnlyProperties
+            let mismatches = leftOnlyProperties @ rightOnlyProperties
 
             let objectDiff =
                 match mismatches with
