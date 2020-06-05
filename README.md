@@ -123,7 +123,7 @@ yields the following list of diffs:
 [ ItemCount { 
     Path = "$";
     Left = Array [ Number (3., "3") ];
-    Right = Number (2., "2") } ]
+    Right = Array [ Number(3., "3"); Number(7., "7") ] } ]
 ```
 
 For a text description:
