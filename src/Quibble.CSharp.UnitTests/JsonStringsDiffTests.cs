@@ -160,6 +160,102 @@ namespace Quibble.CSharp.UnitTests
         }
 
         [Fact]
+        public void NumberExample1NotEqualTo2()
+        {
+            var actualDiffs = JsonStrings.Diff("1", "2");
+
+            var expectedDiffs = new List<Diff>
+            {
+                new Value(
+                    new DiffPoint("$",
+                        new Number(1, "1"),
+                        new Number(2, "2")))
+            };
+            
+            Assert.Equal(expectedDiffs.Count, actualDiffs.Count);
+
+            foreach (var (expected, actual) in expectedDiffs.Zip(actualDiffs))
+            {
+                Assert.Equal(expected, actual);
+            }
+        }
+        
+        [Fact]
+        public void ArrayExampleNumberOfItems()
+        {
+            var actualDiffs = JsonStrings.Diff("[ 3 ]", "[ 3, 7 ]");
+
+            var expectedDiffs = new List<Diff>
+            {
+                new ItemCount(
+                    new DiffPoint("$",
+                        new Array (
+                            new JsonValue []
+                            {
+                                new Number(3, "3")
+                            }),
+                        new Array (new JsonValue []
+                        {
+                            new Number(3, "3"),
+                            new Number(7, "7")
+                        })))
+            };
+            
+            Assert.Equal(expectedDiffs.Count, actualDiffs.Count);
+
+            foreach (var (expected, actual) in expectedDiffs.Zip(actualDiffs))
+            {
+                Assert.Equal(expected, actual);
+            }
+        }
+        
+        [Fact]
+        public void ArrayExampleOrderMatters()
+        {
+            var actualDiffs = JsonStrings.Diff("[ 24, 12 ]", "[ 12, 24 ]");
+
+            var expectedDiffs = new List<Diff>
+            {
+                new Value(
+                    new DiffPoint("$[0]",
+                        new Number(24, "24"), 
+                        new Number(12, "12"))), 
+                new Value(
+                    new DiffPoint("$[1]",
+                        new Number(12, "12"), 
+                        new Number(24, "24")))
+            };
+            
+            Assert.Equal(expectedDiffs.Count, actualDiffs.Count);
+
+            foreach (var (expected, actual) in expectedDiffs.Zip(actualDiffs))
+            {
+                Assert.Equal(expected, actual);
+            }
+        }
+        
+        /*
+         *    [<Fact>]
+    let ``Array example: order matters`` () =
+        let actualDiffs =
+            JsonStrings.diff "[ 24, 12 ]" "[ 12, 24 ]"
+
+        let expectedDiffs =
+            [ Value
+                { Path = "$[0]"
+                  Left = Number(24., "24")
+                  Right = Number(12., "12") }
+              Value
+                  { Path = "$[1]"
+                    Left = Number(12., "12")
+                    Right = Number(24., "24") } ]
+
+        Assert.Equal(List.length expectedDiffs, List.length actualDiffs)
+        List.zip expectedDiffs actualDiffs
+        |> List.iter (fun (expected, actual) -> Assert.Equal(expected, actual)) 
+         */
+        
+        [Fact]
         public void TestUndefined()
         {
             var jv = (JsonValue) Undefined.Instance;

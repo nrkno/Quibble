@@ -264,7 +264,7 @@ module JsonStringsDiffTests =
         | _ -> failwithf "Expected 1 diff but was %d." (List.length diffs)
 
     [<Fact>]
-    let ``Number value diff example`` () =
+    let ``Number example: 1 != 2`` () =
         let actualDiffs = JsonStrings.diff "1" "2"
 
         let expectedDiffs =

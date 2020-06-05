@@ -377,6 +377,24 @@ If you read the examples and wonder what `$` means, note that Quibble uses [JSON
 #### Number example: 1 != 2
 
 ```
+JsonStrings.Diff("1", "2");
+```
+
+yields a list of diffs equivalent to this: 
+
+```
+new List<Diff>
+{
+    new Value(
+        new DiffPoint("$",
+            new Number(1, "1"),
+            new Number(2, "2")))
+};
+```
+
+For a text description:
+
+```
 var diffs = JsonStrings.TextDiff("1", "2");
 Console.WriteLine(diff.Single());
 ```
@@ -390,39 +408,52 @@ Number value difference at $: 1 vs 2.
 #### Number example: 1.0 == 1
 
 ```
-var diffs = JsonStrings.TextDiff("1.0", "1");
-Console.WriteLine(diffs.Any());
+JsonStrings.Diff("1.0", "1");
 ```
 
-prints 
-
-```
-false
-```
-
-The reason is that JSON doesn't distinguish between integers and doubles, everything is just a number.
+yields an empty list of diffs. The reason is that JSON doesn't distinguish between integers and doubles, everything is just a number. Hence `1.0` and `1` are the same number.
 
 #### Number example: 123.4 vs 1.234E2
 
 ```
-var diffs = JsonStrings.TextDiff("123.4", "1.234E2");
-Console.WriteLine(diffs.Any());
+JsonStrings.Diff("123.4", "1.234E2");
 ```
 
-prints 
-
-```
-false
-```
-
-The reason is that `123.4` and `1.234E2` are just different ways of writing the same number.
+also yields an empty list of diffs. The reason is that `123.4` and `1.234E2` are just different ways of writing the same number.
 
 ### Comparing arrays
 
 #### Array example: Number of items
 
 ```
-var diffs = JsonStrings.TextDiff("[ 1 ]", "[ 2, 1 ]");
+JsonStrings.Diff("[ 3 ]", "[ 3, 7 ]");
+```
+
+yields a list of diffs equivalent to this: 
+
+```
+new List<Diff>
+{
+    new ItemCount(
+        new DiffPoint("$",
+            new Array (
+                new JsonValue []
+                {
+                    new Number(3, "3")
+                }),
+            new Array (
+                new JsonValue []
+                {
+                    new Number(3, "3"),
+                    new Number(7, "7")
+                })))
+};
+```
+
+For a text description:
+
+```
+var diffs = JsonStrings.TextDiff("[ 3 ]", "[ 3, 7 ]");
 Console.WriteLine(diffs.Single());
 ```
 
@@ -435,7 +466,29 @@ Array length difference at $: 1 vs 2.
 #### Array example: Item order matters
 
 ```
-var diffs = JsonStrings.TextDiff("[ 2, 1 ]", "[ 1, 2 ]");
+JsonStrings.Diff("[ 24, 12 ]", "[ 12, 24 ]");
+```
+
+yields a list of diffs equivalent to this: 
+
+```
+new List<Diff>
+{
+    new Value(
+        new DiffPoint("$[0]",
+            new Number(24, "24"), 
+            new Number(12, "12"))), 
+    new Value(
+        new DiffPoint("$[1]",
+            new Number(12, "12"), 
+            new Number(24, "24")))
+};
+```
+
+For a text description:
+
+```
+var diffs = JsonStrings.TextDiff("[ 24, 12 ]", "[ 12, 24 ]");
 foreach (var diff in diffs) 
 {
     Console.WriteLine(diff);
@@ -445,8 +498,8 @@ foreach (var diff in diffs)
 prints
 
 ```
-Number value difference at $[0]: 2 vs 1.
-Number value difference at $[1]: 1 vs 2.
+Number value difference at $[0]: 24 vs 12.
+Number value difference at $[1]: 12 vs 24.
 ```
 
 ### Comparing objects
