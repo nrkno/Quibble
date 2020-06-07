@@ -254,6 +254,10 @@ type Diff(diffPoint : DiffPoint) =
     default this.IsItemCount = false    
     abstract member IsProperties: bool
     default this.IsProperties = false
+    
+    override this.ToString() =
+        sprintf "%s { Path = %s, Left = %s, Right = %s }" (this.GetType().Name) this.Path (this.Left.ToString()) (this.Right.ToString())
+
 
 type Type(diffPoint : DiffPoint) =
     inherit Diff(diffPoint)
@@ -288,12 +292,10 @@ type ItemCount(diffPoint : DiffPoint) =
     
     override this.IsItemCount = true
 
-
     override this.GetHashCode() =
         hash (this.GetType(), diffPoint)
 
     override this.Equals(thatObject) =
-        let foo = 17
         match thatObject with
         | :? ItemCount as that ->
             this.Path = that.Path && this.Left = that.Left && this.Right = that.Right

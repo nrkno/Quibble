@@ -509,6 +509,45 @@ Number value difference at $[1]: 12 vs 24.
 ```
 var str1 = @"{ ""item"": ""widget"", ""price"": 12.20 }";
 var str2 = @"{ ""item"": ""widget"", ""quantity"": 88, ""in stock"": true }";
+JsonStrings.Diff(str1, str2);
+```
+
+yields a list of diffs equivalent to this: 
+
+```
+new List<Diff>
+{
+    new Properties(
+        new DiffPoint("$",
+            new Object(
+                new Dictionary<string, JsonValue>
+                {
+                    { "item", new String("widget") },
+                    { "price", new Number(12.20, "12.20") }
+                }), 
+            new Object(
+                new Dictionary<string, JsonValue>
+                {
+                    { "item", new String("widget") },
+                    { "quantity", new Number(88, "88") },
+                    { "in stock", True.Instance }
+                })), 
+        new List<PropertyMismatch>
+        {
+            new LeftOnlyProperty("price", new Number(12.20, "12.20")),
+            new RightOnlyProperty("quantity", new Number(88, "88")),
+            new RightOnlyProperty("in stock", True.Instance)
+        })
+};
+```
+
+Quibble treats it as a single difference with three mismatching properties.
+
+For a text description:
+
+```
+var str1 = @"{ ""item"": ""widget"", ""price"": 12.20 }";
+var str2 = @"{ ""item"": ""widget"", ""quantity"": 88, ""in stock"": true }";
 var diffs = JsonStrings.TextDiff(str1, str2);
 Console.WriteLine(diffs.Single());
 ```
@@ -526,6 +565,28 @@ Right only properties: 'quantity' (number), 'in stock' (bool).
 ```
 var str1 = @"{ ""name"": ""Maya"", ""date of birth"": ""1999-04-23"" }";
 var str2 = @"{ ""name"": ""Maya"", ""date of birth"": ""1999-04-24"" }";
+JsonStrings.Diff(str1, str2);
+```
+
+yields a list of diffs equivalent to this: 
+
+```
+new List<Diff>
+{
+    new Value(
+        new DiffPoint("$['date of birth']",
+            new String("1999-04-23"), 
+            new String("1999-04-24")))
+};
+```
+
+JSONPath handles spaces in property names by using the alternative bracket-and-quotes syntax shown.
+
+For a text description:
+
+```
+var str1 = @"{ ""name"": ""Maya"", ""date of birth"": ""1999-04-23"" }";
+var str2 = @"{ ""name"": ""Maya"", ""date of birth"": ""1999-04-24"" }";
 var diffs = JsonStrings.TextDiff(str1, str2);
 Console.WriteLine(diffs.Single());
 ```
@@ -537,6 +598,64 @@ String value difference at $['date of birth']: 1999-04-23 vs 1999-04-24.
 ```
 
 ### Composite example
+
+```
+var str1 = @"{
+    ""books"": [{
+        ""title"": ""Data and Reality"",  
+        ""author"": ""William Kent""
+    }, {
+        ""title"": ""Thinking Forth"",
+        ""author"": ""Leo Brodie""
+    }]
+}";
+
+var str2 = @"{
+    ""books"": [{
+        ""title"": ""Data and Reality"",
+        ""author"": ""William Kent"",
+        ""edition"": ""2nd""
+    }, {
+        ""title"": ""Thinking Forth"",
+        ""author"": ""Chuck Moore""
+    }]
+}";
+
+JsonStrings.Diff(str1, str2);
+```
+
+yields a list of diffs equivalent to this: 
+
+```
+new List<Diff>
+{
+    new Properties(
+        new DiffPoint("$.books[0]",
+            new Object(
+                new Dictionary<string, JsonValue>
+                {
+                    { "title", new String("Data and Reality") },
+                    { "author", new String("William Kent") }
+                }), 
+            new Object(
+                new Dictionary<string, JsonValue>
+                {
+                    { "title", new String("Data and Reality") },
+                    { "author", new String("William Kent") },
+                    { "edition", new String("2nd") }
+                })), 
+        new List<PropertyMismatch>
+        {
+            new RightOnlyProperty("edition", new String("2nd"))
+        }),
+    new Value(
+        new DiffPoint("$.books[1].author",
+            new String("Leo Brodie"), 
+            new String("Chuck Moore")))
+};
+```
+
+For a text description:
 
 ```
 var str1 = @"{

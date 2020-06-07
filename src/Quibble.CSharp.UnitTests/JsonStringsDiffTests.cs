@@ -274,38 +274,88 @@ namespace Quibble.CSharp.UnitTests
             }
         }
         
-        /*
-         *    [<Fact>]
-    let ``Object example: property differences`` () =
-        let str1 =
-            """{ "item": "widget", "price": 12.20 }"""
+        [Fact]
+        public void ObjectExamplePropertyWithSpaces()
+        {
+            var str1 = @"{ ""name"": ""Maya"", ""date of birth"": ""1999-04-23"" }";
+            var str2 = @"{ ""name"": ""Maya"", ""date of birth"": ""1999-04-24"" }";
+            var actualDiffs = JsonStrings.Diff(str1, str2);
 
-        let str2 =
-            """{ "item": "widget", "quantity": 88, "in stock": true }"""
+            var expectedDiffs = new List<Diff>
+            {
+                new Value(
+                    new DiffPoint("$['date of birth']",
+                        new String("1999-04-23"), 
+                        new String("1999-04-24")))
+            };
+            
+            Assert.Equal(expectedDiffs.Count, actualDiffs.Count);
 
-        let actualDiffs = JsonStrings.diff str1 str2
+            foreach (var (expected, actual) in expectedDiffs.Zip(actualDiffs))
+            {
+                Assert.Equal(expected, actual);
+            }
+        }
 
-        let expectedDiffs =
-            [ Properties
-                ({ Path = "$"
-                   Left =
-                       Object
-                           [ ("item", String "widget")
-                             ("price", Number(12.2, "12.20")) ]
-                   Right =
-                       Object
-                           [ ("item", String "widget")
-                             ("quantity", Number(88.0, "88"))
-                             ("in stock", True) ] },
-                 [ LeftOnlyProperty("price", Number(12.2, "12.20"))
-                   RightOnlyProperty("quantity", Number(88.0, "88"))
-                   RightOnlyProperty("in stock", True) ]) ]
+        [Fact]
+        public void CompositeExampleWithBookds()
+        {
+            var str1 = @"{
+    ""books"": [{
+        ""title"": ""Data and Reality"",  
+        ""author"": ""William Kent""
+    }, {
+        ""title"": ""Thinking Forth"",
+        ""author"": ""Leo Brodie""
+    }]
+}";
+            var str2 = @"{
+    ""books"": [{
+        ""title"": ""Data and Reality"",
+        ""author"": ""William Kent"",
+        ""edition"": ""2nd""
+    }, {
+        ""title"": ""Thinking Forth"",
+        ""author"": ""Chuck Moore""
+    }]
+}";
+            var actualDiffs = JsonStrings.Diff(str1, str2);
 
-        Assert.Equal(List.length expectedDiffs, List.length actualDiffs)
-        List.zip expectedDiffs actualDiffs
-        |> List.iter (fun (expected, actual) -> Assert.Equal(expected, actual))
-         */
-        
+            var expectedDiffs = new List<Diff>
+            {
+                new Properties(
+                    new DiffPoint("$.books[0]",
+                        new Object(
+                            new Dictionary<string, JsonValue>
+                            {
+                                { "title", new String("Data and Reality") },
+                                { "author", new String("William Kent") }
+                            }), 
+                        new Object(
+                            new Dictionary<string, JsonValue>
+                            {
+                                { "title", new String("Data and Reality") },
+                                { "author", new String("William Kent") },
+                                { "edition", new String("2nd") }
+                            })), 
+                    new List<PropertyMismatch>
+                    {
+                        new RightOnlyProperty("edition", new String("2nd"))
+                    }),
+                new Value(
+                new DiffPoint("$.books[1].author",
+                new String("Leo Brodie"), 
+                new String("Chuck Moore")))
+            };
+            
+            Assert.Equal(expectedDiffs.Count, actualDiffs.Count);
+
+            foreach (var (expected, actual) in expectedDiffs.Zip(actualDiffs))
+            {
+                Assert.Equal(expected, actual);
+            }
+        }
+
         [Fact]
         public void TestUndefined()
         {
@@ -737,6 +787,8 @@ namespace Quibble.CSharp.UnitTests
             Assert.False(diff2.IsProperties);
             
             Assert.Equal(diff1, diff2);
+            
+            Assert.Equal("Type { Path = $, Left = true, Right = true }", diff1.ToString());
         }
         
         [Fact]
@@ -796,6 +848,8 @@ namespace Quibble.CSharp.UnitTests
             Assert.False(diff2.IsProperties);
 
             Assert.Equal(diff1, diff2);
+            
+            Assert.Equal("Value { Path = $.author, Left = Leo Brodie, Right = Chuck Moore }", diff1.ToString());
         }
         
         [Fact]
@@ -860,6 +914,8 @@ namespace Quibble.CSharp.UnitTests
             Assert.False(diff2.IsProperties);
             
             Assert.Equal(diff1, diff2);
+            
+            Assert.Equal("ItemCount { Path = $, Left = Array [3 items], Right = Array [2 items] }", diff1.ToString());
         }
         
         [Fact]
@@ -913,7 +969,6 @@ namespace Quibble.CSharp.UnitTests
                         new String("Metamagical Themas")
                     })));
 
-            var eq = diff.Equals(anotherDiff);
             Assert.Equal(diff, sameDiff);
             Assert.NotEqual(diff, anotherDiff);
             Assert.NotEqual(diff, yetAnotherDiff);
@@ -998,6 +1053,8 @@ namespace Quibble.CSharp.UnitTests
 
             Assert.NotEqual(diff, yetAnotherDiff);
             Assert.NotEqual(anotherDiff, yetAnotherDiff);
+
+            Assert.Equal("Properties { Path = $, Left = Object {2 properties}, Right = Object {3 properties} }", diff.ToString());
         }
     }
 }
