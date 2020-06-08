@@ -65,7 +65,7 @@ yields the following list of diffs:
 
 The `Number` type contains both the parsed double value of the number and the original text representation from the JSON string. The reason is that there can be several text representations of the same number (e.g. `1.0` and `1` are the same number in JSON). Quibble keeps both in order to compare double values for differences, yet report any differences using the original text representations.
 
-To get a text description of the difference:
+To get a text description of the difference between the JSON numbers `1` and `2`:
 
 ```
 JsonStrings.textDiff "1" "2" 
@@ -79,7 +79,25 @@ prints
 Number value difference at $: 1 vs 2.
 ```
 
+If you instead compare the JSON numbers `1.0` and `2`, you get this:
+
+```
+JsonStrings.textDiff "1.0" "2" 
+|> List.head
+|> printfn "%s"
+```
+
+prints 
+
+```
+Number value difference at $: 1.0 vs 2.
+```
+
+The numbers `1` and `1.0` are parsed into the same JSON number, yet Quibble reports the difference using the original text representation. 
+
 #### Number example: 1.0 == 1
+
+To make this very explicit:
 
 ```
 JsonStrings.diff "1.0" "1" 
@@ -91,7 +109,7 @@ yields an empty list of diffs:
 []
 ```
 
-The reason is that JSON doesn't distinguish between integers and doubles, everything is just a number. Hence `1.0` and `1` are the same number.
+The reason is that JSON doesn't distinguish between integers and doubles, everything is just a number. Hence `1.0` and `1` are the same number written in different ways.
 
 #### Number example: 123.4 vs 1.234E2
 
@@ -405,13 +423,33 @@ prints
 Number value difference at $: 1 vs 2.
 ```
 
+If you instead compare the JSON numbers `1.0` and `2`, you get this:
+
+```
+var diffs = JsonStrings.TextDiff("1.0", "2");
+Console.WriteLine(diff.Single());
+```
+
+prints 
+
+```
+Number value difference at $: 1.0 vs 2.
+```
+
+The numbers `1` and `1.0` are parsed into the same JSON number, yet Quibble reports the difference using the original text representation. 
+
 #### Number example: 1.0 == 1
+
+To make this very explicit:
 
 ```
 JsonStrings.Diff("1.0", "1");
 ```
 
-yields an empty list of diffs. The reason is that JSON doesn't distinguish between integers and doubles, everything is just a number. Hence `1.0` and `1` are the same number.
+yields an empty list of diffs. 
+
+The reason is that JSON doesn't distinguish between integers and doubles, everything is just a number. Hence `1.0` and `1` are the same number written in different ways.
+
 
 #### Number example: 123.4 vs 1.234E2
 
