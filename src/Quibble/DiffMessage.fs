@@ -104,11 +104,36 @@ module DiffMessage =
                 let rightValueDescription = toValueDescription right
                 let leftValueDescription = toValueDescription left
                 sprintf "Type difference at %s: %s vs %s." path leftValueDescription rightValueDescription
-        | ItemCount { Path = path; Left = left; Right = right } ->
-            match (left, right) with
-            | (Array leftItems, Array rightItems) ->
-                let rightArrayLength = rightItems |> List.length
-                let leftArrayLength = leftItems |> List.length 
-                sprintf "Array length difference at %s: %d vs %d." path leftArrayLength rightArrayLength
-            | _ ->
-                failwith "A bug."
+        | Items ({ Path = path; Left = left; Right = right }, mismatches) ->
+            let toModification (itemMismatch : ItemMismatch) : string =
+                let typeStr jv =
+                    match jv with
+                    | JsonValue.True -> "the boolean true"
+                    | JsonValue.False -> "the boolean false"
+                    | JsonValue.String s ->
+                        let truncate (maxlen : int) (str : string) =
+                            if String.length str > maxlen then
+                                let ellipses = "..."
+                                let truncateAt = maxlen - String.length ellipses
+                                sprintf "%s%s" (str.Substring(0, truncateAt)) ellipses
+                            else str                                
+                        sprintf "the string %s" (truncate 30 s)
+                    | JsonValue.Number (_, t) -> sprintf "the number %s" t
+                    | JsonValue.Object _ -> "an object"
+                    | JsonValue.Array _ -> "an array"
+                    | JsonValue.Null -> "null"
+                    | JsonValue.Undefined
+                    | _ -> "undefined"
+
+                let toModificationLine (op : string) (ix : int) (jv : JsonValue) : string =
+                    sprintf "%s [%d] (%s)" op ix (typeStr jv)
+                    
+                match itemMismatch with
+                | LeftOnlyItem (ix, jv) -> toModificationLine "-" ix jv 
+                | RightOnlyItem (ix, jv) -> toModificationLine "+" ix jv 
+                        
+            let details =
+                mismatches |> List.map toModification |> String.concat "\n"
+
+            sprintf "Array difference at %s.\n%s" path details
+            

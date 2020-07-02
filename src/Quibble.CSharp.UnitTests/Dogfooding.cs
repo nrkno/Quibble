@@ -19,7 +19,7 @@ namespace Quibble.CSharp.UnitTests
             {
                 Type typeDiff => ToTypeTextDiff(typeDiff),
                 Value valueDiff => ToValueTypeTextDiff(valueDiff),
-                ItemCount itemCountDiff => ToItemCountTextDiff(itemCountDiff),
+                Items itemsDiff => ToItemsTextDiff(itemsDiff),
                 Properties propertiesDiff => ToPropertiesTextDiff(propertiesDiff),
                 _ => throw new Exception("Unknown diff type")
             };
@@ -87,19 +87,6 @@ namespace Quibble.CSharp.UnitTests
             }
         }
 
-        private static string ToItemCountTextDiff(ItemCount itemCountDiff)
-        {
-            switch (itemCountDiff.Left, itemCountDiff.Right)
-            {
-                case (Array leftArray, Array rightArray):
-                    var leftArrayLength = leftArray.Items.Count;
-                    var rightArrayLength = rightArray.Items.Count;
-                    return $"Array length difference at {itemCountDiff.Path}: {leftArrayLength} vs {rightArrayLength}.";
-                default:
-                    throw new Exception("A bug.");
-            }
-        }
-
         private static string ToPropertyTypeString(JsonValue jsonValue)
         {
             return jsonValue switch
@@ -115,12 +102,20 @@ namespace Quibble.CSharp.UnitTests
                 _ => "undefined"
             };
         }
-        
+
         private static string ToPropertyString(string property, JsonValue jsonValue)
         {
             return $"'{property}' ({ToPropertyTypeString(jsonValue)})";
         }
-        
+
+        private static string ToItemsTextDiff(Items itemsDiff)
+        {
+            var mismatches = itemsDiff.Mismatches;
+            var modifications = mismatches.Select(ToModification);
+            var details = string.Join("\n", modifications);
+            return $"Array difference at {itemsDiff.Path}.\n{details}";
+        }
+
         private static string ToPropertiesTextDiff(Properties propertiesDiff)
         {
             var mismatches = propertiesDiff.Mismatches;
@@ -133,6 +128,16 @@ namespace Quibble.CSharp.UnitTests
             var bothCombined = new List<string> {leftsOnlyText, rightsOnlyText}.Where(it => it != null).ToList();
             var details = string.Join("\n", bothCombined);
             return $"Object difference at {propertiesDiff.Path}.\n{details}";
+            
+        }
+
+        private static string ToModification(ItemMismatch itemMismatch)
+        {
+            return itemMismatch switch
+            {
+                LeftOnlyItem leftOnlyItem => "foo",
+                RightOnlyItem rightOnlyItem => "bar"
+            };
         }
 
         private static string ToLeftOnlyText(List<string> lefts)
@@ -144,7 +149,7 @@ namespace Quibble.CSharp.UnitTests
         {
             return ToPropsSummaryText("Right only", rights);
         }
-        
+
         private static string ToPropsSummaryText(string kind, List<string> props)
         {
             if (props.Count == 0)

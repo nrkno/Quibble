@@ -1,6 +1,7 @@
 ﻿namespace Quibble.CSharp
 
 open Quibble
+open Quibble
 open System.Collections.Generic
 open System.Collections.ObjectModel
 open System.Linq
@@ -240,6 +241,35 @@ type RightOnlyProperty(propertyName : string, propertyValue : JsonValue) =
         | :? RightOnlyProperty as that ->
             this.PropertyName = that.PropertyName && this.PropertyValue = that.PropertyValue
         | _ -> false
+
+[<AbstractClass>]        
+type ItemMismatch (itemIndex : int, itemValue : JsonValue) =
+    member this.ItemIndex = itemIndex
+    member this.ItemValue = itemValue
+    
+type LeftOnlyItem(itemIndex : int, itemValue : JsonValue) =
+    inherit ItemMismatch(itemIndex, itemValue)
+    
+    override this.GetHashCode() =
+        hash (typedefof<LeftOnlyItem>, itemIndex, itemValue)
+
+    override this.Equals(thatObject) =
+        match thatObject with
+        | :? LeftOnlyItem as that ->
+            this.ItemIndex = that.ItemIndex && this.ItemValue = that.ItemValue
+        | _ -> false
+
+type RightOnlyItem(itemIndex : int, itemValue : JsonValue) =
+    inherit ItemMismatch(itemIndex, itemValue)
+
+    override this.GetHashCode() =
+        hash (typedefof<RightOnlyItem>, itemIndex, itemValue)
+
+    override this.Equals(thatObject) =
+        match thatObject with
+        | :? RightOnlyItem as that ->
+            this.ItemIndex = that.ItemIndex && this.ItemValue = that.ItemValue
+        | _ -> false
         
 [<AbstractClass>]
 type Diff(diffPoint : DiffPoint) =
@@ -250,8 +280,8 @@ type Diff(diffPoint : DiffPoint) =
     default this.IsType = false
     abstract member IsValue: bool
     default this.IsValue = false
-    abstract member IsItemCount: bool
-    default this.IsItemCount = false    
+    abstract member IsItems: bool
+    default this.IsItems = false    
     abstract member IsProperties: bool
     default this.IsProperties = false
     
@@ -286,19 +316,22 @@ type Value(diffPoint : DiffPoint) =
         | :? Value as that ->
             this.Path = that.Path && this.Left = that.Left && this.Right = that.Right
         | _ -> false
-        
-type ItemCount(diffPoint : DiffPoint) =
+
+type Items(diffPoint : DiffPoint, mismatches : IReadOnlyList<ItemMismatch>) =
     inherit Diff(diffPoint)
     
-    override this.IsItemCount = true
+    override this.IsItems = true
+
+    member this.Mismatches = mismatches
 
     override this.GetHashCode() =
         hash (this.GetType(), diffPoint)
 
     override this.Equals(thatObject) =
         match thatObject with
-        | :? ItemCount as that ->
-            this.Path = that.Path && this.Left = that.Left && this.Right = that.Right
+        | :? Items as that ->
+            let asList (ps : IReadOnlyList<ItemMismatch>) = ps :> IEnumerable<ItemMismatch> |> Seq.toList
+            this.Path = that.Path && this.Left = that.Left && this.Right = that.Right && asList this.Mismatches = asList that.Mismatches
         | _ ->
             false
 
@@ -349,12 +382,19 @@ module JsonStrings =
         match mismatch with
         | LeftOnlyProperty (n, v) -> new LeftOnlyProperty(n, toCSharpJsonValue v) :> PropertyMismatch
         | RightOnlyProperty (n, v) -> new RightOnlyProperty(n, toCSharpJsonValue v) :> PropertyMismatch
-                
+
+    let private toCSharpItemMismatch (mismatch : Quibble.ItemMismatch) : ItemMismatch =
+        match mismatch with
+        | LeftOnlyItem (n, v) -> new LeftOnlyItem(n, toCSharpJsonValue v) :> ItemMismatch
+        | RightOnlyItem (n, v) -> new RightOnlyItem(n, toCSharpJsonValue v) :> ItemMismatch
+
     let private toCSharpDiff (diff : Quibble.Diff) : Diff =
         match diff with
         | Quibble.Diff.Type pt  -> Type(toCSharpDiffPoint pt) :> Diff
         | Quibble.Diff.Value pt -> Value(toCSharpDiffPoint pt) :> Diff
-        | Quibble.Diff.ItemCount pt -> ItemCount(toCSharpDiffPoint pt) :> Diff
+        | Quibble.Diff.Items (pt, mismatches) ->
+            let mismatchList = mismatches |> List.map toCSharpItemMismatch :> IReadOnlyList<ItemMismatch>
+            Items(toCSharpDiffPoint pt, mismatchList) :> Diff
         | Quibble.Diff.Properties (pt, mismatches) ->
             let mismatchList = mismatches |> List.map toCSharpPropertyMismatch :> IReadOnlyList<PropertyMismatch> 
             Properties(toCSharpDiffPoint pt, mismatchList) :> Diff

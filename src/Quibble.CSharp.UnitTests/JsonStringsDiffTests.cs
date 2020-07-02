@@ -187,7 +187,7 @@ namespace Quibble.CSharp.UnitTests
 
             var expectedDiffs = new List<Diff>
             {
-                new ItemCount(
+                new Items(
                     new DiffPoint("$",
                         new Array (
                             new JsonValue []
@@ -198,7 +198,10 @@ namespace Quibble.CSharp.UnitTests
                         {
                             new Number(3, "3"),
                             new Number(7, "7")
-                        })))
+                        })), new []
+                    {
+                        new RightOnlyItem(1, new Number(7, "7")), 
+                    })
             };
             
             Assert.Equal(expectedDiffs.Count, actualDiffs.Count);
@@ -216,14 +219,22 @@ namespace Quibble.CSharp.UnitTests
 
             var expectedDiffs = new List<Diff>
             {
-                new Value(
-                    new DiffPoint("$[0]",
-                        new Number(24, "24"), 
-                        new Number(12, "12"))), 
-                new Value(
-                    new DiffPoint("$[1]",
-                        new Number(12, "12"), 
-                        new Number(24, "24")))
+                new Items(new DiffPoint("$", 
+                        new Array (new JsonValue []
+                        {
+                            new Number(24, "24"),
+                            new Number(12, "12")
+                        }), 
+                        new Array (new JsonValue []
+                        {
+                            new Number(12, "12"),
+                            new Number(24, "24")
+                        })),
+                    new ItemMismatch[]
+                    {
+                        new LeftOnlyItem(0, new Number(24, "24")),
+                        new RightOnlyItem(1, new Number(24, "24"))
+                    })
             };
             
             Assert.Equal(expectedDiffs.Count, actualDiffs.Count);
@@ -774,7 +785,7 @@ namespace Quibble.CSharp.UnitTests
             var diff1 = JsonStrings.Diff(str1, str2).Single();
             Assert.True(diff1.IsType);
             Assert.False(diff1.IsValue);
-            Assert.False(diff1.IsItemCount);
+            Assert.False(diff1.IsItems);
             Assert.False(diff1.IsProperties);
 
             var diff2 = new Type(
@@ -783,7 +794,7 @@ namespace Quibble.CSharp.UnitTests
                     new String("true")));
             Assert.True(diff2.IsType);
             Assert.False(diff2.IsValue);
-            Assert.False(diff2.IsItemCount);
+            Assert.False(diff2.IsItems);
             Assert.False(diff2.IsProperties);
             
             Assert.Equal(diff1, diff2);
@@ -835,7 +846,7 @@ namespace Quibble.CSharp.UnitTests
             var diff1 = JsonStrings.Diff(str1, str2).Single();
             Assert.True(diff1.IsValue);
             Assert.False(diff1.IsType);
-            Assert.False(diff1.IsItemCount);
+            Assert.False(diff1.IsItems);
             Assert.False(diff1.IsProperties);
 
             var diff2 = new Value(
@@ -844,7 +855,7 @@ namespace Quibble.CSharp.UnitTests
                     new String("Chuck Moore")));
             Assert.True(diff2.IsValue);
             Assert.False(diff2.IsType);
-            Assert.False(diff2.IsItemCount);
+            Assert.False(diff2.IsItems);
             Assert.False(diff2.IsProperties);
 
             Assert.Equal(diff1, diff2);
@@ -882,23 +893,22 @@ namespace Quibble.CSharp.UnitTests
         }
         
         [Fact]
-        public void TestItemCountDiff()
+        public void TestItemsDiff()
         {
-            var str1 = @"[ ""Adele Goldberg"", ""Dan Ingalls"", ""Alan Kay"" ]";
-            var str2 = @"[ ""Adele Goldberg"", ""Dan Ingalls"" ]";
+            var str1 = @"[ ""Dan Ingalls"", ""Alan Kay"" ]";
+            var str2 = @"[ ""Adele Goldberg"", ""Dan Ingalls"", ""Alan Kay"" ]";
 
             var diff1 = JsonStrings.Diff(str1, str2).Single();
-            Assert.True(diff1.IsItemCount);
+            Assert.True(diff1.IsItems);
             Assert.False(diff1.IsType);
             Assert.False(diff1.IsValue);
             Assert.False(diff1.IsProperties);
 
-            var diff2 = new ItemCount(
+            var diff2 = new Items(
                 new DiffPoint("$",
                     new Array(
                         new JsonValue[]
                         {
-                            new String("Adele Goldberg"),
                             new String("Dan Ingalls"),
                             new String("Alan Kay")
                         }),
@@ -906,22 +916,26 @@ namespace Quibble.CSharp.UnitTests
                         new JsonValue[]
                         {
                             new String("Adele Goldberg"),
-                            new String("Dan Ingalls")
-                        })));
-            Assert.True(diff2.IsItemCount);
+                            new String("Dan Ingalls"),
+                            new String("Alan Kay")
+                        })), new ItemMismatch[]
+                {
+                    new RightOnlyItem(0, new String("Adele Goldberg"))
+                });
+            Assert.True(diff2.IsItems);
             Assert.False(diff2.IsType);
             Assert.False(diff2.IsValue);
             Assert.False(diff2.IsProperties);
             
             Assert.Equal(diff1, diff2);
             
-            Assert.Equal("ItemCount { Path = $, Left = Array [3 items], Right = Array [2 items] }", diff1.ToString());
+            Assert.Equal("Items { Path = $, Left = Array [2 items], Right = Array [3 items] }", diff1.ToString());
         }
         
         [Fact]
-        public void TestItemCountDiffEquality()
+        public void TestItemsDiffEquality()
         {
-            var diff = new ItemCount(
+            var diff = new Items(
                 new DiffPoint("$",
                     new Array(new JsonValue[]
                     {
@@ -931,9 +945,13 @@ namespace Quibble.CSharp.UnitTests
                     new Array(new JsonValue[]
                     {
                         new String("Gödel, Escher, Bach")
-                    })));
+                    })),
+                new ItemMismatch[]
+                {
+                    new LeftOnlyItem(1, new String("Metamagical Themas")) 
+                });
 
-            var sameDiff = new ItemCount(
+            var sameDiff = new Items(
                 new DiffPoint("$",
                     new Array(new JsonValue[]
                     {
@@ -943,9 +961,13 @@ namespace Quibble.CSharp.UnitTests
                     new Array(new JsonValue[]
                     {
                         new String("Gödel, Escher, Bach")
-                    })));
+                    })),
+                new ItemMismatch[]
+                {
+                    new LeftOnlyItem(1, new String("Metamagical Themas")) 
+                });
 
-            var anotherDiff = new ItemCount(
+            var anotherDiff = new Items(
                 new DiffPoint("$.books",
                     new Array(new JsonValue[]
                     {
@@ -955,19 +977,28 @@ namespace Quibble.CSharp.UnitTests
                     new Array(new JsonValue[]
                     {
                         new String("Gödel, Escher, Bach")
-                    })));
+                    })),
+                new ItemMismatch[]
+                {
+                    new LeftOnlyItem(1, new String("Metamagical Themas")) 
+                });
 
-            var yetAnotherDiff = new ItemCount(
-                new DiffPoint("$",
-                    new Array(new JsonValue[]
+            var yetAnotherDiff = 
+                new Items(
+                    new DiffPoint("$",
+                        new Array(new JsonValue[]
+                        {
+                            new String("Gödel, Escher, Bach"),
+                            new String("Metamagical Themas")
+                        }),
+                        new Array(new JsonValue[]
+                        {
+                            new String("Metamagical Themas")
+                        })),
+                    new ItemMismatch[]
                     {
-                        new String("Gödel, Escher, Bach"),
-                        new String("Metamagical Themas")
-                    }),
-                    new Array(new JsonValue[]
-                    {
-                        new String("Metamagical Themas")
-                    })));
+                        new LeftOnlyItem(0, new String("Gödel, Escher, Bach")) 
+                    });
 
             Assert.Equal(diff, sameDiff);
             Assert.NotEqual(diff, anotherDiff);

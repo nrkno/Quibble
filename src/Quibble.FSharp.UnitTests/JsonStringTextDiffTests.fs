@@ -102,7 +102,7 @@ module JsonStringsTextDiffTests =
         let diffs = JsonStrings.textDiff "[ 1 ]" "[ 1, 2 ]"
         match diffs with 
         | [ diff ] ->
-            Assert.Equal("Array length difference at $: 1 vs 2.", diff)
+            Assert.Equal("Array difference at $.\n+ [1] (the number 2)", diff)
         | _ -> failwith "Wrong number of diffs"
 
     [<Fact>]
@@ -110,17 +110,16 @@ module JsonStringsTextDiffTests =
         let diffs = JsonStrings.textDiff "[ 1 ]" "[ 2, 1 ]"
         match diffs with
         | [ diff ] ->
-            Assert.Equal("Array length difference at $: 1 vs 2.", diff)
+            Assert.Equal("Array difference at $.\n+ [0] (the number 2)", diff)
         | _ -> failwith "Wrong number of diffs"
             
     [<Fact>]
     let ``[ 2, 1 ] vs [ 1, 2 ]``() =
         let diffs = JsonStrings.textDiff "[ 2, 1 ]" "[ 1, 2 ]"
         match diffs with
-        | [ diff1; diff2 ] ->
-            Assert.Equal("Number value difference at $[0]: 2 vs 1.", diff1)
-            Assert.Equal("Number value difference at $[1]: 1 vs 2.", diff2)
-        | _ -> failwithf "Expected 2 diffs but was %d." (List.length diffs)
+        | [ diff ] ->
+            Assert.Equal("Array difference at $.\n- [0] (the number 2)\n+ [1] (the number 2)", diff)
+        | _ -> failwithf "Expected 1 diff but was %d." (List.length diffs)
         
     [<Fact>]
     let ``{} != { "count": 0 }``() =

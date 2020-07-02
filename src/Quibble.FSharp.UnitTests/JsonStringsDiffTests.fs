@@ -162,7 +162,7 @@ module JsonStringsDiffTests =
         match diffs with
         | [ diff ] ->
             match diff with
-            | ItemCount { Path = path; Left = left; Right = right } ->
+            | Items ({ Path = path; Left = left; Right = right }, mismatches) ->
                 Assert.Equal("$", path)
                 Assert.Equal(Array [ Number(1., "1") ], left)
                 Assert.Equal(Array [ Number(1., "1"); Number(2., "2") ], right)
@@ -177,7 +177,7 @@ module JsonStringsDiffTests =
         match diffs with
         | [ diff ] ->
             match diff with
-            | ItemCount { Path = path; Left = left; Right = right } ->
+            | Items ({ Path = path; Left = left; Right = right }, mismatches) ->
                 Assert.Equal("$", path)
                 Assert.Equal(Array [ Number(1., "1") ], left)
                 Assert.Equal(Array [ Number(2., "2"); Number(1., "1") ], right)
@@ -190,24 +190,17 @@ module JsonStringsDiffTests =
     let ``[ 2, 1 ] vs [ 1, 2 ]`` () =
         let diffs = JsonStrings.diff "[ 2, 1 ]" "[ 1, 2 ]"
         match diffs with
-        | [ diff1; diff2 ] ->
+        | [ diff1 ] ->
             match diff1 with
-            | Value { Path = path; Left = left; Right = right } ->
-                Assert.Equal("$[0]", path)
-                Assert.Equal(Number(2., "2"), left)
-                Assert.Equal(Number(1., "1"), right)
+            | Items ({ Path = path; Left = left; Right = right }, mismatches) ->
+                Assert.Equal("$", path)
+                Assert.Equal(Array [ Number(2., "2"); Number(1., "1") ], left)
+                Assert.Equal(Array [ Number(1., "1"); Number(2., "2") ], right)
+                // TODO: Compare mismatches as well.
             | _ ->
                 raise
                 <| XunitException(sprintf "Unexpected type of diff! %A" diff1)
-            match diff2 with
-            | Value { Path = path; Left = left; Right = right } ->
-                Assert.Equal("$[1]", path)
-                Assert.Equal(Number(1., "1"), left)
-                Assert.Equal(Number(2., "2"), right)
-            | _ ->
-                raise
-                <| XunitException(sprintf "Unexpected type of diff! %A" diff2)
-        | _ -> failwithf "Expected 2 diffs but was %d." (List.length diffs)
+        | _ -> failwithf "Expected 1 diff but was %d." (List.length diffs)
 
     [<Fact>]
     let ``{} != { "count": 0 }`` () =
@@ -282,10 +275,14 @@ module JsonStringsDiffTests =
         let actualDiffs = JsonStrings.diff "[ 3 ]" "[ 3, 7 ]"
 
         let expectedDiffs =
-            [ ItemCount
-                { Path = "$"
-                  Left = Array [ Number(3., "3") ]
-                  Right = Array [ Number(3., "3"); Number(7., "7") ] } ]
+            let expectedDiffPoint =
+                  { Path = "$"
+                    Left = Array [ Number(3., "3") ]
+                    Right = Array [ Number(3., "3"); Number(7., "7") ] }
+            let expectedMismatches = [
+                RightOnlyItem (1, Number(7., "7"))
+            ]
+            [ Items (expectedDiffPoint, expectedMismatches) ]
 
         Assert.Equal(List.length expectedDiffs, List.length actualDiffs)
         List.zip expectedDiffs actualDiffs
@@ -297,14 +294,15 @@ module JsonStringsDiffTests =
             JsonStrings.diff "[ 24, 12 ]" "[ 12, 24 ]"
 
         let expectedDiffs =
-            [ Value
-                { Path = "$[0]"
-                  Left = Number(24., "24")
-                  Right = Number(12., "12") }
-              Value
-                  { Path = "$[1]"
-                    Left = Number(12., "12")
-                    Right = Number(24., "24") } ]
+            let expectedDiffPoint =
+                  { Path = "$"
+                    Left = Array [ Number(24., "24"); Number(12., "12") ]
+                    Right = Array [ Number(12., "12"); Number(24., "24") ] }
+            let expectedMismatches = [
+                LeftOnlyItem (0, Number(24., "24"))
+                RightOnlyItem (1, Number(24., "24"))
+            ]
+            [ Items (expectedDiffPoint, expectedMismatches) ]
 
         Assert.Equal(List.length expectedDiffs, List.length actualDiffs)
         List.zip expectedDiffs actualDiffs
