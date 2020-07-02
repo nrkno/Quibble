@@ -10,6 +10,7 @@
   <ItemGroup>
     <None Include="paket.references" />
     <Compile Include="JsonParse.fs" />
+    <Compile Include="Lcs.fs" />
     <Compile Include="JsonDiff.fs" />
     <Compile Include="DiffMessage.fs" />
     <Compile Include="JsonStrings.fs" />
