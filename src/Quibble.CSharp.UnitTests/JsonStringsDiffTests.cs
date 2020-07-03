@@ -198,7 +198,7 @@ namespace Quibble.CSharp.UnitTests
                         {
                             new JsonNumber(3, "3"),
                             new JsonNumber(7, "7")
-                        })), new []
+                        })), new ItemMismatch[]
                     {
                         new RightOnlyItem(1, new JsonNumber(7, "7")), 
                     })

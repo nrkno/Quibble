@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Xunit;
 
@@ -108,6 +109,42 @@ namespace Quibble.CSharp.UnitTests
 
             Assert.Equal("Object difference at $.books[0].\nRight only property: 'edition' (string).", diffs[0]);
             Assert.Equal("String value difference at $.books[1].author: Leo Brodie vs Chuck Moore.", diffs[1]);
+        }
+        
+        [Fact]
+        public void ArrayExampleNumberOfItems()
+        {
+            var actualDiffs = JsonStrings.TextDiff("[ 3 ]", "[ 3, 7 ]");
+
+            var expectedDiffs = new List<string>
+            {
+                "Array difference at $.\n + [1] (the number 7)"
+            };
+            
+            Assert.Equal(expectedDiffs.Count, actualDiffs.Count);
+
+            foreach (var (expected, actual) in expectedDiffs.Zip(actualDiffs))
+            {
+                Assert.Equal(expected, actual);
+            }
+        }
+        
+        [Fact]
+        public void ArrayExampleOrderMatters()
+        {
+            var actualDiffs = JsonStrings.TextDiff("[ 24, 12 ]", "[ 12, 24 ]");
+
+            var expectedDiffs = new List<string>
+            {
+                "Array difference at $.\n - [0] (the number 24)\n + [1] (the number 24)"
+            };
+            
+            Assert.Equal(expectedDiffs.Count, actualDiffs.Count);
+
+            foreach (var (expected, actual) in expectedDiffs.Zip(actualDiffs))
+            {
+                Assert.Equal(expected, actual);
+            }
         }
     }
 }
