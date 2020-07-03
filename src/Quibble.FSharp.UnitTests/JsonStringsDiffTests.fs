@@ -275,14 +275,10 @@ module JsonStringsDiffTests =
         let actualDiffs = JsonStrings.diff "[ 3 ]" "[ 3, 7 ]"
 
         let expectedDiffs =
-            let expectedDiffPoint =
-                  { Path = "$"
-                    Left = Array [ Number(3., "3") ]
-                    Right = Array [ Number(3., "3"); Number(7., "7") ] }
-            let expectedMismatches = [
-                RightOnlyItem (1, Number(7., "7"))
-            ]
-            [ Items (expectedDiffPoint, expectedMismatches) ]
+            [ Items ({ Path = "$"
+                       Left = Array [ Number(3., "3") ]
+                       Right = Array [ Number(3., "3"); Number(7., "7") ] }, 
+                     [ RightOnlyItem (1, Number(7., "7")) ]) ]
 
         Assert.Equal(List.length expectedDiffs, List.length actualDiffs)
         List.zip expectedDiffs actualDiffs
@@ -308,6 +304,98 @@ module JsonStringsDiffTests =
         List.zip expectedDiffs actualDiffs
         |> List.iter (fun (expected, actual) -> Assert.Equal(expected, actual))
 
+    [<Fact>]
+    let ``Array example: more items``() =
+        let str1 = """[{
+    "title": "Data and Reality",
+    "author": "William Kent"
+}, {
+    "title": "Thinking Forth",
+    "author": "Leo Brodie"
+}, {
+    "title": "Programmers at Work",
+    "author": "Susan Lammers"
+}, {
+    "title": "The Little Schemer",
+    "authors": [ "Daniel P. Friedman", "Matthias Felleisen" ]
+}, {
+    "title": "Object Design",
+    "authors": [ "Rebecca Wirfs-Brock", "Alan McKean" ]
+}, {
+    "title": "Domain Modelling made Functional",
+    "author": "Scott Wlaschin"
+}, {
+    "title": "The Psychology of Computer Programming",
+    "author": "Gerald M. Weinberg"
+}, {
+    "title": "Exercises in Programming Style",
+    "author": "Cristina Videira Lopes"
+}, {
+    "title": "Land of Lisp",
+    "author": "Conrad Barski"
+}]"""
+        let str2 = """[{
+    "title": "Data and Reality",
+    "author": "William Kent"
+}, {
+    "title": "Thinking Forth",
+    "author": "Leo Brodie"
+}, {
+    "title": "Coders at Work",
+    "author": "Peter Seibel"
+}, {
+    "title": "The Little Schemer",
+    "authors": [ "Daniel P. Friedman", "Matthias Felleisen" ]
+}, {
+    "title": "Object Design",
+    "authors": [ "Rebecca Wirfs-Brock", "Alan McKean" ]
+}, {
+    "title": "Domain Modelling made Functional",
+    "author": "Scott Wlaschin"
+}, {
+    "title": "The Psychology of Computer Programming",
+    "author": "Gerald M. Weinberg"
+}, {
+    "title": "Turtle Geometry",
+    "authors": [ "Hal Abelson", "Andrea diSessa" ]
+}, {
+    "title": "Exercises in Programming Style",
+    "author": "Cristina Videira Lopes"
+}, {
+    "title": "Land of Lisp",
+    "author": "Conrad Barski"
+}]"""        
+        let actualDiffs = JsonStrings.diff str1 str2
+        
+        let expectedDiffs =
+            [ Items ({ Path = "$"
+                       Left = Array [ Object [("title", String "Data and Reality"); ("author", String "William Kent")];
+                                      Object [("title", String "Thinking Forth"); ("author", String "Leo Brodie")];
+                                      Object [("title", String "Programmers at Work"); ("author", String "Susan Lammers")];
+                                      Object [("title", String "The Little Schemer"); ("authors", Array [String "Daniel P. Friedman"; String "Matthias Felleisen"])];
+                                      Object [("title", String "Object Design"); ("authors", Array [String "Rebecca Wirfs-Brock"; String "Alan McKean"])];
+                                      Object [("title", String "Domain Modelling made Functional"); ("author", String "Scott Wlaschin")];
+                                      Object [("title", String "The Psychology of Computer Programming"); ("author", String "Gerald M. Weinberg")];
+                                      Object [("title", String "Exercises in Programming Style"); ("author", String "Cristina Videira Lopes")];
+                                      Object [("title", String "Land of Lisp"); ("author", String "Conrad Barski")]]
+                       Right = Array [ Object [("title", String "Data and Reality"); ("author", String "William Kent")];
+                                       Object [("title", String "Thinking Forth"); ("author", String "Leo Brodie")];
+                                       Object [("title", String "Coders at Work"); ("author", String "Peter Seibel")];
+                                       Object [("title", String "The Little Schemer"); ("authors", Array [String "Daniel P. Friedman"; String "Matthias Felleisen"])];
+                                       Object [("title", String "Object Design"); ("authors", Array [String "Rebecca Wirfs-Brock"; String "Alan McKean"])];
+                                       Object [("title", String "Domain Modelling made Functional"); ("author", String "Scott Wlaschin")];
+                                       Object [("title", String "The Psychology of Computer Programming"); ("author", String "Gerald M. Weinberg")];
+                                       Object [("title", String "Turtle Geometry"); ("authors", Array [String "Hal Abelson"; String "Andrea diSessa"])];
+                                       Object [("title", String "Exercises in Programming Style"); ("author", String "Cristina Videira Lopes")];
+                                       Object [("title", String "Land of Lisp"); ("author", String "Conrad Barski")]] },
+                     [ LeftOnlyItem (2, Object [("title", String "Programmers at Work"); ("author", String "Susan Lammers")]);
+                       RightOnlyItem (2, Object [("title", String "Coders at Work"); ("author", String "Peter Seibel")]);
+                       RightOnlyItem (7, Object [("title", String "Turtle Geometry"); ("authors", Array [String "Hal Abelson"; String "Andrea diSessa"])])]) ]
+
+        Assert.Equal(List.length expectedDiffs, List.length actualDiffs)
+        List.zip expectedDiffs actualDiffs
+        |> List.iter (fun (expected, actual) -> Assert.Equal(expected, actual))
+        
     [<Fact>]
     let ``Object example: property differences`` () =
         let str1 =

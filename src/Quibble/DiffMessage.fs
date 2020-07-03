@@ -126,7 +126,7 @@ module DiffMessage =
                     | _ -> "undefined"
 
                 let toModificationLine (op : string) (ix : int) (jv : JsonValue) : string =
-                    sprintf "%s [%d] (%s)" op ix (typeStr jv)
+                    sprintf " %s [%d] (%s)" op ix (typeStr jv)
                     
                 match itemMismatch with
                 | LeftOnlyItem (ix, jv) -> toModificationLine "-" ix jv 

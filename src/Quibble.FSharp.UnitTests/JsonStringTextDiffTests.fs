@@ -102,7 +102,7 @@ module JsonStringsTextDiffTests =
         let diffs = JsonStrings.textDiff "[ 1 ]" "[ 1, 2 ]"
         match diffs with 
         | [ diff ] ->
-            Assert.Equal("Array difference at $.\n+ [1] (the number 2)", diff)
+            Assert.Equal("Array difference at $.\n + [1] (the number 2)", diff)
         | _ -> failwith "Wrong number of diffs"
 
     [<Fact>]
@@ -110,7 +110,7 @@ module JsonStringsTextDiffTests =
         let diffs = JsonStrings.textDiff "[ 1 ]" "[ 2, 1 ]"
         match diffs with
         | [ diff ] ->
-            Assert.Equal("Array difference at $.\n+ [0] (the number 2)", diff)
+            Assert.Equal("Array difference at $.\n + [0] (the number 2)", diff)
         | _ -> failwith "Wrong number of diffs"
             
     [<Fact>]
@@ -118,7 +118,7 @@ module JsonStringsTextDiffTests =
         let diffs = JsonStrings.textDiff "[ 2, 1 ]" "[ 1, 2 ]"
         match diffs with
         | [ diff ] ->
-            Assert.Equal("Array difference at $.\n- [0] (the number 2)\n+ [1] (the number 2)", diff)
+            Assert.Equal("Array difference at $.\n - [0] (the number 2)\n + [1] (the number 2)", diff)
         | _ -> failwithf "Expected 1 diff but was %d." (List.length diffs)
         
     [<Fact>]
@@ -199,3 +199,70 @@ module JsonStringsTextDiffTests =
             Assert.Equal("Object difference at $.books[0].\nRight only property: 'edition' (string).", diff1)
             Assert.Equal("String value difference at $.books[1].author: Leo Brodie vs Chuck Moore.", diff2)
         | _ -> failwithf "Expected 2 diffs but was %d." (List.length diffs)
+
+    [<Fact>]
+    let ``Long array example - with modifications``() =
+        let str1 = """[{
+    "title": "Data and Reality",
+    "author": "William Kent"
+}, {
+    "title": "Thinking Forth",
+    "author": "Leo Brodie"
+}, {
+    "title": "Programmers at Work",
+    "author": "Susan Lammers"
+}, {
+    "title": "The Little Schemer",
+    "authors": [ "Daniel P. Friedman", "Matthias Felleisen" ]
+}, {
+    "title": "Object Design",
+    "authors": [ "Rebecca Wirfs-Brock", "Alan McKean" ]
+}, {
+    "title": "Domain Modelling made Functional",
+    "author": "Scott Wlaschin"
+}, {
+    "title": "The Psychology of Computer Programming",
+    "author": "Gerald M. Weinberg"
+}, {
+    "title": "Exercises in Programming Style",
+    "author": "Cristina Videira Lopes"
+}, {
+    "title": "Land of Lisp",
+    "author": "Conrad Barski"
+}]"""
+        let str2 = """[{
+    "title": "Data and Reality",
+    "author": "William Kent"
+}, {
+    "title": "Thinking Forth",
+    "author": "Leo Brodie"
+}, {
+    "title": "Coders at Work",
+    "author": "Peter Seibel"
+}, {
+    "title": "The Little Schemer",
+    "authors": [ "Daniel P. Friedman", "Matthias Felleisen" ]
+}, {
+    "title": "Object Design",
+    "authors": [ "Rebecca Wirfs-Brock", "Alan McKean" ]
+}, {
+    "title": "Domain Modelling made Functional",
+    "author": "Scott Wlaschin"
+}, {
+    "title": "The Psychology of Computer Programming",
+    "author": "Gerald M. Weinberg"
+}, {
+    "title": "Turtle Geometry",
+    "authors": [ "Hal Abelson", "Andrea diSessa" ]
+}, {
+    "title": "Exercises in Programming Style",
+    "author": "Cristina Videira Lopes"
+}, {
+    "title": "Land of Lisp",
+    "author": "Conrad Barski"
+}]"""        
+        let diffs = JsonStrings.textDiff str1 str2
+        match diffs with
+        | [ diff ] ->
+            Assert.Equal("Array difference at $.\n - [2] (an object)\n + [2] (an object)\n + [7] (an object)", diff)
+        | _ -> failwithf "Expected 1 diff but was %d." (List.length diffs)
