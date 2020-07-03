@@ -1043,7 +1043,7 @@ namespace Quibble.CSharp.UnitTests
             
             Assert.Equal(diff1, diff2);
             
-            Assert.Equal("Type { Path = $, Left = true, Right = true }", diff1.ToString());
+            Assert.Equal("TypeDiff { Path = $, Left = true, Right = true }", diff1.ToString());
         }
         
         [Fact]
@@ -1104,7 +1104,7 @@ namespace Quibble.CSharp.UnitTests
 
             Assert.Equal(diff1, diff2);
             
-            Assert.Equal("Value { Path = $.author, Left = Leo Brodie, Right = Chuck Moore }", diff1.ToString());
+            Assert.Equal("ValueDiff { Path = $.author, Left = Leo Brodie, Right = Chuck Moore }", diff1.ToString());
         }
         
         [Fact]
@@ -1173,7 +1173,7 @@ namespace Quibble.CSharp.UnitTests
             
             Assert.Equal(diff1, diff2);
             
-            Assert.Equal("Items { Path = $, Left = Array [2 items], Right = Array [3 items] }", diff1.ToString());
+            Assert.Equal("ArrayDiff { Path = $, Left = Array [2 items], Right = Array [3 items] }", diff1.ToString());
         }
         
         [Fact]
@@ -1329,7 +1329,7 @@ namespace Quibble.CSharp.UnitTests
             Assert.NotEqual(diff, yetAnotherDiff);
             Assert.NotEqual(anotherDiff, yetAnotherDiff);
 
-            Assert.Equal("Properties { Path = $, Left = Object {2 properties}, Right = Object {3 properties} }", diff.ToString());
+            Assert.Equal("ObjectDiff { Path = $, Left = Object {2 properties}, Right = Object {3 properties} }", diff.ToString());
         }
     }
 }
