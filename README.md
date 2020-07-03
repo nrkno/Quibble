@@ -574,6 +574,8 @@ also yields an empty list of diffs. The reason is that `123.4` and `1.234E2` are
 
 ### Comparing arrays
 
+Quibble uses [Ratcliff/Obershelp pattern recognition](https://en.wikipedia.org/wiki/Gestalt_Pattern_Matching) to describe the differences between arrays. It is based on finding the longest common sub-arrays. 
+
 #### Array example: Number of items
 
 ```
@@ -585,33 +587,194 @@ yields a list of diffs equivalent to this:
 ```
 new List<Diff>
 {
-    new ItemCount(
-        new DiffPoint("$",
-            new Array (
-                new JsonValue []
-                {
-                    new Number(3, "3")
-                }),
-            new Array (
-                new JsonValue []
-                {
-                    new Number(3, "3"),
-                    new Number(7, "7")
-                })))
+    new Items(new DiffPoint("$",
+            new Array(new JsonValue[]
+            {
+                new Object(
+                    new Dictionary<string, JsonValue>
+                    {
+                        {"title", new String("Data and Reality")},
+                        {"author", new String("William Kent")}
+                    }),
+                new Object(
+                    new Dictionary<string, JsonValue>
+                    {
+                        {"title", new String("Thinking Forth")},
+                        {"author", new String("Leo Brodie")}
+                    }),
+                new Object(
+                    new Dictionary<string, JsonValue>
+                    {
+                        {"title", new String("Programmers at Work")},
+                        {"author", new String("Susan Lammers")}
+                    }),
+                new Object(
+                    new Dictionary<string, JsonValue>
+                    {
+                        {"title", new String("The Little Schemer")},
+                        {
+                            "authors",
+                            new Array(new JsonValue[]
+                                {new String("Daniel P. Friedman"), new String("Matthias Felleisen")})
+                        }
+                    }),
+                new Object(
+                    new Dictionary<string, JsonValue>
+                    {
+                        {"title", new String("Object Design")},
+                        {
+                            "authors",
+                            new Array(new JsonValue[]
+                                {new String("Rebecca Wirfs-Brock"), new String("Alan McKean")})
+                        }
+                    }),
+                new Object(
+                    new Dictionary<string, JsonValue>
+                    {
+                        {"title", new String("Domain Modelling made Functional")},
+                        {"author", new String("Scott Wlaschin")}
+                    }),
+                new Object(
+                    new Dictionary<string, JsonValue>
+                    {
+                        {"title", new String("The Psychology of Computer Programming")},
+                        {"author", new String("Gerald M. Weinberg")}
+                    }),
+                new Object(
+                    new Dictionary<string, JsonValue>
+                    {
+                        {"title", new String("Exercises in Programming Style")},
+                        {"author", new String("Cristina Videira Lopes")}
+                    }),
+                new Object(
+                    new Dictionary<string, JsonValue>
+                    {
+                        {"title", new String("Land of Lisp")},
+                        {"author", new String("Conrad Barski")}
+                    })
+            }),
+            new Array(new JsonValue[]
+            {
+                new Object(
+                    new Dictionary<string, JsonValue>
+                    {
+                        {"title", new String("Data and Reality")},
+                        {"author", new String("William Kent")}
+                    }),
+                new Object(
+                    new Dictionary<string, JsonValue>
+                    {
+                        {"title", new String("Thinking Forth")},
+                        {"author", new String("Leo Brodie")}
+                    }),
+                new Object(
+                    new Dictionary<string, JsonValue>
+                    {
+                        {"title", new String("Coders at Work")},
+                        {"author", new String("Peter Seibel")}
+                    }),
+                new Object(
+                    new Dictionary<string, JsonValue>
+                    {
+                        {"title", new String("The Little Schemer")},
+                        {
+                            "authors",
+                            new Array(new JsonValue[]
+                                {new String("Daniel P. Friedman"), new String("Matthias Felleisen")})
+                        }
+                    }),
+                new Object(
+                    new Dictionary<string, JsonValue>
+                    {
+                        {"title", new String("Object Design")},
+                        {
+                            "authors",
+                            new Array(new JsonValue[]
+                                {new String("Rebecca Wirfs-Brock"), new String("Alan McKean")})
+                        }
+                    }),
+                new Object(
+                    new Dictionary<string, JsonValue>
+                    {
+                        {"title", new String("Domain Modelling made Functional")},
+                        {"author", new String("Scott Wlaschin")}
+                    }),
+                new Object(
+                    new Dictionary<string, JsonValue>
+                    {
+                        {"title", new String("The Psychology of Computer Programming")},
+                        {"author", new String("Gerald M. Weinberg")}
+                    }),
+                new Object(
+                    new Dictionary<string, JsonValue>
+                    {
+                        {"title", new String("Turtle Geometry")},
+                        {
+                            "authors",
+                            new Array(new JsonValue[]
+                                {new String("Hal Abelson"), new String("Andrea diSessa")})
+                        }
+                    }),
+                new Object(
+                    new Dictionary<string, JsonValue>
+                    {
+                        {"title", new String("Exercises in Programming Style")},
+                        {"author", new String("Cristina Videira Lopes")}
+                    }),
+                new Object(
+                    new Dictionary<string, JsonValue>
+                    {
+                        {"title", new String("Land of Lisp")},
+                        {"author", new String("Conrad Barski")}
+                    })
+            })),
+        new ItemMismatch[]
+        {
+            new LeftOnlyItem(2,
+                new Object(
+                    new Dictionary<string, JsonValue>
+                    {
+                        {"title", new String("Programmers at Work")},
+                        {"author", new String("Susan Lammers")}
+                    })),
+            new RightOnlyItem(2,
+                new Object(
+                    new Dictionary<string, JsonValue>
+                    {
+                        {"title", new String("Coders at Work")},
+                        {"author", new String("Peter Seibel")}
+                    })),
+            new RightOnlyItem(7,
+                new Object(
+                    new Dictionary<string, JsonValue>
+                    {
+                        {"title", new String("Turtle Geometry")},
+                        {
+                            "authors",
+                            new Array(new JsonValue[]
+                                {new String("Hal Abelson"), new String("Andrea diSessa")})
+                        }
+                    }))
+        })
 };
 ```
+
+The most interesting part is the `ItemMismatch` array, which contains the items that are present either in just the left array ("Programmers at work" by Susan Lammers, at index 2) or just in the right array ("Coders at Work" by Peter Seibel, at index 2, and "Turtle Geometry" by Hal Abelson and Andrea diSessa, at index 7).
 
 For a text description:
 
 ```
-var diffs = JsonStrings.TextDiff("[ 3 ]", "[ 3, 7 ]");
+var diffs = JsonStrings.Diff(str1, str2);
 Console.WriteLine(diffs.Single());
 ```
 
 prints
 
 ```
-Array length difference at $: 1 vs 2.
+Array difference at $.
+ - [2] (an object)
+ + [2] (an object)
+ + [7] (an object)
 ```
 
 #### Array example: Item order matters
