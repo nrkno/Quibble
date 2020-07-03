@@ -17,21 +17,21 @@ namespace Quibble.CSharp.UnitTests
         {
             return diff switch
             {
-                Type typeDiff => ToTypeTextDiff(typeDiff),
-                Value valueDiff => ToValueTypeTextDiff(valueDiff),
-                Items itemsDiff => ToItemsTextDiff(itemsDiff),
-                Properties propertiesDiff => ToPropertiesTextDiff(propertiesDiff),
+                TypeDiff typeDiff => ToTypeTextDiff(typeDiff),
+                ValueDiff valueDiff => ToValueTypeTextDiff(valueDiff),
+                ArrayDiff arrayDiff => ToArrayTextDiff(arrayDiff),
+                ObjectDiff objectDiff => ToObjectTextDiff(objectDiff),
                 _ => throw new Exception("Unknown diff type")
             };
         }
 
-        private static string ToTypeTextDiff(Type typeDiff)
+        private static string ToTypeTextDiff(TypeDiff typeDiff)
         {
             switch (typeDiff.Left, typeDiff.Right)
             {
-                case (True _, False _):
+                case (JsonTrue _, JsonFalse _):
                     return $"Boolean value difference at {typeDiff.Path}: true vs false.";
-                case (False _, True _):
+                case (JsonFalse _, JsonTrue _):
                     return $"Boolean value difference at {typeDiff.Path}: false vs true.";
                 default:
                     var leftValueDescription = ToValueDescription(typeDiff.Left);
@@ -44,15 +44,15 @@ namespace Quibble.CSharp.UnitTests
         {
             switch (jsonValue)
             {
-                case True _:
+                case JsonTrue _:
                     return "the boolean true";
-                case False _:
+                case JsonFalse _:
                     return "the boolean false";
-                case String s:
+                case JsonString s:
                     return $"the string {s.Text}";
-                case Number n:
+                case JsonNumber n:
                     return $"the number {n.TextRepresentation}";
-                case Array a:
+                case JsonArray a:
                     var itemCount = a.Items.Count;
                     return itemCount switch
                     {
@@ -60,17 +60,17 @@ namespace Quibble.CSharp.UnitTests
                         1 => "an array with 1 item",
                         _ => $"an array with {itemCount} items"
                     };
-                case Object _: return "an object";
-                case Null _: return "null";
+                case JsonObject _: return "an object";
+                case JsonNull _: return "null";
                 default: return "something else";
             }
         }
 
-        private static string ToValueTypeTextDiff(Value valueDiff)
+        private static string ToValueTypeTextDiff(ValueDiff valueDiff)
         {
             switch (valueDiff.Left, valueDiff.Right)
             {
-                case (String leftStringValue, String rightStringValue):
+                case (JsonString leftStringValue, JsonString rightStringValue):
                     var leftStringText = leftStringValue.Text;
                     var rightStringText = rightStringValue.Text;
                     var maxStrLen = Math.Max(leftStringText.Length, rightStringText.Length);
@@ -78,7 +78,7 @@ namespace Quibble.CSharp.UnitTests
                         ? $"    {leftStringText}\nvs\n    {rightStringText}"
                         : $"{leftStringText} vs {rightStringText}.";
                     return $"String value difference at {valueDiff.Path}: {comparisonStr}";
-                case (Number leftNumberValue, Number rightNumberValue):
+                case (JsonNumber leftNumberValue, JsonNumber rightNumberValue):
                     var leftNumberText = leftNumberValue.TextRepresentation;
                     var rightNumberText = rightNumberValue.TextRepresentation;
                     return $"Number value difference at {valueDiff.Path}: {leftNumberText} vs {rightNumberText}.";
@@ -91,14 +91,14 @@ namespace Quibble.CSharp.UnitTests
         {
             return jsonValue switch
             {
-                True _ => "bool",
-                False _ => "bool",
-                String _ => "string",
-                Number _ => "number",
-                Object _ => "object",
-                Array _ => "array",
-                Null _ => "null",
-                Undefined _ => "undefined",
+                JsonTrue _ => "bool",
+                JsonFalse _ => "bool",
+                JsonString _ => "string",
+                JsonNumber _ => "number",
+                JsonObject _ => "object",
+                JsonArray _ => "array",
+                JsonNull _ => "null",
+                JsonUndefined _ => "undefined",
                 _ => "undefined"
             };
         }
@@ -108,17 +108,17 @@ namespace Quibble.CSharp.UnitTests
             return $"'{property}' ({ToPropertyTypeString(jsonValue)})";
         }
 
-        private static string ToItemsTextDiff(Items itemsDiff)
+        private static string ToArrayTextDiff(ArrayDiff arrayDiff)
         {
-            var mismatches = itemsDiff.Mismatches;
+            var mismatches = arrayDiff.Mismatches;
             var modifications = mismatches.Select(ToModification);
             var details = string.Join("\n", modifications);
-            return $"Array difference at {itemsDiff.Path}.\n{details}";
+            return $"Array difference at {arrayDiff.Path}.\n{details}";
         }
 
-        private static string ToPropertiesTextDiff(Properties propertiesDiff)
+        private static string ToObjectTextDiff(ObjectDiff objectDiff)
         {
-            var mismatches = propertiesDiff.Mismatches;
+            var mismatches = objectDiff.Mismatches;
             var leftOnlyProperties = mismatches.OfType<LeftOnlyProperty>();
             var lefts = leftOnlyProperties.Select(it => ToPropertyString(it.PropertyName, it.PropertyValue)).ToList();
             var leftsOnlyText = ToLeftOnlyText(lefts);
@@ -127,7 +127,7 @@ namespace Quibble.CSharp.UnitTests
             var rightsOnlyText = ToRightOnlyText(rights);
             var bothCombined = new List<string> {leftsOnlyText, rightsOnlyText}.Where(it => it != null).ToList();
             var details = string.Join("\n", bothCombined);
-            return $"Object difference at {propertiesDiff.Path}.\n{details}";
+            return $"Object difference at {objectDiff.Path}.\n{details}";
             
         }
 

@@ -7,10 +7,10 @@ Quibble is a JSON diff tool for .NET. You give Quibble two text strings with JSO
 
 Quibble distinguishes between four kinds of differences: 
 
-* `Type`: e.g. `string` vs `number`.
-* `Value`: same type but different value, e.g. the string `cat` vs the string `dog`.
-* `Properties`: when two JSON objects have differences in their properties, e.g. the object `{ "name": "Quux" }` vs the object `{ "id": "1c3d" }`.
-* `Items`: when two JSON arrays have a different items, e.g. the array `[ 1, 2, 3 ]` vs the array `[ 2, 3, 4 ]`.
+* `TypeDiff`: e.g. `string` vs `number`.
+* `ValueDiff`: same type but different value, e.g. the string `cat` vs the string `dog`.
+* `ObjectDiff`: when two JSON objects have differences in their properties, e.g. the object `{ "name": "Quux" }` vs the object `{ "id": "1c3d" }`.
+* `ArrayDiff`: when two JSON arrays have a different items, e.g. the array `[ 1, 2, 3 ]` vs the array `[ 2, 3, 4 ]`.
 
 Quibble makes the following assumptions: 
 
@@ -59,11 +59,11 @@ yields the following list of diffs:
 ```
 [ Value { 
     Path = "$"; 
-    Left = Number (1., "1"); 
-    Right = Number (2., "2") } ]
+    Left = JsonNumber (1., "1"); 
+    Right = JsonNumber (2., "2") } ]
 ```
 
-The `Number` type contains both the parsed double value of the number and the original text representation from the JSON string. The reason is that there can be several text representations of the same number (e.g. `1.0` and `1` are the same number in JSON). Quibble keeps both in order to compare double values for differences, yet report any differences using the original text representations.
+The `JsonNumber` type contains both the parsed double value of the number and the original text representation from the JSON string. The reason is that there can be several text representations of the same number (e.g. `1.0` and `1` are the same number in JSON). Quibble keeps both in order to compare double values for differences, yet report any differences using the original text representations.
 
 To get a text description of the difference between the JSON numbers `1` and `2`:
 
@@ -141,9 +141,9 @@ yields the following list of diffs:
 
 ```
 [ Items ({ Path = "$"
-           Left = Array [ Number(3., "3") ]
-           Right = Array [ Number(3., "3"); Number(7., "7") ] }, 
-         [ RightOnlyItem (1, Number(7., "7")) ]
+           Left = JsonArray [ JsonNumber(3., "3") ]
+           Right = JsonArray [ JsonNumber(3., "3"); JsonNumber(7., "7") ] }, 
+         [ RightOnlyItem (1, JsonNumber(7., "7")) ]
 ```
 
 For a text description:
@@ -171,10 +171,10 @@ yields the following list of diffs:
 
 ```
 [ Items ({ Path = "$"
-           Left = Array [ Number(24., "24"); Number(12., "12") ]
-           Right = Array [ Number(12., "12"); Number(24., "24") ] }, 
-         [ LeftOnlyItem (0, Number(24., "24"))
-           RightOnlyItem (1, Number(24., "24")) ]) ]
+           Left = JsonArray [ JsonNumber(24., "24"); JsonNumber(12., "12") ]
+           Right = JsonArray [ JsonNumber(12., "12"); JsonNumber(24., "24") ] }, 
+         [ LeftOnlyItem (0, JsonNumber(24., "24"))
+           RightOnlyItem (1, JsonNumber(24., "24")) ]) ]
 ```
 
 Quibble identifies `[12]` as the longest common sub-array, and treats the leading `24` in the left array and the trailing `24` in the right array as extra elements.
@@ -195,7 +195,7 @@ Array difference at $.
  + [1] (the number 24)
 ```
 
-#### Array example: More elements
+#### Array example: More items
 
 The benefits of using longest common sub-array for creating the diff are more apparent for longer arrays that are almost the same.
 
@@ -267,30 +267,16 @@ JsonStrings.diff str1 str2
 yields the following list of diffs: 
 
 ```
-[ Items ({ Path = "$"
-           Left = Array [ Object [("title", String "Data and Reality"); ("author", String "William Kent")];
-                          Object [("title", String "Thinking Forth"); ("author", String "Leo Brodie")];
-                          Object [("title", String "Programmers at Work"); ("author", String "Susan Lammers")];
-                          Object [("title", String "The Little Schemer"); ("authors", Array [String "Daniel P. Friedman"; String "Matthias Felleisen"])];
-                          Object [("title", String "Object Design"); ("authors", Array [String "Rebecca Wirfs-Brock"; String "Alan McKean"])];
-                          Object [("title", String "Domain Modelling made Functional"); ("author", String "Scott Wlaschin")];
-                          Object [("title", String "The Psychology of Computer Programming"); ("author", String "Gerald M. Weinberg")];
-                          Object [("title", String "Exercises in Programming Style"); ("author", String "Cristina Videira Lopes")];
-                          Object [("title", String "Land of Lisp"); ("author", String "Conrad Barski")]]
-           Right = Array [ Object [("title", String "Data and Reality"); ("author", String "William Kent")];
-                           Object [("title", String "Thinking Forth"); ("author", String "Leo Brodie")];
-                           Object [("title", String "Coders at Work"); ("author", String "Peter Seibel")];
-                           Object [("title", String "The Little Schemer"); ("authors", Array [String "Daniel P. Friedman"; String "Matthias Felleisen"])];
-                           Object [("title", String "Object Design"); ("authors", Array [String "Rebecca Wirfs-Brock"; String "Alan McKean"])];
-                           Object [("title", String "Domain Modelling made Functional"); ("author", String "Scott Wlaschin")];
-                           Object [("title", String "The Psychology of Computer Programming"); ("author", String "Gerald M. Weinberg")];
-                           Object [("title", String "Turtle Geometry"); ("authors", Array [String "Hal Abelson"; String "Andrea diSessa"])];
-                           Object [("title", String "Exercises in Programming Style"); ("author", String "Cristina Videira Lopes")];
-                           Object [("title", String "Land of Lisp"); ("author", String "Conrad Barski")]] },
-         [ LeftOnlyItem (2, Object [("title", String "Programmers at Work"); ("author", String "Susan Lammers")]);
-           RightOnlyItem (2, Object [("title", String "Coders at Work"); ("author", String "Peter Seibel")]);
-           RightOnlyItem (7, Object [("title", String "Turtle Geometry"); ("authors", Array [String "Hal Abelson"; String "Andrea diSessa"])])]) ]
+[ ArrayDiff ({ Path = "$"; Left = JsonArray [ ... ]; Right = JsonArray [ ... ] },
+             [ LeftOnlyItem (2, JsonObject [("title", JsonString "Programmers at Work")
+                                            ("author", JsonString "Susan Lammers")])
+               RightOnlyItem (2, JsonObject [("title", JsonString "Coders at Work")
+                                             ("author", JsonString "Peter Seibel")]);
+               RightOnlyItem (7, JsonObject [("title", JsonString "Turtle Geometry")
+                                             ("authors", JsonArray [ JsonString "Hal Abelson"; JsonString "Andrea diSessa" ])])]) ]
 ```
+
+The most interesting part is the list of item mismatches, which contains the items that are present either in just the left JSON array ("Programmers at work" by Susan Lammers, at index 2) or just in the right JSON array ("Coders at Work" by Peter Seibel, at index 2, and "Turtle Geometry" by Hal Abelson and Andrea diSessa, at index 7).
 
 For a text description: 
 
@@ -327,17 +313,17 @@ yields the following list of diffs:
 [ Properties
     ({ Path = "$"
        Left =
-           Object
-               [ ("item", String "widget")
-                 ("price", Number(12.2, "12.20")) ]
+           JsonObject
+               [ ("item", JsonString "widget")
+                 ("price", JsonNumber(12.2, "12.20")) ]
        Right =
-           Object
-               [ ("item", String "widget")
-                 ("quantity", Number(88.0, "88"))
-                 ("in stock", True) ] },
-      [ LeftOnlyProperty("price", Number(12.2, "12.20"))
-        RightOnlyProperty("quantity", Number(88.0, "88"))
-        RightOnlyProperty("in stock", True) ]) ]
+           JsonObject
+               [ ("item", JsonString "widget")
+                 ("quantity", JsonNumber(88.0, "88"))
+                 ("in stock", JsonTrue) ] },
+      [ LeftOnlyProperty("price", JsonNumber(12.2, "12.20"))
+        RightOnlyProperty("quantity", JsonNumber(88.0, "88"))
+        RightOnlyProperty("in stock", JsonTrue) ]) ]
 ```
 
 Quibble treats it as a single difference with three mismatching properties.
@@ -375,8 +361,8 @@ yields the following list of diffs:
 ```
 [ Value
     { Path = "$['date of birth']"
-      Left = String "1999-04-23"
-      Right = String "1999-04-24" } ]
+      Left = JsonString "1999-04-23"
+      Right = JsonString "1999-04-24" } ]
 ```
 
 JSONPath handles spaces in property names by using the alternative bracket-and-quotes syntax shown.
@@ -434,19 +420,19 @@ yields the following list of differences:
 [ Properties
      ({ Path = "$.books[0]"
         Left =
-            Object
-                [ ("title", String "Data and Reality")
-                  ("author", String "William Kent") ]
+            JsonObject
+                [ ("title", JsonString "Data and Reality")
+                  ("author", JsonString "William Kent") ]
         Right =
-            Object
-                [ ("title", String "Data and Reality")
-                  ("author", String "William Kent")
-                  ("edition", String "2nd") ] },
-      [ RightOnlyProperty("edition", String "2nd") ])
+            JsonObject
+                [ ("title", JsonString "Data and Reality")
+                  ("author", JsonString "William Kent")
+                  ("edition", JsonString "2nd") ] },
+      [ RightOnlyProperty("edition", JsonString "2nd") ])
   Value
      { Path = "$.books[1].author"
-       Left = String "Leo Brodie"
-       Right = String "Chuck Moore" } ]
+       Left = JsonString "Leo Brodie"
+       Right = JsonString "Chuck Moore" } ]
 ```
 
 For a text description:
@@ -516,10 +502,10 @@ yields a list of diffs equivalent to this:
 ```
 new List<Diff>
 {
-    new Value(
+    new ValueDiff(
         new DiffPoint("$",
-            new Number(1, "1"),
-            new Number(2, "2")))
+            new JsonNumber(1, "1"),
+            new JsonNumber(2, "2")))
 };
 ```
 
@@ -587,184 +573,30 @@ yields a list of diffs equivalent to this:
 ```
 new List<Diff>
 {
-    new Items(new DiffPoint("$",
-            new Array(new JsonValue[]
-            {
-                new Object(
-                    new Dictionary<string, JsonValue>
-                    {
-                        {"title", new String("Data and Reality")},
-                        {"author", new String("William Kent")}
-                    }),
-                new Object(
-                    new Dictionary<string, JsonValue>
-                    {
-                        {"title", new String("Thinking Forth")},
-                        {"author", new String("Leo Brodie")}
-                    }),
-                new Object(
-                    new Dictionary<string, JsonValue>
-                    {
-                        {"title", new String("Programmers at Work")},
-                        {"author", new String("Susan Lammers")}
-                    }),
-                new Object(
-                    new Dictionary<string, JsonValue>
-                    {
-                        {"title", new String("The Little Schemer")},
-                        {
-                            "authors",
-                            new Array(new JsonValue[]
-                                {new String("Daniel P. Friedman"), new String("Matthias Felleisen")})
-                        }
-                    }),
-                new Object(
-                    new Dictionary<string, JsonValue>
-                    {
-                        {"title", new String("Object Design")},
-                        {
-                            "authors",
-                            new Array(new JsonValue[]
-                                {new String("Rebecca Wirfs-Brock"), new String("Alan McKean")})
-                        }
-                    }),
-                new Object(
-                    new Dictionary<string, JsonValue>
-                    {
-                        {"title", new String("Domain Modelling made Functional")},
-                        {"author", new String("Scott Wlaschin")}
-                    }),
-                new Object(
-                    new Dictionary<string, JsonValue>
-                    {
-                        {"title", new String("The Psychology of Computer Programming")},
-                        {"author", new String("Gerald M. Weinberg")}
-                    }),
-                new Object(
-                    new Dictionary<string, JsonValue>
-                    {
-                        {"title", new String("Exercises in Programming Style")},
-                        {"author", new String("Cristina Videira Lopes")}
-                    }),
-                new Object(
-                    new Dictionary<string, JsonValue>
-                    {
-                        {"title", new String("Land of Lisp")},
-                        {"author", new String("Conrad Barski")}
-                    })
-            }),
-            new Array(new JsonValue[]
-            {
-                new Object(
-                    new Dictionary<string, JsonValue>
-                    {
-                        {"title", new String("Data and Reality")},
-                        {"author", new String("William Kent")}
-                    }),
-                new Object(
-                    new Dictionary<string, JsonValue>
-                    {
-                        {"title", new String("Thinking Forth")},
-                        {"author", new String("Leo Brodie")}
-                    }),
-                new Object(
-                    new Dictionary<string, JsonValue>
-                    {
-                        {"title", new String("Coders at Work")},
-                        {"author", new String("Peter Seibel")}
-                    }),
-                new Object(
-                    new Dictionary<string, JsonValue>
-                    {
-                        {"title", new String("The Little Schemer")},
-                        {
-                            "authors",
-                            new Array(new JsonValue[]
-                                {new String("Daniel P. Friedman"), new String("Matthias Felleisen")})
-                        }
-                    }),
-                new Object(
-                    new Dictionary<string, JsonValue>
-                    {
-                        {"title", new String("Object Design")},
-                        {
-                            "authors",
-                            new Array(new JsonValue[]
-                                {new String("Rebecca Wirfs-Brock"), new String("Alan McKean")})
-                        }
-                    }),
-                new Object(
-                    new Dictionary<string, JsonValue>
-                    {
-                        {"title", new String("Domain Modelling made Functional")},
-                        {"author", new String("Scott Wlaschin")}
-                    }),
-                new Object(
-                    new Dictionary<string, JsonValue>
-                    {
-                        {"title", new String("The Psychology of Computer Programming")},
-                        {"author", new String("Gerald M. Weinberg")}
-                    }),
-                new Object(
-                    new Dictionary<string, JsonValue>
-                    {
-                        {"title", new String("Turtle Geometry")},
-                        {
-                            "authors",
-                            new Array(new JsonValue[]
-                                {new String("Hal Abelson"), new String("Andrea diSessa")})
-                        }
-                    }),
-                new Object(
-                    new Dictionary<string, JsonValue>
-                    {
-                        {"title", new String("Exercises in Programming Style")},
-                        {"author", new String("Cristina Videira Lopes")}
-                    }),
-                new Object(
-                    new Dictionary<string, JsonValue>
-                    {
-                        {"title", new String("Land of Lisp")},
-                        {"author", new String("Conrad Barski")}
-                    })
-            })),
+    new ArrayDiff(
+        new DiffPoint("$",
+            new JsonArray (
+                new JsonValue []
+                {
+                    new JsonNumber(3, "3")
+                }),
+            new JsonArray (
+                new JsonValue []
+                {
+                    new JsonNumber(3, "3"),
+                    new JsonNumber(7, "7")
+            })), 
         new ItemMismatch[]
         {
-            new LeftOnlyItem(2,
-                new Object(
-                    new Dictionary<string, JsonValue>
-                    {
-                        {"title", new String("Programmers at Work")},
-                        {"author", new String("Susan Lammers")}
-                    })),
-            new RightOnlyItem(2,
-                new Object(
-                    new Dictionary<string, JsonValue>
-                    {
-                        {"title", new String("Coders at Work")},
-                        {"author", new String("Peter Seibel")}
-                    })),
-            new RightOnlyItem(7,
-                new Object(
-                    new Dictionary<string, JsonValue>
-                    {
-                        {"title", new String("Turtle Geometry")},
-                        {
-                            "authors",
-                            new Array(new JsonValue[]
-                                {new String("Hal Abelson"), new String("Andrea diSessa")})
-                        }
-                    }))
+            new RightOnlyItem(1, new JsonNumber(7, "7")), 
         })
 };
 ```
 
-The most interesting part is the `ItemMismatch` array, which contains the items that are present either in just the left array ("Programmers at work" by Susan Lammers, at index 2) or just in the right array ("Coders at Work" by Peter Seibel, at index 2, and "Turtle Geometry" by Hal Abelson and Andrea diSessa, at index 7).
-
 For a text description:
 
 ```
-var diffs = JsonStrings.Diff(str1, str2);
+var diffs = JsonStrings.TextDiff("[ 3 ]", "[ 3, 7 ]");
 Console.WriteLine(diffs.Single());
 ```
 
@@ -772,10 +604,11 @@ prints
 
 ```
 Array difference at $.
- - [2] (an object)
- + [2] (an object)
- + [7] (an object)
+ + [1] (the number 7)
 ```
+
+The most interesting part is the `ItemMismatch` array, which contains the items that are present either in just the left array ("Programmers at work" by Susan Lammers, at index 2) or just in the right array ("Coders at Work" by Peter Seibel, at index 2, and "Turtle Geometry" by Hal Abelson and Andrea diSessa, at index 7).
+
 
 #### Array example: Item order matters
 
@@ -788,14 +621,23 @@ yields a list of diffs equivalent to this:
 ```
 new List<Diff>
 {
-    new Value(
-        new DiffPoint("$[0]",
-            new Number(24, "24"), 
-            new Number(12, "12"))), 
-    new Value(
-        new DiffPoint("$[1]",
-            new Number(12, "12"), 
-            new Number(24, "24")))
+    new ArrayDiff(
+        new DiffPoint("$", 
+            new JsonArray (new JsonValue []
+            {
+                new JsonNumber(24, "24"),
+                new JsonNumber(12, "12")
+            }), 
+            new JsonArray (new JsonValue []
+            {
+                new JsonNumber(12, "12"),
+                new JsonNumber(24, "24")
+            })),
+        new ItemMismatch[]
+        {
+            new LeftOnlyItem(0, new JsonNumber(24, "24")),
+            new RightOnlyItem(1, new JsonNumber(24, "24"))
+        })
 };
 ```
 
@@ -803,18 +645,142 @@ For a text description:
 
 ```
 var diffs = JsonStrings.TextDiff("[ 24, 12 ]", "[ 12, 24 ]");
-foreach (var diff in diffs) 
-{
-    Console.WriteLine(diff);
-}
+Console.WriteLine(diffs.Single());
 ```
 
 prints
 
 ```
-Number value difference at $[0]: 24 vs 12.
-Number value difference at $[1]: 12 vs 24.
+Array difference at $.
+ - [0] (the number 24)
+ + [1] (the number 24)
 ```
+
+#### Array example: More items
+
+The benefits of using longest common sub-array for creating the diff are more apparent for longer arrays that are almost the same.
+
+```
+var str1 = @"[{
+    ""title"": ""Data and Reality"",
+    ""author"": ""William Kent""
+}, {
+    ""title"": ""Thinking Forth"",
+    ""author"": ""Leo Brodie""
+}, {
+    ""title"": ""Programmers at Work"",
+    ""author"": ""Susan Lammers""
+}, {
+    ""title"": ""The Little Schemer"",
+    ""authors"": [ ""Daniel P. Friedman"", ""Matthias Felleisen"" ]
+}, {
+    ""title"": ""Object Design"",
+    ""authors"": [ ""Rebecca Wirfs-Brock"", ""Alan McKean"" ]
+}, {
+    ""title"": ""Domain Modelling made Functional"",
+    ""author"": ""Scott Wlaschin""
+}, {
+    ""title"": ""The Psychology of Computer Programming"",
+    ""author"": ""Gerald M. Weinberg""
+}, {
+    ""title"": ""Exercises in Programming Style"",
+    ""author"": ""Cristina Videira Lopes""
+}, {
+    ""title"": ""Land of Lisp"",
+    ""author"": ""Conrad Barski""
+}]";
+var str2 = @"[{
+    ""title"": ""Data and Reality"",
+    ""author"": ""William Kent""
+}, {
+    ""title"": ""Thinking Forth"",
+    ""author"": ""Leo Brodie""
+}, {
+    ""title"": ""Coders at Work"",
+    ""author"": ""Peter Seibel""
+}, {
+    ""title"": ""The Little Schemer"",
+    ""authors"": [ ""Daniel P. Friedman"", ""Matthias Felleisen"" ]
+}, {
+    ""title"": ""Object Design"",
+    ""authors"": [ ""Rebecca Wirfs-Brock"", ""Alan McKean"" ]
+}, {
+    ""title"": ""Domain Modelling made Functional"",
+    ""author"": ""Scott Wlaschin""
+}, {
+    ""title"": ""The Psychology of Computer Programming"",
+    ""author"": ""Gerald M. Weinberg""
+}, {
+    ""title"": ""Turtle Geometry"",
+    ""authors"": [ ""Hal Abelson"", ""Andrea diSessa"" ]
+}, {
+    ""title"": ""Exercises in Programming Style"",
+    ""author"": ""Cristina Videira Lopes""
+}, {
+    ""title"": ""Land of Lisp"",
+    ""author"": ""Conrad Barski""
+}]";
+
+var actualDiffs = JsonStrings.Diff(str1, str2);
+```
+
+yields the following list of diffs: 
+
+```
+new List<Diff>
+{
+    new ArrayDiff(new DiffPoint("$", new JsonArray(...), new JsonArray(...)),
+        new ItemMismatch[]
+        {
+            new LeftOnlyItem(2,
+                new JsonObject(
+                    new Dictionary<string, JsonValue>
+                    {
+                        {"title", new JsonString("Programmers at Work")},
+                        {"author", new JsonString("Susan Lammers")}
+                    })),
+            new RightOnlyItem(2,
+                new JsonObject(
+                    new Dictionary<string, JsonValue>
+                    {
+                        {"title", new JsonString("Coders at Work")},
+                        {"author", new JsonString("Peter Seibel")}
+                    })),
+            new RightOnlyItem(7,
+                new JsonObject(
+                    new Dictionary<string, JsonValue>
+                    {
+                        {"title", new JsonString("Turtle Geometry")},
+                        {
+                            "authors",
+                            new JsonArray(new JsonValue[] { 
+                                new JsonString("Hal Abelson"), 
+                                new JsonString("Andrea diSessa")
+                            })
+                        }
+                    }))
+        })
+};
+```
+
+The most interesting part is the `ItemMismatch` array, which contains the items that are present either in just the left array ("Programmers at work" by Susan Lammers, at index 2) or just in the right array ("Coders at Work" by Peter Seibel, at index 2, and "Turtle Geometry" by Hal Abelson and Andrea diSessa, at index 7).
+
+For a text description:
+
+```
+var diffs = JsonStrings.TextDiff(str1, str2);
+Console.WriteLine(diffs.Single());
+```
+
+prints
+
+```
+Array difference at $.
+ - [2] (an object)
+ + [2] (an object)
+ + [7] (an object)
+```
+
 
 ### Comparing objects
 
@@ -831,26 +797,26 @@ yields a list of diffs equivalent to this:
 ```
 new List<Diff>
 {
-    new Properties(
+    new ObjectDiff(
         new DiffPoint("$",
-            new Object(
+            new JsonObject(
                 new Dictionary<string, JsonValue>
                 {
-                    { "item", new String("widget") },
-                    { "price", new Number(12.20, "12.20") }
+                    { "item", new JsonString("widget") },
+                    { "price", new JsonNumber(12.20, "12.20") }
                 }), 
-            new Object(
+            new JsonObject(
                 new Dictionary<string, JsonValue>
                 {
-                    { "item", new String("widget") },
-                    { "quantity", new Number(88, "88") },
-                    { "in stock", True.Instance }
+                    { "item", new JsonString("widget") },
+                    { "quantity", new JsonNumber(88, "88") },
+                    { "in stock", JsonTrue.Instance }
                 })), 
         new List<PropertyMismatch>
         {
-            new LeftOnlyProperty("price", new Number(12.20, "12.20")),
-            new RightOnlyProperty("quantity", new Number(88, "88")),
-            new RightOnlyProperty("in stock", True.Instance)
+            new LeftOnlyProperty("price", new JsonNumber(12.20, "12.20")),
+            new RightOnlyProperty("quantity", new JsonNumber(88, "88")),
+            new RightOnlyProperty("in stock", JsonTrue.Instance)
         })
 };
 ```
@@ -887,10 +853,10 @@ yields a list of diffs equivalent to this:
 ```
 new List<Diff>
 {
-    new Value(
+    new ValueDoff(
         new DiffPoint("$['date of birth']",
-            new String("1999-04-23"), 
-            new String("1999-04-24")))
+            new JsonString("1999-04-23"), 
+            new JsonString("1999-04-24")))
 };
 ```
 
@@ -943,29 +909,29 @@ yields a list of diffs equivalent to this:
 ```
 new List<Diff>
 {
-    new Properties(
+    new ObjectDiff(
         new DiffPoint("$.books[0]",
-            new Object(
+            new JsonObject(
                 new Dictionary<string, JsonValue>
                 {
-                    { "title", new String("Data and Reality") },
-                    { "author", new String("William Kent") }
+                    { "title", new JsonString("Data and Reality") },
+                    { "author", new JsonString("William Kent") }
                 }), 
-            new Object(
+            new JsonObject(
                 new Dictionary<string, JsonValue>
                 {
-                    { "title", new String("Data and Reality") },
-                    { "author", new String("William Kent") },
-                    { "edition", new String("2nd") }
+                    { "title", new JsonString("Data and Reality") },
+                    { "author", new JsonString("William Kent") },
+                    { "edition", new JsonString("2nd") }
                 })), 
         new List<PropertyMismatch>
         {
-            new RightOnlyProperty("edition", new String("2nd"))
+            new RightOnlyProperty("edition", new JsonString("2nd"))
         }),
-    new Value(
+    new ValueDiff(
         new DiffPoint("$.books[1].author",
-            new String("Leo Brodie"), 
-            new String("Chuck Moore")))
+            new JsonString("Leo Brodie"), 
+            new JsonString("Chuck Moore")))
 };
 ```
 

@@ -1,7 +1,6 @@
 ﻿namespace Quibble.CSharp
 
 open Quibble
-open Quibble
 open System.Collections.Generic
 open System.Collections.ObjectModel
 open System.Linq
@@ -25,10 +24,10 @@ type JsonValue() =
     abstract member IsObject : bool
     default this.IsObject = false
     
-type Undefined private () =
+type JsonUndefined private () =
     inherit JsonValue()
 
-    static let instance = Undefined() 
+    static let instance = JsonUndefined() 
     static member Instance = instance
            
     override this.IsUndefined = true
@@ -38,15 +37,15 @@ type Undefined private () =
 
     override this.Equals(that) =
         match that with
-        | :? Undefined -> true
+        | :? JsonUndefined -> true
         | _ -> false
         
     override this.ToString() = "undefined"
 
-type Null private () =
+type JsonNull private () =
     inherit JsonValue()
 
-    static let instance = Null() 
+    static let instance = JsonNull() 
     static member Instance = instance
            
     override this.IsNull = true
@@ -56,15 +55,15 @@ type Null private () =
 
     override this.Equals(that) =
         match that with
-        | :? Null -> true
+        | :? JsonNull -> true
         | _ -> false
         
     override this.ToString() = "null"
 
-type True private () =
+type JsonTrue private () =
     inherit JsonValue()
 
-    static let instance = True() 
+    static let instance = JsonTrue() 
     static member Instance = instance
     
     override this.IsTrue = true
@@ -74,15 +73,15 @@ type True private () =
 
     override this.Equals(that) =
         match that with
-        | :? True -> true
+        | :? JsonTrue -> true
         | _ -> false
 
     override this.ToString() = "true"
 
-type False private () =
+type JsonFalse private () =
     inherit JsonValue()
 
-    static let instance = False() 
+    static let instance = JsonFalse() 
     static member Instance = instance
 
     override this.IsFalse = true
@@ -92,12 +91,12 @@ type False private () =
 
     override this.Equals(that) =
         match that with
-        | :? False -> true
+        | :? JsonFalse -> true
         | _ -> false
 
     override this.ToString() = "false"
 
-type Number (numericValue : double, textRepresentation : string)  =
+type JsonNumber (numericValue : double, textRepresentation : string)  =
     inherit JsonValue()
 
     member this.NumericValue = numericValue
@@ -113,13 +112,13 @@ type Number (numericValue : double, textRepresentation : string)  =
     // Only numeric value counts for equality.
     override this.Equals(that) =
         match that with
-        | :? Number as number ->
+        | :? JsonNumber as number ->
             number.NumericValue = this.NumericValue
         | _ -> false
 
     override this.ToString() = sprintf "%g (%s)" numericValue textRepresentation
 
-type String (text : string)  =
+type JsonString (text : string)  =
     inherit JsonValue()
 
     member this.Text = text
@@ -131,13 +130,13 @@ type String (text : string)  =
 
     override this.Equals(that) =
         match that with
-        | :? String as str ->
+        | :? JsonString as str ->
             str.Text = this.Text
         | _ -> false
 
     override this.ToString() = text
 
-type Array (items : IReadOnlyList<JsonValue>)  =
+type JsonArray (items : IReadOnlyList<JsonValue>)  =
     inherit JsonValue()
 
     member this.Items = items
@@ -150,7 +149,7 @@ type Array (items : IReadOnlyList<JsonValue>)  =
 
     override this.Equals(that) =
         match that with
-        | :? Array as arr ->
+        | :? JsonArray as arr ->
             arr.Items.Count = this.Items.Count && Enumerable.SequenceEqual(arr.Items, this.Items)
         | _ -> false
         
@@ -164,7 +163,7 @@ type Array (items : IReadOnlyList<JsonValue>)  =
         member this.GetEnumerator() : System.Collections.IEnumerator =
             items.GetEnumerator() :> System.Collections.IEnumerator
 
-type Object (properties : IReadOnlyDictionary<string, JsonValue>)  =
+type JsonObject (properties : IReadOnlyDictionary<string, JsonValue>)  =
     inherit JsonValue()
     
     let propSeq = properties |> Seq.map (fun kv -> kv.Key, kv.Value)
@@ -172,7 +171,7 @@ type Object (properties : IReadOnlyDictionary<string, JsonValue>)  =
     member this.Item with get(propertyName : string) =
         match properties.TryGetValue(propertyName) with
         | (true, jv) -> jv
-        | (false, _) -> Undefined.Instance :> JsonValue
+        | (false, _) -> JsonUndefined.Instance :> JsonValue
 
     override this.IsObject = true
 
@@ -182,8 +181,8 @@ type Object (properties : IReadOnlyDictionary<string, JsonValue>)  =
 
     override this.Equals(that) =
         match that with
-        | :? Object as obj ->
-            let asList (o : Object) =
+        | :? JsonObject as obj ->
+            let asList (o : JsonObject) =
                 o :> IEnumerable<string * JsonValue> |> Seq.toList
             asList this = asList obj
         | _ -> false
@@ -276,51 +275,51 @@ type Diff(diffPoint : DiffPoint) =
     member this.Path = diffPoint.Path
     member this.Left = diffPoint.Left    
     member this.Right = diffPoint.Right
-    abstract member IsType: bool
-    default this.IsType = false
-    abstract member IsValue: bool
-    default this.IsValue = false
-    abstract member IsItems: bool
-    default this.IsItems = false    
-    abstract member IsProperties: bool
-    default this.IsProperties = false
+    abstract member IsTypeDiff: bool
+    default this.IsTypeDiff = false
+    abstract member IsValueDiff: bool
+    default this.IsValueDiff = false
+    abstract member IsArrayDiff: bool
+    default this.IsArrayDiff = false    
+    abstract member IsObjectDiff: bool
+    default this.IsObjectDiff = false
     
     override this.ToString() =
         sprintf "%s { Path = %s, Left = %s, Right = %s }" (this.GetType().Name) this.Path (this.Left.ToString()) (this.Right.ToString())
 
 
-type Type(diffPoint : DiffPoint) =
+type TypeDiff(diffPoint : DiffPoint) =
     inherit Diff(diffPoint)
     
-    override this.IsType = true
+    override this.IsTypeDiff = true
     
     override this.GetHashCode() =
         hash (this.GetType(), diffPoint)
         
     override this.Equals(thatObject) =
         match thatObject with
-        | :? Type as that ->
+        | :? TypeDiff as that ->
             this.Path = that.Path && this.Left = that.Left && this.Right = that.Right
         | _ -> false
 
-type Value(diffPoint : DiffPoint) =
+type ValueDiff(diffPoint : DiffPoint) =
     inherit Diff(diffPoint)
 
-    override this.IsValue = true
+    override this.IsValueDiff = true
     
     override this.GetHashCode() =
         hash (this.GetType(), diffPoint)
 
     override this.Equals(thatObject) =
         match thatObject with
-        | :? Value as that ->
+        | :? ValueDiff as that ->
             this.Path = that.Path && this.Left = that.Left && this.Right = that.Right
         | _ -> false
 
-type Items(diffPoint : DiffPoint, mismatches : IReadOnlyList<ItemMismatch>) =
+type ArrayDiff(diffPoint : DiffPoint, mismatches : IReadOnlyList<ItemMismatch>) =
     inherit Diff(diffPoint)
     
-    override this.IsItems = true
+    override this.IsArrayDiff = true
 
     member this.Mismatches = mismatches
 
@@ -329,16 +328,16 @@ type Items(diffPoint : DiffPoint, mismatches : IReadOnlyList<ItemMismatch>) =
 
     override this.Equals(thatObject) =
         match thatObject with
-        | :? Items as that ->
+        | :? ArrayDiff as that ->
             let asList (ps : IReadOnlyList<ItemMismatch>) = ps :> IEnumerable<ItemMismatch> |> Seq.toList
             this.Path = that.Path && this.Left = that.Left && this.Right = that.Right && asList this.Mismatches = asList that.Mismatches
         | _ ->
             false
 
-type Properties(diffPoint : DiffPoint, mismatches : IReadOnlyList<PropertyMismatch>) =
+type ObjectDiff(diffPoint : DiffPoint, mismatches : IReadOnlyList<PropertyMismatch>) =
     inherit Diff(diffPoint)
     
-    override this.IsProperties = true
+    override this.IsObjectDiff = true
 
     member this.Mismatches = mismatches
 
@@ -348,7 +347,7 @@ type Properties(diffPoint : DiffPoint, mismatches : IReadOnlyList<PropertyMismat
 
     override this.Equals(thatObject) =
         match thatObject with
-        | :? Properties as that ->
+        | :? ObjectDiff as that ->
             let asList (ps : IReadOnlyList<PropertyMismatch>) = ps :> IEnumerable<PropertyMismatch> |> Seq.toList
             this.Path = that.Path && this.Left = that.Left && this.Right = that.Right && asList this.Mismatches = asList that.Mismatches
         | _ -> false
@@ -357,20 +356,20 @@ module JsonStrings =
 
     let rec private toCSharpJsonValue (jsonValue : Quibble.JsonValue) : JsonValue =
         match jsonValue with
-        | Quibble.JsonValue.Undefined -> Undefined.Instance :> JsonValue
-        | Quibble.JsonValue.Null -> Null.Instance :> JsonValue
-        | Quibble.JsonValue.True -> True.Instance :> JsonValue
-        | Quibble.JsonValue.False -> False.Instance :> JsonValue
-        | Quibble.JsonValue.Number (numericValue, textRepresentation) -> new Number(numericValue, textRepresentation) :> JsonValue
-        | Quibble.JsonValue.String text -> new String(text) :> JsonValue
-        | Quibble.JsonValue.Array items ->
+        | Quibble.JsonUndefined -> JsonUndefined.Instance :> JsonValue
+        | Quibble.JsonNull -> JsonNull.Instance :> JsonValue
+        | Quibble.JsonTrue -> JsonTrue.Instance :> JsonValue
+        | Quibble.JsonFalse -> JsonFalse.Instance :> JsonValue
+        | Quibble.JsonNumber (numericValue, textRepresentation) -> new JsonNumber(numericValue, textRepresentation) :> JsonValue
+        | Quibble.JsonString text -> new JsonString(text) :> JsonValue
+        | Quibble.JsonArray items ->
             let itemSeq = items |> List.map toCSharpJsonValue |> List.toSeq
-            let array = new Array(Enumerable.ToList(itemSeq))
+            let array = new JsonArray(Enumerable.ToList(itemSeq))
             array :> JsonValue
-        | Quibble.JsonValue.Object props ->
+        | Quibble.JsonValue.JsonObject props ->
             let dictionary = props |> List.map (fun (n, v) -> (n, toCSharpJsonValue v)) |> dict
             let readOnlyDictionary = new ReadOnlyDictionary<string, JsonValue>(dictionary)
-            let object = new Object(readOnlyDictionary)
+            let object = new JsonObject(readOnlyDictionary)
             object :> JsonValue
 
     let private toCSharpDiffPoint (diffPoint : Quibble.DiffPoint) : DiffPoint =
@@ -390,14 +389,14 @@ module JsonStrings =
 
     let private toCSharpDiff (diff : Quibble.Diff) : Diff =
         match diff with
-        | Quibble.Diff.Type pt  -> Type(toCSharpDiffPoint pt) :> Diff
-        | Quibble.Diff.Value pt -> Value(toCSharpDiffPoint pt) :> Diff
-        | Quibble.Diff.Items (pt, mismatches) ->
+        | Quibble.Diff.TypeDiff pt  -> TypeDiff(toCSharpDiffPoint pt) :> Diff
+        | Quibble.Diff.ValueDiff pt -> ValueDiff(toCSharpDiffPoint pt) :> Diff
+        | Quibble.Diff.ArrayDiff (pt, mismatches) ->
             let mismatchList = mismatches |> List.map toCSharpItemMismatch :> IReadOnlyList<ItemMismatch>
-            Items(toCSharpDiffPoint pt, mismatchList) :> Diff
-        | Quibble.Diff.Properties (pt, mismatches) ->
+            ArrayDiff(toCSharpDiffPoint pt, mismatchList) :> Diff
+        | Quibble.Diff.ObjectDiff (pt, mismatches) ->
             let mismatchList = mismatches |> List.map toCSharpPropertyMismatch :> IReadOnlyList<PropertyMismatch> 
-            Properties(toCSharpDiffPoint pt, mismatchList) :> Diff
+            ObjectDiff(toCSharpDiffPoint pt, mismatchList) :> Diff
     
     let Diff (leftJsonString: string, rightJsonString: string): IReadOnlyList<Diff> =
         let diffs = Quibble.JsonStrings.diff leftJsonString rightJsonString

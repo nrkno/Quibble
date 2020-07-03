@@ -4,34 +4,34 @@ module DiffMessage =
 
     let private toValueDescription (jv: JsonValue): string =
         match jv with
-        | JsonValue.True -> "the boolean true"
-        | JsonValue.False -> "the boolean false"
-        | JsonValue.String s -> sprintf "the string %s" s
-        | JsonValue.Number (_, t) -> sprintf "the number %s" t
-        | JsonValue.Array items ->
+        | JsonTrue -> "the boolean true"
+        | JsonFalse -> "the boolean false"
+        | JsonString s -> sprintf "the string %s" s
+        | JsonNumber (_, t) -> sprintf "the number %s" t
+        | JsonArray items ->
             let itemCount = items |> List.length
             match itemCount with
             | 0 -> "an empty array"
             | 1 -> "an array with 1 item"
             | _ -> sprintf "an array with %i items" itemCount
-        | JsonValue.Object _ -> "an object"
-        | JsonValue.Null -> "null"
+        | JsonObject _ -> "an object"
+        | JsonNull -> "null"
         | _ -> "something else"
 
     let toDiffMessage (diff: Diff): string =
         match diff with
-        | Properties ({ Path = path; Left = _; Right = _ }, mismatches) ->
+        | ObjectDiff ({ Path = path; Left = _; Right = _ }, mismatches) ->
             let propString (p: string, v: JsonValue): string =
                 let typeStr =
                     match v with
-                    | JsonValue.True
-                    | JsonValue.False -> "bool"
-                    | JsonValue.String _ -> "string"
-                    | JsonValue.Number _ -> "number"
-                    | JsonValue.Object _ -> "object"
-                    | JsonValue.Array _ -> "array"
-                    | JsonValue.Null -> "null"
-                    | JsonValue.Undefined
+                    | JsonTrue
+                    | JsonFalse -> "bool"
+                    | JsonString _ -> "string"
+                    | JsonNumber _ -> "number"
+                    | JsonObject _ -> "object"
+                    | JsonArray _ -> "array"
+                    | JsonNull -> "null"
+                    | JsonUndefined
                     | _ -> "undefined"
 
                 sprintf "'%s' (%s)" p typeStr
@@ -81,9 +81,9 @@ module DiffMessage =
                 |> String.concat "\n"
 
             sprintf "Object difference at %s.\n%s" path details
-        | Value { Path = path; Left = left; Right = right } ->
+        | ValueDiff { Path = path; Left = left; Right = right } ->
             match (left, right) with
-            | (JsonValue.String leftStr, JsonValue.String rightStr) ->    
+            | (JsonString leftStr, JsonString rightStr) ->    
                 let maxStrLen =
                     max (String.length rightStr) (String.length leftStr)
                 let comparisonStr =
@@ -91,26 +91,26 @@ module DiffMessage =
                     then sprintf "    %s\nvs\n    %s" leftStr rightStr
                     else sprintf "%s vs %s." leftStr rightStr
                 sprintf "String value difference at %s: %s" path comparisonStr
-            | (JsonValue.Number (_, leftNumberText), JsonValue.Number (_, rightNumberText)) ->
+            | (JsonNumber (_, leftNumberText), JsonNumber (_, rightNumberText)) ->
                 sprintf "Number value difference at %s: %s vs %s." path leftNumberText rightNumberText
             | _ -> sprintf "Some other value difference at %s." path
-        | Type { Path = path; Left = left; Right = right } ->
+        | TypeDiff { Path = path; Left = left; Right = right } ->
             match (left, right) with
-            | (JsonValue.True, JsonValue.False) ->
+            | (JsonTrue, JsonFalse) ->
                 sprintf "Boolean value difference at %s: true vs false." path
-            | (JsonValue.False, JsonValue.True) ->
+            | (JsonFalse, JsonTrue) ->
                sprintf "Boolean value difference at %s: false vs true." path
             | (_, _) ->
                 let rightValueDescription = toValueDescription right
                 let leftValueDescription = toValueDescription left
                 sprintf "Type difference at %s: %s vs %s." path leftValueDescription rightValueDescription
-        | Items ({ Path = path; Left = left; Right = right }, mismatches) ->
+        | ArrayDiff ({ Path = path; Left = left; Right = right }, mismatches) ->
             let toModification (itemMismatch : ItemMismatch) : string =
                 let typeStr jv =
                     match jv with
-                    | JsonValue.True -> "the boolean true"
-                    | JsonValue.False -> "the boolean false"
-                    | JsonValue.String s ->
+                    | JsonTrue -> "the boolean true"
+                    | JsonFalse -> "the boolean false"
+                    | JsonString s ->
                         let truncate (maxlen : int) (str : string) =
                             if String.length str > maxlen then
                                 let ellipses = "..."
@@ -118,11 +118,11 @@ module DiffMessage =
                                 sprintf "%s%s" (str.Substring(0, truncateAt)) ellipses
                             else str                                
                         sprintf "the string %s" (truncate 30 s)
-                    | JsonValue.Number (_, t) -> sprintf "the number %s" t
-                    | JsonValue.Object _ -> "an object"
-                    | JsonValue.Array _ -> "an array"
-                    | JsonValue.Null -> "null"
-                    | JsonValue.Undefined
+                    | JsonNumber (_, t) -> sprintf "the number %s" t
+                    | JsonObject _ -> "an object"
+                    | JsonArray _ -> "an array"
+                    | JsonNull -> "null"
+                    | JsonUndefined
                     | _ -> "undefined"
 
                 let toModificationLine (op : string) (ix : int) (jv : JsonValue) : string =
