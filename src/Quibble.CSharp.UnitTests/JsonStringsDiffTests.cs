@@ -34,7 +34,7 @@ namespace Quibble.CSharp.UnitTests
             var diffs = JsonStrings.Diff("true", "false");
             var diff = diffs.Single();
             Assert.Equal("$", diff.Path);
-            Assert.True(diff.IsType);
+            Assert.True(diff.IsTypeDiff);
             Assert.True(diff.Left.IsTrue);
             Assert.True(diff.Right.IsFalse);
         }
@@ -46,7 +46,7 @@ namespace Quibble.CSharp.UnitTests
             var diffs = JsonStrings.Diff("false", "true");
             var diff = diffs.Single();
             Assert.Equal("$", diff.Path);
-            Assert.True(diff.IsType);
+            Assert.True(diff.IsTypeDiff);
             Assert.True(diff.Left.IsFalse);
             Assert.True(diff.Right.IsTrue);
         }
@@ -57,7 +57,7 @@ namespace Quibble.CSharp.UnitTests
             var diffs = JsonStrings.Diff("null", "false");
             var diff = diffs.Single();
             Assert.Equal("$", diff.Path);
-            Assert.True(diff.IsType);
+            Assert.True(diff.IsTypeDiff);
             Assert.True(diff.Left.IsNull);
             Assert.True(diff.Right.IsFalse);
         }
@@ -68,7 +68,7 @@ namespace Quibble.CSharp.UnitTests
             var diffs = JsonStrings.Diff("false", "null");
             var diff = diffs.Single();
             Assert.Equal("$", diff.Path);
-            Assert.True(diff.IsType);
+            Assert.True(diff.IsTypeDiff);
             Assert.True(diff.Left.IsFalse);
             Assert.True(diff.Right.IsNull);
         }
@@ -79,7 +79,7 @@ namespace Quibble.CSharp.UnitTests
             var diffs = JsonStrings.Diff("false", "0");
             var diff = diffs.Single();
             Assert.Equal("$", diff.Path);
-            Assert.True(diff.IsType);
+            Assert.True(diff.IsTypeDiff);
             Assert.True(diff.Left.IsFalse);
             Assert.True(diff.Right.IsNumber);
         }
@@ -90,7 +90,7 @@ namespace Quibble.CSharp.UnitTests
             var diffs = JsonStrings.Diff("1", "true");
             var diff = diffs.Single();
             Assert.Equal("$", diff.Path);
-            Assert.True(diff.IsType);
+            Assert.True(diff.IsTypeDiff);
             Assert.True(diff.Left.IsNumber);
             Assert.True(diff.Right.IsTrue);
         }
@@ -101,7 +101,7 @@ namespace Quibble.CSharp.UnitTests
             var diffs = JsonStrings.Diff("[]", "1");
             var diff = diffs.Single();
             Assert.Equal("$", diff.Path);
-            Assert.True(diff.IsType);
+            Assert.True(diff.IsTypeDiff);
             Assert.True(diff.Left.IsArray);
             Assert.True(diff.Right.IsNumber);
         }
@@ -112,7 +112,7 @@ namespace Quibble.CSharp.UnitTests
             var diffs = JsonStrings.Diff("[ 1 ]", "1");
             var diff = diffs.Single();
             Assert.Equal("$", diff.Path);
-            Assert.True(diff.IsType);
+            Assert.True(diff.IsTypeDiff);
             Assert.True(diff.Left.IsArray);
             Assert.True(diff.Right.IsNumber);
         }
@@ -143,17 +143,17 @@ namespace Quibble.CSharp.UnitTests
 
             Assert.Equal(2, diffs.Count);
             var diff1 = diffs[0];
-            Assert.True(diff1.IsProperties);
-            var propsDiff = (Properties) diff1;
-            Assert.Equal("$.books[0]", propsDiff.Path);
-            var mismatch = propsDiff.Mismatches.Single();
+            Assert.True(diff1.IsObjectDiff);
+            var objectDiff = (ObjectDiff) diff1;
+            Assert.Equal("$.books[0]", objectDiff.Path);
+            var mismatch = objectDiff.Mismatches.Single();
             Assert.Equal("edition", mismatch.PropertyName);
             var propertyValue = ((JsonString) mismatch.PropertyValue).Text;
             Assert.Equal("2nd", propertyValue);
 
             
             var diff2 = diffs[1];
-            Assert.True(diff2.IsValue);
+            Assert.True(diff2.IsValueDiff);
             Assert.Equal("$.books[1].author", diff2.Path);
             Assert.Equal("Leo Brodie", ((JsonString) diff2.Left).Text);
             Assert.Equal("Chuck Moore", ((JsonString) diff2.Right).Text);
@@ -166,7 +166,7 @@ namespace Quibble.CSharp.UnitTests
 
             var expectedDiffs = new List<Diff>
             {
-                new Value(
+                new ValueDiff(
                     new DiffPoint("$",
                         new JsonNumber(1, "1"),
                         new JsonNumber(2, "2")))
@@ -187,7 +187,7 @@ namespace Quibble.CSharp.UnitTests
 
             var expectedDiffs = new List<Diff>
             {
-                new Items(
+                new ArrayDiff(
                     new DiffPoint("$",
                         new JsonArray (
                             new JsonValue []
@@ -219,7 +219,7 @@ namespace Quibble.CSharp.UnitTests
 
             var expectedDiffs = new List<Diff>
             {
-                new Items(new DiffPoint("$", 
+                new ArrayDiff(new DiffPoint("$", 
                         new JsonArray (new JsonValue []
                         {
                             new JsonNumber(24, "24"),
@@ -310,7 +310,7 @@ namespace Quibble.CSharp.UnitTests
             var actualDiffs = JsonStrings.Diff(str1, str2);
             var expectedDiffs = new List<Diff>
             {
-                new Items(new DiffPoint("$",
+                new ArrayDiff(new DiffPoint("$",
                         new JsonArray(new JsonValue[]
                         {
                             new JsonObject(
@@ -498,7 +498,7 @@ namespace Quibble.CSharp.UnitTests
 
             var expectedDiffs = new List<Diff>
             {
-                new Properties(
+                new ObjectDiff(
                     new DiffPoint("$",
                         new JsonObject(
                             new Dictionary<string, JsonValue>
@@ -538,7 +538,7 @@ namespace Quibble.CSharp.UnitTests
 
             var expectedDiffs = new List<Diff>
             {
-                new Value(
+                new ValueDiff(
                     new DiffPoint("$['date of birth']",
                         new JsonString("1999-04-23"), 
                         new JsonString("1999-04-24")))
@@ -578,7 +578,7 @@ namespace Quibble.CSharp.UnitTests
 
             var expectedDiffs = new List<Diff>
             {
-                new Properties(
+                new ObjectDiff(
                     new DiffPoint("$.books[0]",
                         new JsonObject(
                             new Dictionary<string, JsonValue>
@@ -597,7 +597,7 @@ namespace Quibble.CSharp.UnitTests
                     {
                         new RightOnlyProperty("edition", new JsonString("2nd"))
                     }),
-                new Value(
+                new ValueDiff(
                 new DiffPoint("$.books[1].author",
                 new JsonString("Leo Brodie"), 
                 new JsonString("Chuck Moore")))
@@ -750,7 +750,7 @@ namespace Quibble.CSharp.UnitTests
             
             var num = new JsonNumber(123.4, "1.234E2");
 
-            Assert.Equal(System.String.Format(NumberFormatInfo.InvariantInfo, "{0} ({1})", num.NumericValue, num.TextRepresentation), 
+            Assert.Equal(string.Format(NumberFormatInfo.InvariantInfo, "{0} ({1})", num.NumericValue, num.TextRepresentation), 
                 num.ToString());
         }
         
@@ -1027,19 +1027,19 @@ namespace Quibble.CSharp.UnitTests
             var str2 = "\"true\"";
 
             var diff1 = JsonStrings.Diff(str1, str2).Single();
-            Assert.True(diff1.IsType);
-            Assert.False(diff1.IsValue);
-            Assert.False(diff1.IsItems);
-            Assert.False(diff1.IsProperties);
+            Assert.True(diff1.IsTypeDiff);
+            Assert.False(diff1.IsValueDiff);
+            Assert.False(diff1.IsArrayDiff);
+            Assert.False(diff1.IsObjectDiff);
 
-            var diff2 = new Type(
+            var diff2 = new TypeDiff(
                 new DiffPoint("$",
                     JsonTrue.Instance,
                     new JsonString("true")));
-            Assert.True(diff2.IsType);
-            Assert.False(diff2.IsValue);
-            Assert.False(diff2.IsItems);
-            Assert.False(diff2.IsProperties);
+            Assert.True(diff2.IsTypeDiff);
+            Assert.False(diff2.IsValueDiff);
+            Assert.False(diff2.IsArrayDiff);
+            Assert.False(diff2.IsObjectDiff);
             
             Assert.Equal(diff1, diff2);
             
@@ -1049,22 +1049,22 @@ namespace Quibble.CSharp.UnitTests
         [Fact]
         public void TestTypeDiffEquality()
         {
-            var diff = new Type(
+            var diff = new TypeDiff(
                 new DiffPoint("$",
                     JsonTrue.Instance,
                     new JsonString("true")));
 
-            var sameDiff = new Type(
+            var sameDiff = new TypeDiff(
                 new DiffPoint("$",
                     JsonTrue.Instance,
                     new JsonString("true")));
 
-            var anotherDiff = new Type(
+            var anotherDiff = new TypeDiff(
                 new DiffPoint("$.value",
                     JsonTrue.Instance,
                     new JsonString("true")));
 
-            var yetAnotherDiff = new Type(
+            var yetAnotherDiff = new TypeDiff(
                 new DiffPoint("$",
                     JsonTrue.Instance,
                     new JsonString("false")));
@@ -1088,19 +1088,19 @@ namespace Quibble.CSharp.UnitTests
 }";
 
             var diff1 = JsonStrings.Diff(str1, str2).Single();
-            Assert.True(diff1.IsValue);
-            Assert.False(diff1.IsType);
-            Assert.False(diff1.IsItems);
-            Assert.False(diff1.IsProperties);
+            Assert.True(diff1.IsValueDiff);
+            Assert.False(diff1.IsTypeDiff);
+            Assert.False(diff1.IsArrayDiff);
+            Assert.False(diff1.IsObjectDiff);
 
-            var diff2 = new Value(
+            var diff2 = new ValueDiff(
                 new DiffPoint("$.author",
                     new JsonString("Leo Brodie"),
                     new JsonString("Chuck Moore")));
-            Assert.True(diff2.IsValue);
-            Assert.False(diff2.IsType);
-            Assert.False(diff2.IsItems);
-            Assert.False(diff2.IsProperties);
+            Assert.True(diff2.IsValueDiff);
+            Assert.False(diff2.IsTypeDiff);
+            Assert.False(diff2.IsArrayDiff);
+            Assert.False(diff2.IsObjectDiff);
 
             Assert.Equal(diff1, diff2);
             
@@ -1110,22 +1110,22 @@ namespace Quibble.CSharp.UnitTests
         [Fact]
         public void TestValueDiffEquality()
         {
-            var diff = new Value(
+            var diff = new ValueDiff(
                 new DiffPoint("$",
                     new JsonString("Hello"), 
                     new JsonString("Goodbye")));
 
-            var sameDiff = new Value(
+            var sameDiff = new ValueDiff(
                 new DiffPoint("$",
                     new JsonString("Hello"), 
                     new JsonString("Goodbye")));
 
-            var anotherDiff = new Value(
+            var anotherDiff = new ValueDiff(
                 new DiffPoint("$.value",
                     new JsonString("Hello"), 
                     new JsonString("Goodbye")));
 
-            var yetAnotherDiff = new Value(
+            var yetAnotherDiff = new ValueDiff(
                 new DiffPoint("$",
                     new JsonString("Hey"), 
                     new JsonString("Goodbye")));
@@ -1143,12 +1143,12 @@ namespace Quibble.CSharp.UnitTests
             var str2 = @"[ ""Adele Goldberg"", ""Dan Ingalls"", ""Alan Kay"" ]";
 
             var diff1 = JsonStrings.Diff(str1, str2).Single();
-            Assert.True(diff1.IsItems);
-            Assert.False(diff1.IsType);
-            Assert.False(diff1.IsValue);
-            Assert.False(diff1.IsProperties);
+            Assert.True(diff1.IsArrayDiff);
+            Assert.False(diff1.IsTypeDiff);
+            Assert.False(diff1.IsValueDiff);
+            Assert.False(diff1.IsObjectDiff);
 
-            var diff2 = new Items(
+            var diff2 = new ArrayDiff(
                 new DiffPoint("$",
                     new JsonArray(
                         new JsonValue[]
@@ -1166,10 +1166,10 @@ namespace Quibble.CSharp.UnitTests
                 {
                     new RightOnlyItem(0, new JsonString("Adele Goldberg"))
                 });
-            Assert.True(diff2.IsItems);
-            Assert.False(diff2.IsType);
-            Assert.False(diff2.IsValue);
-            Assert.False(diff2.IsProperties);
+            Assert.True(diff2.IsArrayDiff);
+            Assert.False(diff2.IsTypeDiff);
+            Assert.False(diff2.IsValueDiff);
+            Assert.False(diff2.IsObjectDiff);
             
             Assert.Equal(diff1, diff2);
             
@@ -1179,7 +1179,7 @@ namespace Quibble.CSharp.UnitTests
         [Fact]
         public void TestItemsDiffEquality()
         {
-            var diff = new Items(
+            var diff = new ArrayDiff(
                 new DiffPoint("$",
                     new JsonArray(new JsonValue[]
                     {
@@ -1195,7 +1195,7 @@ namespace Quibble.CSharp.UnitTests
                     new LeftOnlyItem(1, new JsonString("Metamagical Themas")) 
                 });
 
-            var sameDiff = new Items(
+            var sameDiff = new ArrayDiff(
                 new DiffPoint("$",
                     new JsonArray(new JsonValue[]
                     {
@@ -1211,7 +1211,7 @@ namespace Quibble.CSharp.UnitTests
                     new LeftOnlyItem(1, new JsonString("Metamagical Themas")) 
                 });
 
-            var anotherDiff = new Items(
+            var anotherDiff = new ArrayDiff(
                 new DiffPoint("$.books",
                     new JsonArray(new JsonValue[]
                     {
@@ -1228,7 +1228,7 @@ namespace Quibble.CSharp.UnitTests
                 });
 
             var yetAnotherDiff = 
-                new Items(
+                new ArrayDiff(
                     new DiffPoint("$",
                         new JsonArray(new JsonValue[]
                         {
@@ -1253,7 +1253,7 @@ namespace Quibble.CSharp.UnitTests
         [Fact]
         public void TestPropertiesDiffEquality()
         {
-            var diff = new Properties(new DiffPoint("$",
+            var diff = new ObjectDiff(new DiffPoint("$",
                     new JsonObject(new Dictionary<string, JsonValue>
                     {
                         {"author", new JsonString("William Kent")},
@@ -1270,7 +1270,7 @@ namespace Quibble.CSharp.UnitTests
                 }
             );
 
-            var sameDiff = new Properties(new DiffPoint("$",
+            var sameDiff = new ObjectDiff(new DiffPoint("$",
                     new JsonObject(new Dictionary<string, JsonValue>
                     {
                         {"author", new JsonString("William Kent")},
@@ -1287,7 +1287,7 @@ namespace Quibble.CSharp.UnitTests
                 }
             );
 
-            var anotherDiff = new Properties(new DiffPoint("$.books[0]",
+            var anotherDiff = new ObjectDiff(new DiffPoint("$.books[0]",
                     new JsonObject(new Dictionary<string, JsonValue>
                     {
                         {"author", new JsonString("William Kent")},
@@ -1304,7 +1304,7 @@ namespace Quibble.CSharp.UnitTests
                 }
             );
 
-            var yetAnotherDiff = new Properties(new DiffPoint("$",
+            var yetAnotherDiff = new ObjectDiff(new DiffPoint("$",
                     new JsonObject(new Dictionary<string, JsonValue>
                     {
                         {"author", new JsonString("William Kent")},

@@ -37,10 +37,10 @@ module JsonStringsDiffTests =
         Assert.Empty(diffs)
 
     [<Fact>]
-    let ``1 != 2 : JsonNumber value mismatch`` () =
+    let ``1 != 2 : JsonNumber ValueDiff mismatch`` () =
         let diff = JsonStrings.diff "1" "2" |> List.head
         match diff with
-        | Value { Path = path; Left = left; Right = right } ->
+        | ValueDiff { Path = path; Left = left; Right = right } ->
             Assert.Equal("$", path)
             Assert.Equal(JsonNumber(1., "1"), left)
             Assert.Equal(JsonNumber(2., "2"), right)
@@ -49,10 +49,10 @@ module JsonStringsDiffTests =
             <| XunitException(sprintf "Unexpected type of diff! %A" diff)
 
     [<Fact>]
-    let ``1 != 1E1 : JsonNumber value mismatch`` () =
+    let ``1 != 1E1 : JsonNumber ValueDiff mismatch`` () =
         let diff = JsonStrings.diff "1" "1E1" |> List.head
         match diff with
-        | Value { Path = path; Left = left; Right = right } ->
+        | ValueDiff { Path = path; Left = left; Right = right } ->
             Assert.Equal("$", path)
             Assert.Equal(JsonNumber(1., "1"), left)
             Assert.Equal(JsonNumber(10., "1E1"), right)
@@ -71,7 +71,7 @@ module JsonStringsDiffTests =
         match diffs with
         | [ diff ] ->
             match diff with
-            | Type { Path = path; Left = left; Right = right } ->
+            | TypeDiff { Path = path; Left = left; Right = right } ->
                 Assert.Equal("$", path)
                 Assert.Equal(JsonTrue, left)
                 Assert.Equal(JsonNumber(1., "1"), right)
@@ -91,7 +91,7 @@ module JsonStringsDiffTests =
         match diffs with
         | [ diff ] ->
             match diff with
-            | Value { Path = path; Left = left; Right = right } ->
+            | ValueDiff { Path = path; Left = left; Right = right } ->
                 Assert.Equal("$", path)
                 Assert.Equal(JsonString "foo", left)
                 Assert.Equal(JsonString "bar", right)
@@ -104,7 +104,7 @@ module JsonStringsDiffTests =
     let ``null vs 1`` () =
         let diff = JsonStrings.diff "null" "1" |> List.head
         match diff with
-        | Type { Path = path; Left = left; Right = right } ->
+        | TypeDiff { Path = path; Left = left; Right = right } ->
             Assert.Equal("$", path)
             Assert.Equal(JsonNull, left)
             Assert.Equal(JsonNumber(1., "1"), right)
@@ -118,7 +118,7 @@ module JsonStringsDiffTests =
             JsonStrings.diff "[]" "null" |> List.head
 
         match diff with
-        | Type { Path = path; Left = left; Right = right } ->
+        | TypeDiff { Path = path; Left = left; Right = right } ->
             Assert.Equal("$", path)
             Assert.Equal(JsonArray [], left)
             Assert.Equal(JsonNull, right)
@@ -132,7 +132,7 @@ module JsonStringsDiffTests =
         match diffs with
         | [ diff ] ->
             match diff with
-            | Type { Path = path; Left = left; Right = right } ->
+            | TypeDiff { Path = path; Left = left; Right = right } ->
                 Assert.Equal("$", path)
                 Assert.Equal(JsonArray [], left)
                 Assert.Equal(JsonObject [], right)
@@ -147,7 +147,7 @@ module JsonStringsDiffTests =
         match diffs with
         | [ diff ] ->
             match diff with
-            | Value { Path = path; Left = left; Right = right } ->
+            | ValueDiff { Path = path; Left = left; Right = right } ->
                 Assert.Equal("$[0]", path)
                 Assert.Equal(JsonNumber(1., "1"), left)
                 Assert.Equal(JsonNumber(2., "2"), right)
@@ -162,7 +162,7 @@ module JsonStringsDiffTests =
         match diffs with
         | [ diff ] ->
             match diff with
-            | Items ({ Path = path; Left = left; Right = right }, mismatches) ->
+            | ArrayDiff ({ Path = path; Left = left; Right = right }, mismatches) ->
                 Assert.Equal("$", path)
                 Assert.Equal(JsonArray [ JsonNumber(1., "1") ], left)
                 Assert.Equal(JsonArray [ JsonNumber(1., "1"); JsonNumber(2., "2") ], right)
@@ -177,7 +177,7 @@ module JsonStringsDiffTests =
         match diffs with
         | [ diff ] ->
             match diff with
-            | Items ({ Path = path; Left = left; Right = right }, mismatches) ->
+            | ArrayDiff ({ Path = path; Left = left; Right = right }, mismatches) ->
                 Assert.Equal("$", path)
                 Assert.Equal(JsonArray [ JsonNumber(1., "1") ], left)
                 Assert.Equal(JsonArray [ JsonNumber(2., "2"); JsonNumber(1., "1") ], right)
@@ -192,7 +192,7 @@ module JsonStringsDiffTests =
         match diffs with
         | [ diff1 ] ->
             match diff1 with
-            | Items ({ Path = path; Left = left; Right = right }, mismatches) ->
+            | ArrayDiff ({ Path = path; Left = left; Right = right }, mismatches) ->
                 Assert.Equal("$", path)
                 Assert.Equal(JsonArray [ JsonNumber(2., "2"); JsonNumber(1., "1") ], left)
                 Assert.Equal(JsonArray [ JsonNumber(1., "1"); JsonNumber(2., "2") ], right)
@@ -208,7 +208,7 @@ module JsonStringsDiffTests =
         match diffs with
         | [ diff ] ->
             match diff with
-            | Properties ({ Path = path; Left = left; Right = right }, properties) ->
+            | ObjectDiff ({ Path = path; Left = left; Right = right }, properties) ->
                 Assert.Equal("$", path)
                 Assert.Equal(JsonObject [], left)
                 Assert.Equal(JsonObject [ ("count", JsonNumber(0., "0")) ], right)
@@ -223,7 +223,7 @@ module JsonStringsDiffTests =
         match diffs with
         | [ diff ] ->
             match diff with
-            | Properties ({ Path = path; Left = left; Right = right }, properties) ->
+            | ObjectDiff ({ Path = path; Left = left; Right = right }, properties) ->
                 Assert.Equal("$", path)
                 Assert.Equal(JsonObject [ ("count", JsonNumber(0., "0")) ], left)
                 Assert.Equal(JsonObject [], right)
@@ -247,7 +247,7 @@ module JsonStringsDiffTests =
         match diffs with
         | [ diff ] ->
             match diff with
-            | Value { Path = path; Left = left; Right = right } ->
+            | ValueDiff { Path = path; Left = left; Right = right } ->
                 Assert.Equal("$['my JsonArray'][2]", path)
                 Assert.Equal(JsonNumber(3., "3"), left)
                 Assert.Equal(JsonNumber(4., "4"), right)
@@ -261,7 +261,7 @@ module JsonStringsDiffTests =
         let actualDiffs = JsonStrings.diff "1" "2"
 
         let expectedDiffs =
-            [ Value
+            [ ValueDiff
                 { Path = "$"
                   Left = JsonNumber(1., "1")
                   Right = JsonNumber(2., "2") } ]
@@ -271,13 +271,13 @@ module JsonStringsDiffTests =
         |> List.iter (fun (expected, actual) -> Assert.Equal(expected, actual))
 
     [<Fact>]
-    let ``Array example: JsonNumber of items`` () =
+    let ``Array example: JsonNumber of ArrayDiff`` () =
         let actualDiffs = JsonStrings.diff "[ 3 ]" "[ 3, 7 ]"
 
         let expectedDiffs =
-            [ Items ({ Path = "$"
-                       Left = JsonArray [ JsonNumber(3., "3") ]
-                       Right = JsonArray [ JsonNumber(3., "3"); JsonNumber(7., "7") ] }, 
+            [ ArrayDiff ({ Path = "$"
+                           Left = JsonArray [ JsonNumber(3., "3") ]
+                           Right = JsonArray [ JsonNumber(3., "3"); JsonNumber(7., "7") ] }, 
                      [ RightOnlyItem (1, JsonNumber(7., "7")) ]) ]
 
         Assert.Equal(List.length expectedDiffs, List.length actualDiffs)
@@ -298,14 +298,14 @@ module JsonStringsDiffTests =
                 LeftOnlyItem (0, JsonNumber(24., "24"))
                 RightOnlyItem (1, JsonNumber(24., "24"))
             ]
-            [ Items (expectedDiffPoint, expectedMismatches) ]
+            [ ArrayDiff (expectedDiffPoint, expectedMismatches) ]
 
         Assert.Equal(List.length expectedDiffs, List.length actualDiffs)
         List.zip expectedDiffs actualDiffs
         |> List.iter (fun (expected, actual) -> Assert.Equal(expected, actual))
 
     [<Fact>]
-    let ``Array example: more items``() =
+    let ``Array example: more ArrayDiff``() =
         let str1 = """[{
     "title": "Data and Reality",
     "author": "William Kent"
@@ -368,26 +368,26 @@ module JsonStringsDiffTests =
         let actualDiffs = JsonStrings.diff str1 str2
         
         let expectedDiffs =
-            [ Items ({ Path = "$"
-                       Left = JsonArray [ JsonObject [("title", JsonString "Data and Reality"); ("author", JsonString "William Kent")];
-                                          JsonObject [("title", JsonString "Thinking Forth"); ("author", JsonString "Leo Brodie")];
-                                          JsonObject [("title", JsonString "Programmers at Work"); ("author", JsonString "Susan Lammers")];
-                                          JsonObject [("title", JsonString "The Little Schemer"); ("authors", JsonArray [ JsonString "Daniel P. Friedman"; JsonString "Matthias Felleisen"])];
-                                          JsonObject [("title", JsonString "Object Design"); ("authors", JsonArray [JsonString "Rebecca Wirfs-Brock"; JsonString "Alan McKean"])];
-                                          JsonObject [("title", JsonString "Domain Modelling made Functional"); ("author", JsonString "Scott Wlaschin")];
-                                          JsonObject [("title", JsonString "The Psychology of Computer Programming"); ("author", JsonString "Gerald M. Weinberg")];
-                                          JsonObject [("title", JsonString "Exercises in Programming Style"); ("author", JsonString "Cristina Videira Lopes")];
-                                          JsonObject [("title", JsonString "Land of Lisp"); ("author", JsonString "Conrad Barski")]]
-                       Right = JsonArray [ JsonObject [("title", JsonString "Data and Reality"); ("author", JsonString "William Kent")];
-                                           JsonObject [("title", JsonString "Thinking Forth"); ("author", JsonString "Leo Brodie")];
-                                           JsonObject [("title", JsonString "Coders at Work"); ("author", JsonString "Peter Seibel")];
-                                           JsonObject [("title", JsonString "The Little Schemer"); ("authors", JsonArray [JsonString "Daniel P. Friedman"; JsonString "Matthias Felleisen"])];
-                                           JsonObject [("title", JsonString "Object Design"); ("authors", JsonArray [JsonString "Rebecca Wirfs-Brock"; JsonString "Alan McKean"])];
-                                           JsonObject [("title", JsonString "Domain Modelling made Functional"); ("author", JsonString "Scott Wlaschin")];
-                                           JsonObject [("title", JsonString "The Psychology of Computer Programming"); ("author", JsonString "Gerald M. Weinberg")];
-                                           JsonObject [("title", JsonString "Turtle Geometry"); ("authors", JsonArray [JsonString "Hal Abelson"; JsonString "Andrea diSessa"])];
-                                           JsonObject [("title", JsonString "Exercises in Programming Style"); ("author", JsonString "Cristina Videira Lopes")];
-                                           JsonObject [("title", JsonString "Land of Lisp"); ("author", JsonString "Conrad Barski")]] },
+            [ ArrayDiff ({ Path = "$"
+                           Left = JsonArray [ JsonObject [("title", JsonString "Data and Reality"); ("author", JsonString "William Kent")];
+                                              JsonObject [("title", JsonString "Thinking Forth"); ("author", JsonString "Leo Brodie")];
+                                              JsonObject [("title", JsonString "Programmers at Work"); ("author", JsonString "Susan Lammers")];
+                                              JsonObject [("title", JsonString "The Little Schemer"); ("authors", JsonArray [ JsonString "Daniel P. Friedman"; JsonString "Matthias Felleisen"])];
+                                              JsonObject [("title", JsonString "Object Design"); ("authors", JsonArray [JsonString "Rebecca Wirfs-Brock"; JsonString "Alan McKean"])];
+                                              JsonObject [("title", JsonString "Domain Modelling made Functional"); ("author", JsonString "Scott Wlaschin")];
+                                              JsonObject [("title", JsonString "The Psychology of Computer Programming"); ("author", JsonString "Gerald M. Weinberg")];
+                                              JsonObject [("title", JsonString "Exercises in Programming Style"); ("author", JsonString "Cristina Videira Lopes")];
+                                              JsonObject [("title", JsonString "Land of Lisp"); ("author", JsonString "Conrad Barski")]]
+                           Right = JsonArray [ JsonObject [("title", JsonString "Data and Reality"); ("author", JsonString "William Kent")];
+                                               JsonObject [("title", JsonString "Thinking Forth"); ("author", JsonString "Leo Brodie")];
+                                               JsonObject [("title", JsonString "Coders at Work"); ("author", JsonString "Peter Seibel")];
+                                               JsonObject [("title", JsonString "The Little Schemer"); ("authors", JsonArray [JsonString "Daniel P. Friedman"; JsonString "Matthias Felleisen"])];
+                                               JsonObject [("title", JsonString "Object Design"); ("authors", JsonArray [JsonString "Rebecca Wirfs-Brock"; JsonString "Alan McKean"])];
+                                               JsonObject [("title", JsonString "Domain Modelling made Functional"); ("author", JsonString "Scott Wlaschin")];
+                                               JsonObject [("title", JsonString "The Psychology of Computer Programming"); ("author", JsonString "Gerald M. Weinberg")];
+                                               JsonObject [("title", JsonString "Turtle Geometry"); ("authors", JsonArray [JsonString "Hal Abelson"; JsonString "Andrea diSessa"])];
+                                               JsonObject [("title", JsonString "Exercises in Programming Style"); ("author", JsonString "Cristina Videira Lopes")];
+                                               JsonObject [("title", JsonString "Land of Lisp"); ("author", JsonString "Conrad Barski")]] },
                      [ LeftOnlyItem (2, JsonObject [("title", JsonString "Programmers at Work"); ("author", JsonString "Susan Lammers")]);
                        RightOnlyItem (2, JsonObject [("title", JsonString "Coders at Work"); ("author", JsonString "Peter Seibel")]);
                        RightOnlyItem (7, JsonObject [("title", JsonString "Turtle Geometry"); ("authors", JsonArray [JsonString "Hal Abelson"; JsonString "Andrea diSessa"])])]) ]
@@ -407,7 +407,7 @@ module JsonStringsDiffTests =
         let actualDiffs = JsonStrings.diff str1 str2
 
         let expectedDiffs =
-            [ Properties
+            [ ObjectDiff
                 ({ Path = "$"
                    Left =
                        JsonObject
@@ -437,7 +437,7 @@ module JsonStringsDiffTests =
         let actualDiffs = JsonStrings.diff str1 str2
 
         let expectedDiffs =
-            [ Value
+            [ ValueDiff
                 { Path = "$['date of birth']"
                   Left = JsonString "1999-04-23"
                   Right = JsonString "1999-04-24" } ]
@@ -473,7 +473,7 @@ module JsonStringsDiffTests =
         let actualDiffs = JsonStrings.diff str1 str2
 
         let expectedDiffs =
-            [ Properties
+            [ ObjectDiff
                 ({ Path = "$.books[0]"
                    Left =
                        JsonObject
@@ -485,7 +485,7 @@ module JsonStringsDiffTests =
                              ("author", JsonString "William Kent")
                              ("edition", JsonString "2nd") ] },
                  [ RightOnlyProperty("edition", JsonString "2nd") ])
-              Value
+              ValueDiff
                   { Path = "$.books[1].author"
                     Left = JsonString "Leo Brodie"
                     Right = JsonString "Chuck Moore" } ]

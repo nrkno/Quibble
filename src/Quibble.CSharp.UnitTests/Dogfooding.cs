@@ -17,15 +17,15 @@ namespace Quibble.CSharp.UnitTests
         {
             return diff switch
             {
-                Type typeDiff => ToTypeTextDiff(typeDiff),
-                Value valueDiff => ToValueTypeTextDiff(valueDiff),
-                Items itemsDiff => ToItemsTextDiff(itemsDiff),
-                Properties propertiesDiff => ToPropertiesTextDiff(propertiesDiff),
+                TypeDiff typeDiff => ToTypeTextDiff(typeDiff),
+                ValueDiff valueDiff => ToValueTypeTextDiff(valueDiff),
+                ArrayDiff arrayDiff => ToArrayTextDiff(arrayDiff),
+                ObjectDiff objectDiff => ToObjectTextDiff(objectDiff),
                 _ => throw new Exception("Unknown diff type")
             };
         }
 
-        private static string ToTypeTextDiff(Type typeDiff)
+        private static string ToTypeTextDiff(TypeDiff typeDiff)
         {
             switch (typeDiff.Left, typeDiff.Right)
             {
@@ -66,7 +66,7 @@ namespace Quibble.CSharp.UnitTests
             }
         }
 
-        private static string ToValueTypeTextDiff(Value valueDiff)
+        private static string ToValueTypeTextDiff(ValueDiff valueDiff)
         {
             switch (valueDiff.Left, valueDiff.Right)
             {
@@ -108,17 +108,17 @@ namespace Quibble.CSharp.UnitTests
             return $"'{property}' ({ToPropertyTypeString(jsonValue)})";
         }
 
-        private static string ToItemsTextDiff(Items itemsDiff)
+        private static string ToArrayTextDiff(ArrayDiff arrayDiff)
         {
-            var mismatches = itemsDiff.Mismatches;
+            var mismatches = arrayDiff.Mismatches;
             var modifications = mismatches.Select(ToModification);
             var details = string.Join("\n", modifications);
-            return $"Array difference at {itemsDiff.Path}.\n{details}";
+            return $"Array difference at {arrayDiff.Path}.\n{details}";
         }
 
-        private static string ToPropertiesTextDiff(Properties propertiesDiff)
+        private static string ToObjectTextDiff(ObjectDiff objectDiff)
         {
-            var mismatches = propertiesDiff.Mismatches;
+            var mismatches = objectDiff.Mismatches;
             var leftOnlyProperties = mismatches.OfType<LeftOnlyProperty>();
             var lefts = leftOnlyProperties.Select(it => ToPropertyString(it.PropertyName, it.PropertyValue)).ToList();
             var leftsOnlyText = ToLeftOnlyText(lefts);
@@ -127,7 +127,7 @@ namespace Quibble.CSharp.UnitTests
             var rightsOnlyText = ToRightOnlyText(rights);
             var bothCombined = new List<string> {leftsOnlyText, rightsOnlyText}.Where(it => it != null).ToList();
             var details = string.Join("\n", bothCombined);
-            return $"Object difference at {propertiesDiff.Path}.\n{details}";
+            return $"Object difference at {objectDiff.Path}.\n{details}";
             
         }
 

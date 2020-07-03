@@ -20,7 +20,7 @@ module DiffMessage =
 
     let toDiffMessage (diff: Diff): string =
         match diff with
-        | Properties ({ Path = path; Left = _; Right = _ }, mismatches) ->
+        | ObjectDiff ({ Path = path; Left = _; Right = _ }, mismatches) ->
             let propString (p: string, v: JsonValue): string =
                 let typeStr =
                     match v with
@@ -81,7 +81,7 @@ module DiffMessage =
                 |> String.concat "\n"
 
             sprintf "Object difference at %s.\n%s" path details
-        | Value { Path = path; Left = left; Right = right } ->
+        | ValueDiff { Path = path; Left = left; Right = right } ->
             match (left, right) with
             | (JsonString leftStr, JsonString rightStr) ->    
                 let maxStrLen =
@@ -94,7 +94,7 @@ module DiffMessage =
             | (JsonNumber (_, leftNumberText), JsonNumber (_, rightNumberText)) ->
                 sprintf "Number value difference at %s: %s vs %s." path leftNumberText rightNumberText
             | _ -> sprintf "Some other value difference at %s." path
-        | Type { Path = path; Left = left; Right = right } ->
+        | TypeDiff { Path = path; Left = left; Right = right } ->
             match (left, right) with
             | (JsonTrue, JsonFalse) ->
                 sprintf "Boolean value difference at %s: true vs false." path
@@ -104,7 +104,7 @@ module DiffMessage =
                 let rightValueDescription = toValueDescription right
                 let leftValueDescription = toValueDescription left
                 sprintf "Type difference at %s: %s vs %s." path leftValueDescription rightValueDescription
-        | Items ({ Path = path; Left = left; Right = right }, mismatches) ->
+        | ArrayDiff ({ Path = path; Left = left; Right = right }, mismatches) ->
             let toModification (itemMismatch : ItemMismatch) : string =
                 let typeStr jv =
                     match jv with
