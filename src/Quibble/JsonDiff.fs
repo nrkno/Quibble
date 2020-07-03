@@ -47,25 +47,25 @@ module JsonDiff =
         
     let rec private findDiff (path: PathElement list) (value1: JsonValue) (value2: JsonValue): Diff list =
         match (value1, value2) with
-        | (Undefined, Undefined) -> []
-        | (Null, Null) -> []
-        | (True, True) -> []
-        | (False, False) -> []
-        | (Number (n1, t1), Number (n2, t2)) ->
+        | (JsonUndefined, JsonUndefined) -> []
+        | (JsonNull, JsonNull) -> []
+        | (JsonTrue, JsonTrue) -> []
+        | (JsonFalse, JsonFalse) -> []
+        | (JsonNumber (n1, t1), JsonNumber (n2, t2)) ->
             if n1 = n2 then []
             else
                 [ Value
                     { Path = toJsonPath path
                       Left = value1
                       Right = value2 } ]
-        | (String s1, String s2) ->
+        | (JsonString s1, JsonString s2) ->
             if s1 = s2 then []
             else
                 [ Value
                     { Path = toJsonPath path
                       Left = value1
                       Right = value2 } ]
-        | (Array items1, Array items2) ->
+        | (JsonArray items1, JsonArray items2) ->
             if items1 = items2 then
                 []
             else
@@ -91,7 +91,7 @@ module JsonDiff =
                         |> List.collect id
                     childDiffs
                 
-        | (Object leftProps, Object rightProps) ->
+        | (JsonObject leftProps, JsonObject rightProps) ->
             (* order doesn't matter. *)
             let keys (props : (string * JsonValue) list): string list =
                 props |> List.map (fun (n, _) -> n) 

@@ -148,15 +148,15 @@ namespace Quibble.CSharp.UnitTests
             Assert.Equal("$.books[0]", propsDiff.Path);
             var mismatch = propsDiff.Mismatches.Single();
             Assert.Equal("edition", mismatch.PropertyName);
-            var propertyValue = ((String) mismatch.PropertyValue).Text;
+            var propertyValue = ((JsonString) mismatch.PropertyValue).Text;
             Assert.Equal("2nd", propertyValue);
 
             
             var diff2 = diffs[1];
             Assert.True(diff2.IsValue);
             Assert.Equal("$.books[1].author", diff2.Path);
-            Assert.Equal("Leo Brodie", ((String) diff2.Left).Text);
-            Assert.Equal("Chuck Moore", ((String) diff2.Right).Text);
+            Assert.Equal("Leo Brodie", ((JsonString) diff2.Left).Text);
+            Assert.Equal("Chuck Moore", ((JsonString) diff2.Right).Text);
         }
 
         [Fact]
@@ -168,8 +168,8 @@ namespace Quibble.CSharp.UnitTests
             {
                 new Value(
                     new DiffPoint("$",
-                        new Number(1, "1"),
-                        new Number(2, "2")))
+                        new JsonNumber(1, "1"),
+                        new JsonNumber(2, "2")))
             };
             
             Assert.Equal(expectedDiffs.Count, actualDiffs.Count);
@@ -189,18 +189,18 @@ namespace Quibble.CSharp.UnitTests
             {
                 new Items(
                     new DiffPoint("$",
-                        new Array (
+                        new JsonArray (
                             new JsonValue []
                             {
-                                new Number(3, "3")
+                                new JsonNumber(3, "3")
                             }),
-                        new Array (new JsonValue []
+                        new JsonArray (new JsonValue []
                         {
-                            new Number(3, "3"),
-                            new Number(7, "7")
+                            new JsonNumber(3, "3"),
+                            new JsonNumber(7, "7")
                         })), new []
                     {
-                        new RightOnlyItem(1, new Number(7, "7")), 
+                        new RightOnlyItem(1, new JsonNumber(7, "7")), 
                     })
             };
             
@@ -220,20 +220,20 @@ namespace Quibble.CSharp.UnitTests
             var expectedDiffs = new List<Diff>
             {
                 new Items(new DiffPoint("$", 
-                        new Array (new JsonValue []
+                        new JsonArray (new JsonValue []
                         {
-                            new Number(24, "24"),
-                            new Number(12, "12")
+                            new JsonNumber(24, "24"),
+                            new JsonNumber(12, "12")
                         }), 
-                        new Array (new JsonValue []
+                        new JsonArray (new JsonValue []
                         {
-                            new Number(12, "12"),
-                            new Number(24, "24")
+                            new JsonNumber(12, "12"),
+                            new JsonNumber(24, "24")
                         })),
                     new ItemMismatch[]
                     {
-                        new LeftOnlyItem(0, new Number(24, "24")),
-                        new RightOnlyItem(1, new Number(24, "24"))
+                        new LeftOnlyItem(0, new JsonNumber(24, "24")),
+                        new RightOnlyItem(1, new JsonNumber(24, "24"))
                     })
             };
             
@@ -311,171 +311,171 @@ namespace Quibble.CSharp.UnitTests
             var expectedDiffs = new List<Diff>
             {
                 new Items(new DiffPoint("$",
-                        new Array(new JsonValue[]
+                        new JsonArray(new JsonValue[]
                         {
-                            new Object(
+                            new JsonObject(
                                 new Dictionary<string, JsonValue>
                                 {
-                                    {"title", new String("Data and Reality")},
-                                    {"author", new String("William Kent")}
+                                    {"title", new JsonString("Data and Reality")},
+                                    {"author", new JsonString("William Kent")}
                                 }),
-                            new Object(
+                            new JsonObject(
                                 new Dictionary<string, JsonValue>
                                 {
-                                    {"title", new String("Thinking Forth")},
-                                    {"author", new String("Leo Brodie")}
+                                    {"title", new JsonString("Thinking Forth")},
+                                    {"author", new JsonString("Leo Brodie")}
                                 }),
-                            new Object(
+                            new JsonObject(
                                 new Dictionary<string, JsonValue>
                                 {
-                                    {"title", new String("Programmers at Work")},
-                                    {"author", new String("Susan Lammers")}
+                                    {"title", new JsonString("Programmers at Work")},
+                                    {"author", new JsonString("Susan Lammers")}
                                 }),
-                            new Object(
+                            new JsonObject(
                                 new Dictionary<string, JsonValue>
                                 {
-                                    {"title", new String("The Little Schemer")},
+                                    {"title", new JsonString("The Little Schemer")},
                                     {
                                         "authors",
-                                        new Array(new JsonValue[]
-                                            {new String("Daniel P. Friedman"), new String("Matthias Felleisen")})
+                                        new JsonArray(new JsonValue[]
+                                            {new JsonString("Daniel P. Friedman"), new JsonString("Matthias Felleisen")})
                                     }
                                 }),
-                            new Object(
+                            new JsonObject(
                                 new Dictionary<string, JsonValue>
                                 {
-                                    {"title", new String("Object Design")},
+                                    {"title", new JsonString("Object Design")},
                                     {
                                         "authors",
-                                        new Array(new JsonValue[]
-                                            {new String("Rebecca Wirfs-Brock"), new String("Alan McKean")})
+                                        new JsonArray(new JsonValue[]
+                                            {new JsonString("Rebecca Wirfs-Brock"), new JsonString("Alan McKean")})
                                     }
                                 }),
-                            new Object(
+                            new JsonObject(
                                 new Dictionary<string, JsonValue>
                                 {
-                                    {"title", new String("Domain Modelling made Functional")},
-                                    {"author", new String("Scott Wlaschin")}
+                                    {"title", new JsonString("Domain Modelling made Functional")},
+                                    {"author", new JsonString("Scott Wlaschin")}
                                 }),
-                            new Object(
+                            new JsonObject(
                                 new Dictionary<string, JsonValue>
                                 {
-                                    {"title", new String("The Psychology of Computer Programming")},
-                                    {"author", new String("Gerald M. Weinberg")}
+                                    {"title", new JsonString("The Psychology of Computer Programming")},
+                                    {"author", new JsonString("Gerald M. Weinberg")}
                                 }),
-                            new Object(
+                            new JsonObject(
                                 new Dictionary<string, JsonValue>
                                 {
-                                    {"title", new String("Exercises in Programming Style")},
-                                    {"author", new String("Cristina Videira Lopes")}
+                                    {"title", new JsonString("Exercises in Programming Style")},
+                                    {"author", new JsonString("Cristina Videira Lopes")}
                                 }),
-                            new Object(
+                            new JsonObject(
                                 new Dictionary<string, JsonValue>
                                 {
-                                    {"title", new String("Land of Lisp")},
-                                    {"author", new String("Conrad Barski")}
+                                    {"title", new JsonString("Land of Lisp")},
+                                    {"author", new JsonString("Conrad Barski")}
                                 })
                         }),
-                        new Array(new JsonValue[]
+                        new JsonArray(new JsonValue[]
                         {
-                            new Object(
+                            new JsonObject(
                                 new Dictionary<string, JsonValue>
                                 {
-                                    {"title", new String("Data and Reality")},
-                                    {"author", new String("William Kent")}
+                                    {"title", new JsonString("Data and Reality")},
+                                    {"author", new JsonString("William Kent")}
                                 }),
-                            new Object(
+                            new JsonObject(
                                 new Dictionary<string, JsonValue>
                                 {
-                                    {"title", new String("Thinking Forth")},
-                                    {"author", new String("Leo Brodie")}
+                                    {"title", new JsonString("Thinking Forth")},
+                                    {"author", new JsonString("Leo Brodie")}
                                 }),
-                            new Object(
+                            new JsonObject(
                                 new Dictionary<string, JsonValue>
                                 {
-                                    {"title", new String("Coders at Work")},
-                                    {"author", new String("Peter Seibel")}
+                                    {"title", new JsonString("Coders at Work")},
+                                    {"author", new JsonString("Peter Seibel")}
                                 }),
-                            new Object(
+                            new JsonObject(
                                 new Dictionary<string, JsonValue>
                                 {
-                                    {"title", new String("The Little Schemer")},
+                                    {"title", new JsonString("The Little Schemer")},
                                     {
                                         "authors",
-                                        new Array(new JsonValue[]
-                                            {new String("Daniel P. Friedman"), new String("Matthias Felleisen")})
+                                        new JsonArray(new JsonValue[]
+                                            {new JsonString("Daniel P. Friedman"), new JsonString("Matthias Felleisen")})
                                     }
                                 }),
-                            new Object(
+                            new JsonObject(
                                 new Dictionary<string, JsonValue>
                                 {
-                                    {"title", new String("Object Design")},
+                                    {"title", new JsonString("Object Design")},
                                     {
                                         "authors",
-                                        new Array(new JsonValue[]
-                                            {new String("Rebecca Wirfs-Brock"), new String("Alan McKean")})
+                                        new JsonArray(new JsonValue[]
+                                            {new JsonString("Rebecca Wirfs-Brock"), new JsonString("Alan McKean")})
                                     }
                                 }),
-                            new Object(
+                            new JsonObject(
                                 new Dictionary<string, JsonValue>
                                 {
-                                    {"title", new String("Domain Modelling made Functional")},
-                                    {"author", new String("Scott Wlaschin")}
+                                    {"title", new JsonString("Domain Modelling made Functional")},
+                                    {"author", new JsonString("Scott Wlaschin")}
                                 }),
-                            new Object(
+                            new JsonObject(
                                 new Dictionary<string, JsonValue>
                                 {
-                                    {"title", new String("The Psychology of Computer Programming")},
-                                    {"author", new String("Gerald M. Weinberg")}
+                                    {"title", new JsonString("The Psychology of Computer Programming")},
+                                    {"author", new JsonString("Gerald M. Weinberg")}
                                 }),
-                            new Object(
+                            new JsonObject(
                                 new Dictionary<string, JsonValue>
                                 {
-                                    {"title", new String("Turtle Geometry")},
+                                    {"title", new JsonString("Turtle Geometry")},
                                     {
                                         "authors",
-                                        new Array(new JsonValue[]
-                                            {new String("Hal Abelson"), new String("Andrea diSessa")})
+                                        new JsonArray(new JsonValue[]
+                                            {new JsonString("Hal Abelson"), new JsonString("Andrea diSessa")})
                                     }
                                 }),
-                            new Object(
+                            new JsonObject(
                                 new Dictionary<string, JsonValue>
                                 {
-                                    {"title", new String("Exercises in Programming Style")},
-                                    {"author", new String("Cristina Videira Lopes")}
+                                    {"title", new JsonString("Exercises in Programming Style")},
+                                    {"author", new JsonString("Cristina Videira Lopes")}
                                 }),
-                            new Object(
+                            new JsonObject(
                                 new Dictionary<string, JsonValue>
                                 {
-                                    {"title", new String("Land of Lisp")},
-                                    {"author", new String("Conrad Barski")}
+                                    {"title", new JsonString("Land of Lisp")},
+                                    {"author", new JsonString("Conrad Barski")}
                                 })
                         })),
                     new ItemMismatch[]
                     {
                         new LeftOnlyItem(2,
-                            new Object(
+                            new JsonObject(
                                 new Dictionary<string, JsonValue>
                                 {
-                                    {"title", new String("Programmers at Work")},
-                                    {"author", new String("Susan Lammers")}
+                                    {"title", new JsonString("Programmers at Work")},
+                                    {"author", new JsonString("Susan Lammers")}
                                 })),
                         new RightOnlyItem(2,
-                            new Object(
+                            new JsonObject(
                                 new Dictionary<string, JsonValue>
                                 {
-                                    {"title", new String("Coders at Work")},
-                                    {"author", new String("Peter Seibel")}
+                                    {"title", new JsonString("Coders at Work")},
+                                    {"author", new JsonString("Peter Seibel")}
                                 })),
                         new RightOnlyItem(7,
-                            new Object(
+                            new JsonObject(
                                 new Dictionary<string, JsonValue>
                                 {
-                                    {"title", new String("Turtle Geometry")},
+                                    {"title", new JsonString("Turtle Geometry")},
                                     {
                                         "authors",
-                                        new Array(new JsonValue[]
-                                            {new String("Hal Abelson"), new String("Andrea diSessa")})
+                                        new JsonArray(new JsonValue[]
+                                            {new JsonString("Hal Abelson"), new JsonString("Andrea diSessa")})
                                     }
                                 }))
                     })
@@ -500,24 +500,24 @@ namespace Quibble.CSharp.UnitTests
             {
                 new Properties(
                     new DiffPoint("$",
-                        new Object(
+                        new JsonObject(
                             new Dictionary<string, JsonValue>
                             {
-                                { "item", new String("widget") },
-                                { "price", new Number(12.20, "12.20") }
+                                { "item", new JsonString("widget") },
+                                { "price", new JsonNumber(12.20, "12.20") }
                             }), 
-                        new Object(
+                        new JsonObject(
                             new Dictionary<string, JsonValue>
                             {
-                                { "item", new String("widget") },
-                                { "quantity", new Number(88, "88") },
-                                { "in stock", True.Instance }
+                                { "item", new JsonString("widget") },
+                                { "quantity", new JsonNumber(88, "88") },
+                                { "in stock", JsonTrue.Instance }
                             })), 
                     new List<PropertyMismatch>
                     {
-                        new LeftOnlyProperty("price", new Number(12.20, "12.20")),
-                        new RightOnlyProperty("quantity", new Number(88, "88")),
-                        new RightOnlyProperty("in stock", True.Instance)
+                        new LeftOnlyProperty("price", new JsonNumber(12.20, "12.20")),
+                        new RightOnlyProperty("quantity", new JsonNumber(88, "88")),
+                        new RightOnlyProperty("in stock", JsonTrue.Instance)
                     })
             };
             
@@ -540,8 +540,8 @@ namespace Quibble.CSharp.UnitTests
             {
                 new Value(
                     new DiffPoint("$['date of birth']",
-                        new String("1999-04-23"), 
-                        new String("1999-04-24")))
+                        new JsonString("1999-04-23"), 
+                        new JsonString("1999-04-24")))
             };
             
             Assert.Equal(expectedDiffs.Count, actualDiffs.Count);
@@ -580,27 +580,27 @@ namespace Quibble.CSharp.UnitTests
             {
                 new Properties(
                     new DiffPoint("$.books[0]",
-                        new Object(
+                        new JsonObject(
                             new Dictionary<string, JsonValue>
                             {
-                                { "title", new String("Data and Reality") },
-                                { "author", new String("William Kent") }
+                                { "title", new JsonString("Data and Reality") },
+                                { "author", new JsonString("William Kent") }
                             }), 
-                        new Object(
+                        new JsonObject(
                             new Dictionary<string, JsonValue>
                             {
-                                { "title", new String("Data and Reality") },
-                                { "author", new String("William Kent") },
-                                { "edition", new String("2nd") }
+                                { "title", new JsonString("Data and Reality") },
+                                { "author", new JsonString("William Kent") },
+                                { "edition", new JsonString("2nd") }
                             })), 
                     new List<PropertyMismatch>
                     {
-                        new RightOnlyProperty("edition", new String("2nd"))
+                        new RightOnlyProperty("edition", new JsonString("2nd"))
                     }),
                 new Value(
                 new DiffPoint("$.books[1].author",
-                new String("Leo Brodie"), 
-                new String("Chuck Moore")))
+                new JsonString("Leo Brodie"), 
+                new JsonString("Chuck Moore")))
             };
             
             Assert.Equal(expectedDiffs.Count, actualDiffs.Count);
@@ -614,7 +614,7 @@ namespace Quibble.CSharp.UnitTests
         [Fact]
         public void TestUndefined()
         {
-            var jv = (JsonValue) Undefined.Instance;
+            var jv = (JsonValue) JsonUndefined.Instance;
             Assert.True(jv.IsUndefined);
             Assert.False(jv.IsNull);
             Assert.False(jv.IsTrue);
@@ -624,9 +624,9 @@ namespace Quibble.CSharp.UnitTests
             Assert.False(jv.IsArray);
             Assert.False(jv.IsObject);
             
-            Assert.Equal(Undefined.Instance, Undefined.Instance);
+            Assert.Equal(JsonUndefined.Instance, JsonUndefined.Instance);
 
-            var set = new HashSet<JsonValue> {Undefined.Instance, Undefined.Instance};
+            var set = new HashSet<JsonValue> {JsonUndefined.Instance, JsonUndefined.Instance};
 
             Assert.Single(set);
             
@@ -636,7 +636,7 @@ namespace Quibble.CSharp.UnitTests
         [Fact]
         public void TestNull()
         {
-            var jv = (JsonValue) Null.Instance;
+            var jv = (JsonValue) JsonNull.Instance;
             Assert.False(jv.IsUndefined);
             Assert.True(jv.IsNull);
             Assert.False(jv.IsTrue);
@@ -646,9 +646,9 @@ namespace Quibble.CSharp.UnitTests
             Assert.False(jv.IsArray);
             Assert.False(jv.IsObject);
             
-            Assert.Equal(Null.Instance, Null.Instance);
+            Assert.Equal(JsonNull.Instance, JsonNull.Instance);
 
-            var set = new HashSet<JsonValue> {Null.Instance, Null.Instance};
+            var set = new HashSet<JsonValue> {JsonNull.Instance, JsonNull.Instance};
 
             Assert.Single(set);
 
@@ -658,7 +658,7 @@ namespace Quibble.CSharp.UnitTests
         [Fact]
         public void TestTrue()
         {
-            var jv = (JsonValue) True.Instance;
+            var jv = (JsonValue) JsonTrue.Instance;
             Assert.False(jv.IsUndefined);
             Assert.False(jv.IsNull);
             Assert.True(jv.IsTrue);
@@ -668,9 +668,9 @@ namespace Quibble.CSharp.UnitTests
             Assert.False(jv.IsArray);
             Assert.False(jv.IsObject);
             
-            Assert.Equal(True.Instance, True.Instance);
+            Assert.Equal(JsonTrue.Instance, JsonTrue.Instance);
 
-            var set = new HashSet<JsonValue> {True.Instance, True.Instance};
+            var set = new HashSet<JsonValue> {JsonTrue.Instance, JsonTrue.Instance};
 
             Assert.Single(set);
 
@@ -680,7 +680,7 @@ namespace Quibble.CSharp.UnitTests
         [Fact]
         public void TestFalse()
         {
-            var jv = (JsonValue) False.Instance;
+            var jv = (JsonValue) JsonFalse.Instance;
             Assert.False(jv.IsUndefined);
             Assert.False(jv.IsNull);
             Assert.False(jv.IsTrue);
@@ -690,9 +690,9 @@ namespace Quibble.CSharp.UnitTests
             Assert.False(jv.IsArray);
             Assert.False(jv.IsObject);
             
-            Assert.Equal(False.Instance, False.Instance);
+            Assert.Equal(JsonFalse.Instance, JsonFalse.Instance);
 
-            var set = new HashSet<JsonValue> {False.Instance, False.Instance};
+            var set = new HashSet<JsonValue> {JsonFalse.Instance, JsonFalse.Instance};
 
             Assert.Single(set);
             
@@ -702,7 +702,7 @@ namespace Quibble.CSharp.UnitTests
         [Fact]
         public void TestNumber()
         {
-            var jv = (JsonValue) new Number(1, "1");
+            var jv = (JsonValue) new JsonNumber(1, "1");
             Assert.False(jv.IsUndefined);
             Assert.False(jv.IsNull);
             Assert.False(jv.IsTrue);
@@ -714,41 +714,41 @@ namespace Quibble.CSharp.UnitTests
             
             // Numbers with same numeric value and same text representation are equal.
             Assert.Equal(
-                new Number(1, "1"), 
-                new Number(1, "1"));
+                new JsonNumber(1, "1"), 
+                new JsonNumber(1, "1"));
 
             Assert.Equal(
-                new Number(123.4, "123.4"), 
-                new Number(123.4, "123.4"));
+                new JsonNumber(123.4, "123.4"), 
+                new JsonNumber(123.4, "123.4"));
 
             // Numbers with same numeric value and different text representation are *also* equal.
             Assert.Equal(
-                new Number(1, "1"), 
-                new Number(1, "1.0"));
+                new JsonNumber(1, "1"), 
+                new JsonNumber(1, "1.0"));
 
             Assert.Equal(
-                new Number(123.4, "123.4"), 
-                new Number(123.4, "1.234E2"));
+                new JsonNumber(123.4, "123.4"), 
+                new JsonNumber(123.4, "1.234E2"));
 
             // Numbers with different numeric value are obviously not equal.
             Assert.NotEqual(
-                new Number(1, "1.0"), 
-                new Number(1.001, "1.001"));
+                new JsonNumber(1, "1.0"), 
+                new JsonNumber(1.001, "1.001"));
 
             Assert.NotEqual(
-                new Number(123.4, "123.4"), 
-                new Number(1.234, "1.234"));
+                new JsonNumber(123.4, "123.4"), 
+                new JsonNumber(1.234, "1.234"));
 
             var set = new HashSet<JsonValue>
             {
-                new Number(1, "1"), 
-                new Number(1, "1.0"),        
-                new Number(1.001, "1.001")            
+                new JsonNumber(1, "1"), 
+                new JsonNumber(1, "1.0"),        
+                new JsonNumber(1.001, "1.001")            
             };
 
             Assert.Equal(2, set.Count);
             
-            var num = new Number(123.4, "1.234E2");
+            var num = new JsonNumber(123.4, "1.234E2");
 
             Assert.Equal(System.String.Format(NumberFormatInfo.InvariantInfo, "{0} ({1})", num.NumericValue, num.TextRepresentation), 
                 num.ToString());
@@ -757,9 +757,9 @@ namespace Quibble.CSharp.UnitTests
         [Fact]
         public void TestNumberEquality()
         {
-            var numberOne1 = new Number(1, "1");
-            var numberOne2 = new Number(1, "1.0");
-            var numberTwo = new Number(2, "2");
+            var numberOne1 = new JsonNumber(1, "1");
+            var numberOne2 = new JsonNumber(1, "1.0");
+            var numberTwo = new JsonNumber(2, "2");
             
             Assert.Equal(numberOne1, numberOne2);
             Assert.NotEqual(numberOne1, numberTwo);
@@ -771,7 +771,7 @@ namespace Quibble.CSharp.UnitTests
         [Fact]
         public void TestString()
         {
-            var jv = (JsonValue) new String("name");
+            var jv = (JsonValue) new JsonString("name");
             Assert.False(jv.IsUndefined);
             Assert.False(jv.IsNull);
             Assert.False(jv.IsTrue);
@@ -781,30 +781,30 @@ namespace Quibble.CSharp.UnitTests
             Assert.False(jv.IsArray);
             Assert.False(jv.IsObject);
             
-            Assert.Equal(new String("name"), new String("name"));
+            Assert.Equal(new JsonString("name"), new JsonString("name"));
 
-            Assert.NotEqual(new String("name"), new String("game"));
+            Assert.NotEqual(new JsonString("name"), new JsonString("game"));
 
             var set = new HashSet<JsonValue>
             {
-                new String("name"),
-                new String("game"),
-                new String("same"),
-                new String("name"),
+                new JsonString("name"),
+                new JsonString("game"),
+                new JsonString("same"),
+                new JsonString("name"),
             };
 
             Assert.Equal(3, set.Count);
             
-            var s = new String("name");
+            var s = new JsonString("name");
             Assert.Equal(s.Text, jv.ToString());
         }
         
         [Fact]
         public void TestStringEquality()
         {
-            var nameStr1 = new String("name");
-            var nameStr2 = new String("name");
-            var gameStr = new String("game");
+            var nameStr1 = new JsonString("name");
+            var nameStr2 = new JsonString("name");
+            var gameStr = new JsonString("game");
             
             Assert.Equal(nameStr1, nameStr2);
             Assert.NotEqual(nameStr1, gameStr);
@@ -818,12 +818,12 @@ namespace Quibble.CSharp.UnitTests
         {
             var items = new List<JsonValue>
             {
-                True.Instance,
-                new String("name"),
-                new Number(1, "1")
+                JsonTrue.Instance,
+                new JsonString("name"),
+                new JsonNumber(1, "1")
             };
             
-            var jv = (JsonValue) new Array(items);
+            var jv = (JsonValue) new JsonArray(items);
             Assert.False(jv.IsUndefined);
             Assert.False(jv.IsNull);
             Assert.False(jv.IsTrue);
@@ -833,69 +833,69 @@ namespace Quibble.CSharp.UnitTests
             Assert.True(jv.IsArray);
             Assert.False(jv.IsObject);
 
-            Assert.Equal(new Array(items), new Array(items));
+            Assert.Equal(new JsonArray(items), new JsonArray(items));
 
             var items2 = new List<JsonValue>
             {
-                True.Instance,
-                new String("name"),
-                new Number(1, "1")
+                JsonTrue.Instance,
+                new JsonString("name"),
+                new JsonNumber(1, "1")
             };
             
-            Assert.Equal(new Array(items), new Array(items2));
+            Assert.Equal(new JsonArray(items), new JsonArray(items2));
             
             var items3 = new List<JsonValue>
             {
-                True.Instance,
-                new String("game"),
-                new Number(1, "1")
+                JsonTrue.Instance,
+                new JsonString("game"),
+                new JsonNumber(1, "1")
             };
 
-            Assert.NotEqual(new Array(items), new Array(items3));
+            Assert.NotEqual(new JsonArray(items), new JsonArray(items3));
             
             var set = new HashSet<JsonValue>
             {
-                new Array(items), 
-                new Array(items2), 
-                new Array(items3), 
+                new JsonArray(items), 
+                new JsonArray(items2), 
+                new JsonArray(items3), 
             };
 
             Assert.Equal(2, set.Count);
 
-            var arr = new Array(items);
+            var arr = new JsonArray(items);
             Assert.Equal($"Array [{items.Count} items]", arr.ToString());
         }
         
         [Fact]
         public void TestArrayEquality()
         {
-            var array = new Array(
+            var array = new JsonArray(
                 new List<JsonValue>
                 {
-                    True.Instance,
-                    new String("name"),
+                    JsonTrue.Instance,
+                    new JsonString("name"),
                 });
             
-            var sameArray = new Array(
+            var sameArray = new JsonArray(
                 new List<JsonValue>
                 {
-                    True.Instance,
-                    new String("name"),
+                    JsonTrue.Instance,
+                    new JsonString("name"),
                 });
             
-            var anotherArray = new Array(
+            var anotherArray = new JsonArray(
                 new List<JsonValue>
                 {
-                    True.Instance,
-                    new String("game")
+                    JsonTrue.Instance,
+                    new JsonString("game")
                 });
             
-            var yetAnotherArray = new Array(
+            var yetAnotherArray = new JsonArray(
                 new List<JsonValue>
                 {
-                    True.Instance,
-                    new String("name"),
-                    new Number(1, "1")
+                    JsonTrue.Instance,
+                    new JsonString("name"),
+                    new JsonNumber(1, "1")
                 });
 
             
@@ -914,17 +914,17 @@ namespace Quibble.CSharp.UnitTests
             var props = new Dictionary<string, JsonValue>
             {
                 {
-                    "active", True.Instance
+                    "active", JsonTrue.Instance
                 },
                 {
-                    "name", new String("Widget")
+                    "name", new JsonString("Widget")
                 },
                 {
-                    "amount", new Number(1, "1.0")
+                    "amount", new JsonNumber(1, "1.0")
                 }
             };
             
-            var jv = (JsonValue) new Object(props);
+            var jv = (JsonValue) new JsonObject(props);
             Assert.False(jv.IsUndefined);
             Assert.False(jv.IsNull);
             Assert.False(jv.IsTrue);
@@ -934,81 +934,81 @@ namespace Quibble.CSharp.UnitTests
             Assert.False(jv.IsArray);
             Assert.True(jv.IsObject);
 
-            Assert.Equal(new Object(props), new Object(props));
+            Assert.Equal(new JsonObject(props), new JsonObject(props));
 
             var sameProps = new Dictionary<string, JsonValue>
             {
                 {
-                    "active", True.Instance
+                    "active", JsonTrue.Instance
                 },
                 {
-                    "name", new String("Widget")
+                    "name", new JsonString("Widget")
                 },
                 {
-                    "amount", new Number(1, "1.0")
+                    "amount", new JsonNumber(1, "1.0")
                 }
             };
             
-            Assert.Equal(new Object(props), new Object(sameProps));
+            Assert.Equal(new JsonObject(props), new JsonObject(sameProps));
             
             var notQuiteTheSameProps = new Dictionary<string, JsonValue>
             {
                 {
-                    "active", True.Instance
+                    "active", JsonTrue.Instance
                 },
                 {
-                    "name", new String("Gizmo")
+                    "name", new JsonString("Gizmo")
                 },
                 {
-                    "amount", new Number(1, "1.0")
+                    "amount", new JsonNumber(1, "1.0")
                 }
             };
 
-            Assert.NotEqual(new Object(props), new Object(notQuiteTheSameProps));
+            Assert.NotEqual(new JsonObject(props), new JsonObject(notQuiteTheSameProps));
             
             var set = new HashSet<JsonValue>
             {
-                new Object(props), 
-                new Object(sameProps), 
-                new Object(notQuiteTheSameProps), 
+                new JsonObject(props), 
+                new JsonObject(sameProps), 
+                new JsonObject(notQuiteTheSameProps), 
             };
 
             Assert.Equal(2, set.Count);
 
-            var obj = new Object(props);
+            var obj = new JsonObject(props);
             Assert.Equal($"Object {{{props.Count} properties}}", obj.ToString());
         }
         
         [Fact]
         public void TestObjectEquality()
         {
-            var obj = new Object(
+            var obj = new JsonObject(
                 new Dictionary<string, JsonValue>
                 {
-                    { "enabled", True.Instance },
-                    { "item", new String("widget") }
+                    { "enabled", JsonTrue.Instance },
+                    { "item", new JsonString("widget") }
                 });
             
-            var sameObj = new Object(
+            var sameObj = new JsonObject(
                 new Dictionary<string, JsonValue>
                 {
-                    { "enabled", True.Instance },
-                    { "item", new String("widget") }
+                    { "enabled", JsonTrue.Instance },
+                    { "item", new JsonString("widget") }
                 });
             
-            var anotherObj = new Object(
+            var anotherObj = new JsonObject(
                 new Dictionary<string, JsonValue>
                 {
-                    { "enabled", True.Instance },
-                    { "item", new String("gizmo") }
+                    { "enabled", JsonTrue.Instance },
+                    { "item", new JsonString("gizmo") }
                 });
             
-            var yetAnotherObj = new Object(
+            var yetAnotherObj = new JsonObject(
                 new Dictionary<string, JsonValue>
                 {
-                    { "enabled", True.Instance },
-                    { "item", new String("widget") },
-                    { "count", new Number(1, "1") }
+                    { "enabled", JsonTrue.Instance },
+                    { "item", new JsonString("widget") },
+                    { "count", new JsonNumber(1, "1") }
                 });
 
             Assert.Equal(obj, sameObj);
@@ -1034,8 +1034,8 @@ namespace Quibble.CSharp.UnitTests
 
             var diff2 = new Type(
                 new DiffPoint("$",
-                    True.Instance,
-                    new String("true")));
+                    JsonTrue.Instance,
+                    new JsonString("true")));
             Assert.True(diff2.IsType);
             Assert.False(diff2.IsValue);
             Assert.False(diff2.IsItems);
@@ -1051,23 +1051,23 @@ namespace Quibble.CSharp.UnitTests
         {
             var diff = new Type(
                 new DiffPoint("$",
-                    True.Instance,
-                    new String("true")));
+                    JsonTrue.Instance,
+                    new JsonString("true")));
 
             var sameDiff = new Type(
                 new DiffPoint("$",
-                    True.Instance,
-                    new String("true")));
+                    JsonTrue.Instance,
+                    new JsonString("true")));
 
             var anotherDiff = new Type(
                 new DiffPoint("$.value",
-                    True.Instance,
-                    new String("true")));
+                    JsonTrue.Instance,
+                    new JsonString("true")));
 
             var yetAnotherDiff = new Type(
                 new DiffPoint("$",
-                    True.Instance,
-                    new String("false")));
+                    JsonTrue.Instance,
+                    new JsonString("false")));
 
             Assert.Equal(diff, sameDiff);
             Assert.NotEqual(diff, anotherDiff);
@@ -1095,8 +1095,8 @@ namespace Quibble.CSharp.UnitTests
 
             var diff2 = new Value(
                 new DiffPoint("$.author",
-                    new String("Leo Brodie"),
-                    new String("Chuck Moore")));
+                    new JsonString("Leo Brodie"),
+                    new JsonString("Chuck Moore")));
             Assert.True(diff2.IsValue);
             Assert.False(diff2.IsType);
             Assert.False(diff2.IsItems);
@@ -1112,23 +1112,23 @@ namespace Quibble.CSharp.UnitTests
         {
             var diff = new Value(
                 new DiffPoint("$",
-                    new String("Hello"), 
-                    new String("Goodbye")));
+                    new JsonString("Hello"), 
+                    new JsonString("Goodbye")));
 
             var sameDiff = new Value(
                 new DiffPoint("$",
-                    new String("Hello"), 
-                    new String("Goodbye")));
+                    new JsonString("Hello"), 
+                    new JsonString("Goodbye")));
 
             var anotherDiff = new Value(
                 new DiffPoint("$.value",
-                    new String("Hello"), 
-                    new String("Goodbye")));
+                    new JsonString("Hello"), 
+                    new JsonString("Goodbye")));
 
             var yetAnotherDiff = new Value(
                 new DiffPoint("$",
-                    new String("Hey"), 
-                    new String("Goodbye")));
+                    new JsonString("Hey"), 
+                    new JsonString("Goodbye")));
 
             Assert.Equal(diff, sameDiff);
             Assert.NotEqual(diff, anotherDiff);
@@ -1150,21 +1150,21 @@ namespace Quibble.CSharp.UnitTests
 
             var diff2 = new Items(
                 new DiffPoint("$",
-                    new Array(
+                    new JsonArray(
                         new JsonValue[]
                         {
-                            new String("Dan Ingalls"),
-                            new String("Alan Kay")
+                            new JsonString("Dan Ingalls"),
+                            new JsonString("Alan Kay")
                         }),
-                    new Array(
+                    new JsonArray(
                         new JsonValue[]
                         {
-                            new String("Adele Goldberg"),
-                            new String("Dan Ingalls"),
-                            new String("Alan Kay")
+                            new JsonString("Adele Goldberg"),
+                            new JsonString("Dan Ingalls"),
+                            new JsonString("Alan Kay")
                         })), new ItemMismatch[]
                 {
-                    new RightOnlyItem(0, new String("Adele Goldberg"))
+                    new RightOnlyItem(0, new JsonString("Adele Goldberg"))
                 });
             Assert.True(diff2.IsItems);
             Assert.False(diff2.IsType);
@@ -1181,67 +1181,67 @@ namespace Quibble.CSharp.UnitTests
         {
             var diff = new Items(
                 new DiffPoint("$",
-                    new Array(new JsonValue[]
+                    new JsonArray(new JsonValue[]
                     {
-                        new String("Gödel, Escher, Bach"),
-                        new String("Metamagical Themas")
+                        new JsonString("Gödel, Escher, Bach"),
+                        new JsonString("Metamagical Themas")
                     }),
-                    new Array(new JsonValue[]
+                    new JsonArray(new JsonValue[]
                     {
-                        new String("Gödel, Escher, Bach")
+                        new JsonString("Gödel, Escher, Bach")
                     })),
                 new ItemMismatch[]
                 {
-                    new LeftOnlyItem(1, new String("Metamagical Themas")) 
+                    new LeftOnlyItem(1, new JsonString("Metamagical Themas")) 
                 });
 
             var sameDiff = new Items(
                 new DiffPoint("$",
-                    new Array(new JsonValue[]
+                    new JsonArray(new JsonValue[]
                     {
-                        new String("Gödel, Escher, Bach"),
-                        new String("Metamagical Themas")
+                        new JsonString("Gödel, Escher, Bach"),
+                        new JsonString("Metamagical Themas")
                     }),
-                    new Array(new JsonValue[]
+                    new JsonArray(new JsonValue[]
                     {
-                        new String("Gödel, Escher, Bach")
+                        new JsonString("Gödel, Escher, Bach")
                     })),
                 new ItemMismatch[]
                 {
-                    new LeftOnlyItem(1, new String("Metamagical Themas")) 
+                    new LeftOnlyItem(1, new JsonString("Metamagical Themas")) 
                 });
 
             var anotherDiff = new Items(
                 new DiffPoint("$.books",
-                    new Array(new JsonValue[]
+                    new JsonArray(new JsonValue[]
                     {
-                        new String("Gödel, Escher, Bach"),
-                        new String("Metamagical Themas")
+                        new JsonString("Gödel, Escher, Bach"),
+                        new JsonString("Metamagical Themas")
                     }),
-                    new Array(new JsonValue[]
+                    new JsonArray(new JsonValue[]
                     {
-                        new String("Gödel, Escher, Bach")
+                        new JsonString("Gödel, Escher, Bach")
                     })),
                 new ItemMismatch[]
                 {
-                    new LeftOnlyItem(1, new String("Metamagical Themas")) 
+                    new LeftOnlyItem(1, new JsonString("Metamagical Themas")) 
                 });
 
             var yetAnotherDiff = 
                 new Items(
                     new DiffPoint("$",
-                        new Array(new JsonValue[]
+                        new JsonArray(new JsonValue[]
                         {
-                            new String("Gödel, Escher, Bach"),
-                            new String("Metamagical Themas")
+                            new JsonString("Gödel, Escher, Bach"),
+                            new JsonString("Metamagical Themas")
                         }),
-                        new Array(new JsonValue[]
+                        new JsonArray(new JsonValue[]
                         {
-                            new String("Metamagical Themas")
+                            new JsonString("Metamagical Themas")
                         })),
                     new ItemMismatch[]
                     {
-                        new LeftOnlyItem(0, new String("Gödel, Escher, Bach")) 
+                        new LeftOnlyItem(0, new JsonString("Gödel, Escher, Bach")) 
                     });
 
             Assert.Equal(diff, sameDiff);
@@ -1254,70 +1254,70 @@ namespace Quibble.CSharp.UnitTests
         public void TestPropertiesDiffEquality()
         {
             var diff = new Properties(new DiffPoint("$",
-                    new Object(new Dictionary<string, JsonValue>
+                    new JsonObject(new Dictionary<string, JsonValue>
                     {
-                        {"author", new String("William Kent")},
-                        {"title", new String("Data and Reality")}
+                        {"author", new JsonString("William Kent")},
+                        {"title", new JsonString("Data and Reality")}
                     }),
-                    new Object(new Dictionary<string, JsonValue>
+                    new JsonObject(new Dictionary<string, JsonValue>
                     {
-                        {"author", new String("William Kent")},
-                        {"title", new String("Data and Reality")},
-                        {"edition", new String("2nd")}
+                        {"author", new JsonString("William Kent")},
+                        {"title", new JsonString("Data and Reality")},
+                        {"edition", new JsonString("2nd")}
                     })), new PropertyMismatch[]
                 {
-                    new RightOnlyProperty("edition", new String("2nd"))
+                    new RightOnlyProperty("edition", new JsonString("2nd"))
                 }
             );
 
             var sameDiff = new Properties(new DiffPoint("$",
-                    new Object(new Dictionary<string, JsonValue>
+                    new JsonObject(new Dictionary<string, JsonValue>
                     {
-                        {"author", new String("William Kent")},
-                        {"title", new String("Data and Reality")}
+                        {"author", new JsonString("William Kent")},
+                        {"title", new JsonString("Data and Reality")}
                     }),
-                    new Object(new Dictionary<string, JsonValue>
+                    new JsonObject(new Dictionary<string, JsonValue>
                     {
-                        {"author", new String("William Kent")},
-                        {"title", new String("Data and Reality")},
-                        {"edition", new String("2nd")}
+                        {"author", new JsonString("William Kent")},
+                        {"title", new JsonString("Data and Reality")},
+                        {"edition", new JsonString("2nd")}
                     })), new PropertyMismatch[]
                 {
-                    new RightOnlyProperty("edition", new String("2nd"))
+                    new RightOnlyProperty("edition", new JsonString("2nd"))
                 }
             );
 
             var anotherDiff = new Properties(new DiffPoint("$.books[0]",
-                    new Object(new Dictionary<string, JsonValue>
+                    new JsonObject(new Dictionary<string, JsonValue>
                     {
-                        {"author", new String("William Kent")},
-                        {"title", new String("Data and Reality")}
+                        {"author", new JsonString("William Kent")},
+                        {"title", new JsonString("Data and Reality")}
                     }),
-                    new Object(new Dictionary<string, JsonValue>
+                    new JsonObject(new Dictionary<string, JsonValue>
                     {
-                        {"author", new String("William Kent")},
-                        {"title", new String("Data and Reality")},
-                        {"edition", new String("2nd")}
+                        {"author", new JsonString("William Kent")},
+                        {"title", new JsonString("Data and Reality")},
+                        {"edition", new JsonString("2nd")}
                     })), new PropertyMismatch[]
                 {
-                    new RightOnlyProperty("edition", new String("2nd"))
+                    new RightOnlyProperty("edition", new JsonString("2nd"))
                 }
             );
 
             var yetAnotherDiff = new Properties(new DiffPoint("$",
-                    new Object(new Dictionary<string, JsonValue>
+                    new JsonObject(new Dictionary<string, JsonValue>
                     {
-                        {"author", new String("William Kent")},
-                        {"title", new String("Data and Reality")}
+                        {"author", new JsonString("William Kent")},
+                        {"title", new JsonString("Data and Reality")}
                     }),
-                    new Object(new Dictionary<string, JsonValue>
+                    new JsonObject(new Dictionary<string, JsonValue>
                     {
-                        {"author", new String("William Kent")},
-                        {"title", new String("Data and Reality")},
-                        {"edition", new String("3rd")}
+                        {"author", new JsonString("William Kent")},
+                        {"title", new JsonString("Data and Reality")},
+                        {"edition", new JsonString("3rd")}
                     })), new PropertyMismatch[]
                 {
-                    new RightOnlyProperty("edition", new String("3rd"))
+                    new RightOnlyProperty("edition", new JsonString("3rd"))
                 }
             );
 
