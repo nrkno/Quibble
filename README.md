@@ -853,7 +853,7 @@ yields a list of diffs equivalent to this:
 ```
 new List<Diff>
 {
-    new ValueDoff(
+    new ValueDiff(
         new DiffPoint("$['date of birth']",
             new JsonString("1999-04-23"), 
             new JsonString("1999-04-24")))
