@@ -244,7 +244,251 @@ namespace Quibble.CSharp.UnitTests
                 Assert.Equal(expected, actual);
             }
         }
-        
+
+        [Fact]
+        public void ArrayExampleMoreItems()
+        {
+            var str1 = @"[{
+    ""title"": ""Data and Reality"",
+    ""author"": ""William Kent""
+}, {
+    ""title"": ""Thinking Forth"",
+    ""author"": ""Leo Brodie""
+}, {
+    ""title"": ""Programmers at Work"",
+    ""author"": ""Susan Lammers""
+}, {
+    ""title"": ""The Little Schemer"",
+    ""authors"": [ ""Daniel P. Friedman"", ""Matthias Felleisen"" ]
+}, {
+    ""title"": ""Object Design"",
+    ""authors"": [ ""Rebecca Wirfs-Brock"", ""Alan McKean"" ]
+}, {
+    ""title"": ""Domain Modelling made Functional"",
+    ""author"": ""Scott Wlaschin""
+}, {
+    ""title"": ""The Psychology of Computer Programming"",
+    ""author"": ""Gerald M. Weinberg""
+}, {
+    ""title"": ""Exercises in Programming Style"",
+    ""author"": ""Cristina Videira Lopes""
+}, {
+    ""title"": ""Land of Lisp"",
+    ""author"": ""Conrad Barski""
+}]";
+            var str2 = @"[{
+    ""title"": ""Data and Reality"",
+    ""author"": ""William Kent""
+}, {
+    ""title"": ""Thinking Forth"",
+    ""author"": ""Leo Brodie""
+}, {
+    ""title"": ""Coders at Work"",
+    ""author"": ""Peter Seibel""
+}, {
+    ""title"": ""The Little Schemer"",
+    ""authors"": [ ""Daniel P. Friedman"", ""Matthias Felleisen"" ]
+}, {
+    ""title"": ""Object Design"",
+    ""authors"": [ ""Rebecca Wirfs-Brock"", ""Alan McKean"" ]
+}, {
+    ""title"": ""Domain Modelling made Functional"",
+    ""author"": ""Scott Wlaschin""
+}, {
+    ""title"": ""The Psychology of Computer Programming"",
+    ""author"": ""Gerald M. Weinberg""
+}, {
+    ""title"": ""Turtle Geometry"",
+    ""authors"": [ ""Hal Abelson"", ""Andrea diSessa"" ]
+}, {
+    ""title"": ""Exercises in Programming Style"",
+    ""author"": ""Cristina Videira Lopes""
+}, {
+    ""title"": ""Land of Lisp"",
+    ""author"": ""Conrad Barski""
+}]";
+            var actualDiffs = JsonStrings.Diff(str1, str2);
+            var expectedDiffs = new List<Diff>
+            {
+                new Items(new DiffPoint("$",
+                        new Array(new JsonValue[]
+                        {
+                            new Object(
+                                new Dictionary<string, JsonValue>
+                                {
+                                    {"title", new String("Data and Reality")},
+                                    {"author", new String("William Kent")}
+                                }),
+                            new Object(
+                                new Dictionary<string, JsonValue>
+                                {
+                                    {"title", new String("Thinking Forth")},
+                                    {"author", new String("Leo Brodie")}
+                                }),
+                            new Object(
+                                new Dictionary<string, JsonValue>
+                                {
+                                    {"title", new String("Programmers at Work")},
+                                    {"author", new String("Susan Lammers")}
+                                }),
+                            new Object(
+                                new Dictionary<string, JsonValue>
+                                {
+                                    {"title", new String("The Little Schemer")},
+                                    {
+                                        "authors",
+                                        new Array(new JsonValue[]
+                                            {new String("Daniel P. Friedman"), new String("Matthias Felleisen")})
+                                    }
+                                }),
+                            new Object(
+                                new Dictionary<string, JsonValue>
+                                {
+                                    {"title", new String("Object Design")},
+                                    {
+                                        "authors",
+                                        new Array(new JsonValue[]
+                                            {new String("Rebecca Wirfs-Brock"), new String("Alan McKean")})
+                                    }
+                                }),
+                            new Object(
+                                new Dictionary<string, JsonValue>
+                                {
+                                    {"title", new String("Domain Modelling made Functional")},
+                                    {"author", new String("Scott Wlaschin")}
+                                }),
+                            new Object(
+                                new Dictionary<string, JsonValue>
+                                {
+                                    {"title", new String("The Psychology of Computer Programming")},
+                                    {"author", new String("Gerald M. Weinberg")}
+                                }),
+                            new Object(
+                                new Dictionary<string, JsonValue>
+                                {
+                                    {"title", new String("Exercises in Programming Style")},
+                                    {"author", new String("Cristina Videira Lopes")}
+                                }),
+                            new Object(
+                                new Dictionary<string, JsonValue>
+                                {
+                                    {"title", new String("Land of Lisp")},
+                                    {"author", new String("Conrad Barski")}
+                                })
+                        }),
+                        new Array(new JsonValue[]
+                        {
+                            new Object(
+                                new Dictionary<string, JsonValue>
+                                {
+                                    {"title", new String("Data and Reality")},
+                                    {"author", new String("William Kent")}
+                                }),
+                            new Object(
+                                new Dictionary<string, JsonValue>
+                                {
+                                    {"title", new String("Thinking Forth")},
+                                    {"author", new String("Leo Brodie")}
+                                }),
+                            new Object(
+                                new Dictionary<string, JsonValue>
+                                {
+                                    {"title", new String("Coders at Work")},
+                                    {"author", new String("Peter Seibel")}
+                                }),
+                            new Object(
+                                new Dictionary<string, JsonValue>
+                                {
+                                    {"title", new String("The Little Schemer")},
+                                    {
+                                        "authors",
+                                        new Array(new JsonValue[]
+                                            {new String("Daniel P. Friedman"), new String("Matthias Felleisen")})
+                                    }
+                                }),
+                            new Object(
+                                new Dictionary<string, JsonValue>
+                                {
+                                    {"title", new String("Object Design")},
+                                    {
+                                        "authors",
+                                        new Array(new JsonValue[]
+                                            {new String("Rebecca Wirfs-Brock"), new String("Alan McKean")})
+                                    }
+                                }),
+                            new Object(
+                                new Dictionary<string, JsonValue>
+                                {
+                                    {"title", new String("Domain Modelling made Functional")},
+                                    {"author", new String("Scott Wlaschin")}
+                                }),
+                            new Object(
+                                new Dictionary<string, JsonValue>
+                                {
+                                    {"title", new String("The Psychology of Computer Programming")},
+                                    {"author", new String("Gerald M. Weinberg")}
+                                }),
+                            new Object(
+                                new Dictionary<string, JsonValue>
+                                {
+                                    {"title", new String("Turtle Geometry")},
+                                    {
+                                        "authors",
+                                        new Array(new JsonValue[]
+                                            {new String("Hal Abelson"), new String("Andrea diSessa")})
+                                    }
+                                }),
+                            new Object(
+                                new Dictionary<string, JsonValue>
+                                {
+                                    {"title", new String("Exercises in Programming Style")},
+                                    {"author", new String("Cristina Videira Lopes")}
+                                }),
+                            new Object(
+                                new Dictionary<string, JsonValue>
+                                {
+                                    {"title", new String("Land of Lisp")},
+                                    {"author", new String("Conrad Barski")}
+                                })
+                        })),
+                    new ItemMismatch[]
+                    {
+                        new LeftOnlyItem(2,
+                            new Object(
+                                new Dictionary<string, JsonValue>
+                                {
+                                    {"title", new String("Programmers at Work")},
+                                    {"author", new String("Susan Lammers")}
+                                })),
+                        new RightOnlyItem(2,
+                            new Object(
+                                new Dictionary<string, JsonValue>
+                                {
+                                    {"title", new String("Coders at Work")},
+                                    {"author", new String("Peter Seibel")}
+                                })),
+                        new RightOnlyItem(7,
+                            new Object(
+                                new Dictionary<string, JsonValue>
+                                {
+                                    {"title", new String("Turtle Geometry")},
+                                    {
+                                        "authors",
+                                        new Array(new JsonValue[]
+                                            {new String("Hal Abelson"), new String("Andrea diSessa")})
+                                    }
+                                }))
+                    })
+            };
+
+            Assert.Equal(expectedDiffs.Count, actualDiffs.Count);
+
+            foreach (var (expected, actual) in expectedDiffs.Zip(actualDiffs))
+            {
+                Assert.Equal(expected, actual);
+            }
+        }
+
         [Fact]
         public void ObjectExamplePropertyDifferences()
         {
