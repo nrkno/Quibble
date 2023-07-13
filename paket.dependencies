@@ -1,9 +1,10 @@
 source https://api.nuget.org/v3/index.json
 
 storage: none
-framework: netcore3.1, netstandard2.0
+framework: net6.0, netstandard2.0
 
 nuget System.Text.Json
-nuget FSharp.Core 4.7
+nuget FSharp.Core ~> 6
+nuget Microsoft.NET.Test.Sdk
 nuget xunit
 nuget xunit.runner.visualstudio
