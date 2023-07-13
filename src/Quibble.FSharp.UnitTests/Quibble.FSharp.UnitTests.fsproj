@@ -4,8 +4,8 @@
     <TargetFramework>net6.0</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="JsonDiffTests.fs" />
-    <Compile Include="JsonStringsTests.fs" />
+    <Compile Include="JsonStringsDiffTests.fs" />
+    <Compile Include="JsonStringTextDiffTests.fs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Quibble\Quibble.fsproj" />

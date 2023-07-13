@@ -5,29 +5,27 @@ type PathElement =
     | IndexPathElement of int
 
 type PropertyMismatch =
-    | MissingProperty of string * JsonValue
-    | AdditionalProperty of string * JsonValue
+    | LeftOnlyProperty of string * JsonValue
+    | RightOnlyProperty of string * JsonValue
 
 type DiffPoint =
     { Path: string
       Left: JsonValue
       Right: JsonValue }
 
-type Diff =
-    | Kind of DiffPoint
-    | Value of DiffPoint
-    | Properties of (DiffPoint * PropertyMismatch list)
-    | ItemCount of DiffPoint
+type ItemMismatch =
+    | LeftOnlyItem of int * JsonValue 
+    | RightOnlyItem of int * JsonValue 
 
-    member x.Path =
-        match x with
-        | Kind pt -> pt.Path
-        | Value pt -> pt.Path
-        | Properties (pt, _) -> pt.Path
-        | ItemCount pt -> pt.Path
+type Diff =
+    | TypeDiff of DiffPoint
+    | ValueDiff of DiffPoint
+    | ObjectDiff of (DiffPoint * PropertyMismatch list)
+    | ArrayDiff of (DiffPoint * ItemMismatch list)
 
 module JsonDiff =
 
+    open Lcs
     open System.Text.RegularExpressions
     
     let private toJsonPath (path: PathElement list): string =
@@ -45,89 +43,103 @@ module JsonDiff =
         path
         |> List.fold (fun str elm -> sprintf "%s%s" str (elementToString elm)) ""
         |> sprintf "$%s"
-
-    let rec private findDiff (path: PathElement list) (element1: JsonValue) (element2: JsonValue): Diff list =
-        match (element1, element2) with
-        | (Undefined, Undefined) -> []
-        | (Null, Null) -> []
-        | (True, True) -> []
-        | (False, False) -> []
-        | (Number (n1, t1), Number (n2, t2)) ->
+        
+        
+    let rec private findDiff (path: PathElement list) (value1: JsonValue) (value2: JsonValue): Diff list =
+        match (value1, value2) with
+        | (JsonUndefined, JsonUndefined) -> []
+        | (JsonNull, JsonNull) -> []
+        | (JsonTrue, JsonTrue) -> []
+        | (JsonFalse, JsonFalse) -> []
+        | (JsonNumber (n1, t1), JsonNumber (n2, t2)) ->
             if n1 = n2 then []
             else
-                [ Value
+                [ ValueDiff
                     { Path = toJsonPath path
-                      Left = element1
-                      Right = element2 } ]
-        | (String s1, String s2) ->
+                      Left = value1
+                      Right = value2 } ]
+        | (JsonString s1, JsonString s2) ->
             if s1 = s2 then []
             else
-                [ Value
+                [ ValueDiff
                     { Path = toJsonPath path
-                      Left = element1
-                      Right = element2 } ]
-        | (Array items1, Array items2) ->
-            (* order matters. *)
-            if List.length items1 <> List.length items2 then
-                [ ItemCount
-                    { Path = toJsonPath path
-                      Left = element1
-                      Right = element2 } ]
+                      Left = value1
+                      Right = value2 } ]
+        | (JsonArray items1, JsonArray items2) ->
+            if items1 = items2 then
+                []
             else
-                let itemDiff i e1 e2 = findDiff (path @ [ IndexPathElement i ]) e1 e2
-                let childDiffs =
-                    List.mapi2 itemDiff items1 items2
-                    |> List.collect id
-                childDiffs
-        | (Object props1, Object props2) ->
+                let commonSegments = findCommonSegments items1 items2
+                let skewed = commonSegments |> List.exists (fun segment -> segment.StartIndex1 <> segment.StartIndex2)
+                if skewed || List.length items1 <> List.length items2 then
+                    // Common segments are skewed or arrays are not the same length:
+                    // Treat mismatches at array level. 
+                    let indexMismatches = toArrayItemIndexMismatches items1 items2 commonSegments
+                    let toItemMismatch indexMismatch =
+                        match indexMismatch with
+                        | LeftOnlyItemIndex leftIndex -> LeftOnlyItem (leftIndex, List.item leftIndex items1)
+                        | RightOnlyItemIndex rightIndex -> RightOnlyItem (rightIndex, List.item rightIndex items2)
+                    let mismatches = indexMismatches |> List.map toItemMismatch
+                    let diffPoint = { Path = toJsonPath path; Left = value1; Right = value2 }
+                    [ ArrayDiff (diffPoint, mismatches) ]
+                else
+                    // Same length and no offsets: 
+                    // Treat mismatches at individual item level.
+                    let itemDiff i e1 e2 = findDiff (path @ [ IndexPathElement i ]) e1 e2
+                    let childDiffs =
+                        List.mapi2 itemDiff items1 items2
+                        |> List.collect id
+                    childDiffs
+                
+        | (JsonObject leftProps, JsonObject rightProps) ->
             (* order doesn't matter. *)
             let keys (props : (string * JsonValue) list): string list =
-                props |> List.map (fun (n, v) -> n) 
+                props |> List.map (fun (n, _) -> n) 
 
-            let keys1 = keys props1
-            let keys2 = keys props2
+            let leftKeys = keys leftProps
+            let rightKeys = keys rightProps
             
-            let missingKeys = keys2 |> List.except keys1
-            let missingProperties =
-                props2
-                |> List.filter (fun (n, _) -> List.contains n missingKeys)
-                |> List.map MissingProperty
+            let rightOnlyKeys = rightKeys |> List.except leftKeys
+            let rightOnlyProperties =
+                rightProps
+                |> List.filter (fun (n, _) -> List.contains n rightOnlyKeys)
+                |> List.map RightOnlyProperty
                 
-            let additionalKeys = keys1 |> List.except keys2
-            let additionalProperties =
-                props1
-                |> List.filter (fun (n, _) -> List.contains n additionalKeys)
-                |> List.map AdditionalProperty
+            let leftOnlyKeys = leftKeys |> List.except rightKeys
+            let leftOnlyProperties =
+                leftProps
+                |> List.filter (fun (n, _) -> List.contains n leftOnlyKeys)
+                |> List.map LeftOnlyProperty
 
-            let mismatches = missingProperties @ additionalProperties
+            let mismatches = leftOnlyProperties @ rightOnlyProperties
 
             let objectDiff =
                 match mismatches with
                 | [] -> []
                 | ms ->
-                    [ Properties
+                    [ ObjectDiff
                         ({ Path = toJsonPath path
-                           Left = element1
-                           Right = element2 },
+                           Left = value1
+                           Right = value2 },
                          ms) ]
 
-            let sharedKeys: string list = keys2 |> List.except missingKeys
+            let sharedKeys: string list = rightKeys |> List.except rightOnlyKeys
 
             let selectValue (key: string) (props : (string * JsonValue) list) =
                 List.pick (fun (k, v) -> if k = key then Some v else None) props
             
             let propDiff (key: string) =
-               let child1 = props1 |> selectValue key
-               let child2 = props2 |> selectValue key
+               let child1 = leftProps |> selectValue key
+               let child2 = rightProps |> selectValue key
                findDiff (path @ [ PropertyPathElement key ]) child1 child2
 
             let childDiffs = sharedKeys |> List.collect propDiff
             objectDiff @ childDiffs
         | _ -> 
-            [ Kind
+            [ TypeDiff
                 { Path = toJsonPath path
-                  Left = element1
-                  Right = element2 } ]
+                  Left = value1
+                  Right = value2 } ]
 
     let OfValues (v1: JsonValue) (v2: JsonValue) : Diff list =
         findDiff [] v1 v2
